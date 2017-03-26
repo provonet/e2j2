@@ -1,0 +1,4 @@
+# pyinit: python2
+jinja2
+click
+colorama
