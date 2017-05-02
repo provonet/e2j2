@@ -40,8 +40,16 @@ def parse_consul(value):
     token = consul_config['token'] if 'token' in consul_config else None
 
     consul = Consul(scheme=scheme, host=host, port=port, token=token)
-    _, kv = consul.kv.get(value)
-    return kv['Value']
+    _, kv_entries = consul.kv.get(recurse=True, key=value)
+
+    flattend = {}
+    for entry in kv_entries:
+        # strip 'root' key from value, and store subkeys as keys in the returned dict
+        # deeper nested keys will be stored in the form subkey_key or subkey_subsubkey_key, ..
+        key = entry['Key'].replace(value + '/', '').replace('/', '_')
+        flattend[key] = entry['Value']
+
+    return flattend[value] if value in flattend else flattend
 
 
 def parse_tag(tag, value):
@@ -54,6 +62,7 @@ def parse_tag(tag, value):
     elif tag == 'base64:':
         return parse_base64(value)
     elif tag == 'consul:':
+        print(parse_consul(value))
         return parse_consul(value)
     else:
         raise KeyError('tag: {} not implemented')
