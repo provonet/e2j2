@@ -124,6 +124,7 @@ def e2j2(searchlist, extention, noop):
             sys.stdout.write('{}done{:7} => writing: {}{:25}{} => '.format(Fore.LIGHTGREEN_EX, Fore.GREEN, Fore.WHITE,
                                                                            os.path.basename(filename), Fore.GREEN))
             if not noop:
+                # FIXME don't write on failure!!
                 with open(filename, mode='w') as fh:
                     fh.writelines(rendered_file)
                 sys.stdout.write('{}done{}\n'.format(Fore.LIGHTGREEN_EX, Style.RESET_ALL))
