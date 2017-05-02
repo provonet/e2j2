@@ -10,6 +10,8 @@ from colorama import Fore, Style
 from base64 import b64decode
 
 
+VERSION='0.0.1'
+
 def find_j2files(searchlist, j2file_ext):
     return [os.path.join(dirpath, j2file) for searchlist_item in searchlist.split(',')
             for dirpath, dirnames, files in os.walk(searchlist_item)
@@ -45,6 +47,7 @@ def parse_consul(value):
     token = consul_config['token'] if 'token' in consul_config else None
 
     consul = Consul(scheme=scheme, host=host, port=port, token=token)
+    # FIXME handle access denieds correctly
     _, kv_entries = consul.kv.get(recurse=True, key=value)
 
     if not kv_entries:
@@ -92,6 +95,7 @@ def render_template(j2file, j2vars):
 
 
 @click.command()
+@click.version_option(version=VERSION)
 @click.option('--extention', default='.j2', help='Jinja2 file extention')
 @click.option('--searchlist', help='Comma separated list of directories to search for jinja2 templates')
 @click.option('--noop/--no-noop', default=False, help='Skip writing the rendered template, only render the template')
