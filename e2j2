@@ -10,7 +10,8 @@ from colorama import Fore, Style
 from base64 import b64decode
 
 
-VERSION='0.0.1'
+VERSION = '0.0.1'
+
 
 def find_j2files(searchlist, j2file_ext):
     return [os.path.join(dirpath, j2file) for searchlist_item in searchlist.split(',')
@@ -119,17 +120,18 @@ def e2j2(searchlist, extention, noop):
                 sys.stdout.write('\n{}In: {}{}\n'.format(Fore.GREEN, Fore.WHITE, os.path.dirname(j2file)))
 
             sys.stdout.write('    {}rendering: {}{:25}{} => '.format(Fore.GREEN, Fore.WHITE,
-                                                                  os.path.basename(j2file), Fore.GREEN))
+                                                                     os.path.basename(j2file), Fore.GREEN))
             rendered_file = render_template(j2file=j2file, j2vars=j2vars)
             sys.stdout.write('{}done{:7} => writing: {}{:25}{} => '.format(Fore.LIGHTGREEN_EX, Fore.GREEN, Fore.WHITE,
                                                                            os.path.basename(filename), Fore.GREEN))
-            if not noop:
+            if noop:
+                sys.stdout.write('{}skipped{}\n'.format(Fore.YELLOW, Style.RESET_ALL))
+            else:
                 # FIXME don't write on failure!!
                 with open(filename, mode='w') as fh:
                     fh.writelines(rendered_file)
                 sys.stdout.write('{}done{}\n'.format(Fore.LIGHTGREEN_EX, Style.RESET_ALL))
-            else:
-                sys.stdout.write('{}skipped{}\n'.format(Fore.YELLOW, Style.RESET_ALL))
+
         except Exception as e:
             sys.stdout.write('{}failed{} ({}){}\n'.format(Fore.LIGHTRED_EX, Fore.WHITE, str(e), Style.RESET_ALL))
         finally:
