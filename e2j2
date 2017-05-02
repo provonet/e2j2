@@ -22,8 +22,13 @@ def parse_json_string(json_string):
 
 
 def parse_json_file(json_file):
-    with open(json_file) as json_file:
-        data = json.load(json_file)
+    try:
+        with open(json_file) as json_file:
+            data = json.load(json_file)
+    except IOError:
+        # return an empty string if we can't find the file
+        return ''
+
     return data
 
 
@@ -41,6 +46,10 @@ def parse_consul(value):
 
     consul = Consul(scheme=scheme, host=host, port=port, token=token)
     _, kv_entries = consul.kv.get(recurse=True, key=value)
+
+    if not kv_entries:
+        # return an empty string if we can't find the consul key
+        return ''
 
     flattend = {}
     for entry in kv_entries:
@@ -62,7 +71,6 @@ def parse_tag(tag, value):
     elif tag == 'base64:':
         return parse_base64(value)
     elif tag == 'consul:':
-        print(parse_consul(value))
         return parse_consul(value)
     else:
         raise KeyError('tag: {} not implemented')
