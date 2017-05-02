@@ -1,0 +1,22 @@
+server {
+  server_name {{ NGINX.server_name }};
+  listen 80;
+  listen [::]:80;
+  error_page 500 502 503 504 /50x.html;
+
+  location / {
+    index {{ NGINX.index_page }};
+    root {{ NGINX.web_root }};
+  }
+
+  location ~ \.php$ {
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+    fastcgi_pass unix:{{ NGINX.fpm_socket }};
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    include {{ NGINX.fcgi_params }};
+    root {{ NGINX.web_root }};
+    try_files $uri =404;
+  }
+}
+

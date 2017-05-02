@@ -5,6 +5,7 @@ import re
 import json
 import jinja2
 import click
+from consul import Consul
 from colorama import Fore, Style
 from base64 import b64decode
 
@@ -30,6 +31,19 @@ def parse_base64(value):
     return b64decode(value)
 
 
+def parse_consul(value):
+    consul_config = json.loads(os.environ['CONSUL_CONFIG']) if 'CONSUL_CONFIG' in os.environ else {}
+
+    scheme = consul_config['scheme'] if 'scheme' in consul_config else 'http'
+    host = consul_config['host'] if 'host' in consul_config else '127.0.0.1'
+    port = consul_config['port'] if 'port' in consul_config else 8500
+    token = consul_config['token'] if 'token' in consul_config else None
+
+    consul = Consul(scheme=scheme, host=host, port=port, token=token)
+    _, kv = consul.kv.get(value)
+    return kv['Value']
+
+
 def parse_tag(tag, value):
     # strip tag from value
     value = re.sub(r'^{}'.format(tag), '', value).strip()
@@ -39,12 +53,14 @@ def parse_tag(tag, value):
         return parse_json_file(value)
     elif tag == 'base64:':
         return parse_base64(value)
+    elif tag == 'consul:':
+        return parse_consul(value)
     else:
         raise KeyError('tag: {} not implemented')
 
 
 def j2vars_from_environment():
-    tags = ['json:', 'jsonfile:', 'base64:']
+    tags = ['json:', 'jsonfile:', 'base64:', 'consul:']
     envcontext = {}
     for envvar in os.environ:
         envvalue = os.environ[envvar]
