@@ -1,5 +1,10 @@
 # Changelog
-## 0.1.0 (2015-05-16)
+
+## 0.1.1 (unreleased) (2017-05-16)
+- remove dependency colorama
+- move methods to separate helper files
+
+## 0.1.0 (2017-05-16)
 
 * e2j2 is now packaged as pip package
 * split script and module, script will be installed in /usr/bin or /usr/local/bin
