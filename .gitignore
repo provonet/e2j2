@@ -1,3 +1,7 @@
 .idea
 .virtualenv
 .env
+*.pyc
+build/
+dist/
+e2j2.egg-info/

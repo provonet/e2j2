@@ -1,4 +1,4 @@
-# pyinit: python2
+# pyinit: python3
 jinja2==2.9.6
 click==6.7
 colorama==0.3.9
