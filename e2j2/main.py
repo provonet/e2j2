@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import sys
 import os
 import re
@@ -11,7 +10,7 @@ from colorama import Fore, Style
 from base64 import b64decode
 
 
-VERSION = '0.0.2'
+VERSION = '0.1.0'
 ERROR = '**ERROR**'
 BRIGHT_RED = Style.BRIGHT + Fore.RED
 RESET_ALL = Style.RESET_ALL
@@ -119,10 +118,10 @@ def render_template(j2file, j2vars):
 
 @click.command()
 @click.version_option(version=VERSION)
-@click.option('--extention', default='.j2', help='Jinja2 file extention')
-@click.option('--searchlist', help='Comma separated list of directories to search for jinja2 templates')
-@click.option('--noop/--no-noop', default=False, help='Skip writing the rendered template, only render the template')
-@click.option('-r', '--recursive', is_flag=True, help='Traverse recursively trough the search list')
+@click.option('-e', '--extention', default='.j2', help='Jinja2 file extention')
+@click.option('-s', '--searchlist', help='Comma separated list of directories to search for jinja2 templates')
+@click.option('-N', '--noop/--no-noop', default=False, help="Only render the template, don't write to disk")
+@click.option('-r', '--recursive', is_flag=True, help='Traverse recursively through the search list')
 def e2j2(searchlist, extention, noop, recursive):
 
     if not searchlist:
@@ -168,7 +167,3 @@ def e2j2(searchlist, extention, noop, recursive):
         finally:
             old_directory = directory
             sys.stdout.flush()
-
-
-if __name__ == '__main__':
-    e2j2()
