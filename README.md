@@ -35,7 +35,7 @@ if you then set the NGINX environment variable within you're container, running 
 ```bash
 ~> set | grep NGINX
 NGINX='json:{"server_name": "www.myweb.com", "index_page": "index.php", "web_root": "/usr/local/www/roundcube", "fcgi_params": "/usr/local/etc/nginx/myweb-fcgi-params", "fpm_socket": "/var/run/php-fpm/myweb.socket"}'
-~> e2j2 --searchlist .
+~> e2j2
 
 In: .
     rendering: nginx_vhost_config.conf.j2=>done => writing: nginx_vhost_config.conf=>done

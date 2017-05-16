@@ -6,22 +6,37 @@ import json
 import jinja2
 import click
 from consul import Consul
+from consul.base import ACLPermissionDenied
 from colorama import Fore, Style
 from base64 import b64decode
 
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
+ERROR = '**ERROR**'
+BRIGHT_RED = Style.BRIGHT + Fore.RED
+RESET_ALL = Style.RESET_ALL
+YELLOW = Fore.YELLOW
+GREEN = Fore.GREEN
+LIGHTGREEN = Fore.LIGHTGREEN_EX
+WHITE = Fore.WHITE
 
 
-def find_j2files(searchlist, j2file_ext):
-    return [os.path.join(dirpath, j2file) for searchlist_item in searchlist.split(',')
-            for dirpath, dirnames, files in os.walk(searchlist_item)
-            for j2file in files if j2file.endswith(j2file_ext)
-            ]
+def find_j2files(searchlist, j2file_ext, recurse=False):
+    if recurse:
+        return [os.path.realpath(os.path.join(dirpath, j2file)) for searchlist_item in searchlist.split(',')
+                for dirpath, dirnames, files in os.walk(searchlist_item)
+                for j2file in files if j2file.endswith(j2file_ext)]
+    else:
+        return [os.path.realpath(os.path.join(searchlist_item, j2file)) for searchlist_item in searchlist.split(',')
+                for j2file in os.listdir(searchlist_item) if j2file.endswith(j2file_ext)]
 
 
 def parse_json_string(json_string):
-    return json.loads(json_string)
+    try:
+        return json.loads(json_string)
+    except ValueError:
+        # Mark as failed
+        return ERROR
 
 
 def parse_json_file(json_file):
@@ -29,14 +44,18 @@ def parse_json_file(json_file):
         with open(json_file) as json_file:
             data = json.load(json_file)
     except IOError:
-        # return an empty string if we can't find the file
-        return ''
+        # Mark as failed
+        return ERROR
 
     return data
 
 
 def parse_base64(value):
-    return b64decode(value)
+    try:
+        return b64decode(value)
+    except TypeError:
+        # Mark as failed
+        return ERROR
 
 
 def parse_consul(value):
@@ -47,13 +66,16 @@ def parse_consul(value):
     port = consul_config['port'] if 'port' in consul_config else 8500
     token = consul_config['token'] if 'token' in consul_config else None
 
-    consul = Consul(scheme=scheme, host=host, port=port, token=token)
-    # FIXME handle access denieds correctly
-    _, kv_entries = consul.kv.get(recurse=True, key=value)
+    try:
+        consul = Consul(scheme=scheme, host=host, port=port, token=token)
+        _, kv_entries = consul.kv.get(recurse=True, key=value)
+    except ACLPermissionDenied:
+        print(BRIGHT_RED + 'Access denied connecting to: {}://{}:{}'.format(scheme, host, port) + RESET_ALL)
+        return ERROR
 
     if not kv_entries:
-        # return an empty string if we can't find the consul key
-        return ''
+        # Mark as failed if we can't find the consul key
+        return ERROR
 
     flattend = {}
     for entry in kv_entries:
@@ -100,40 +122,49 @@ def render_template(j2file, j2vars):
 @click.option('--extention', default='.j2', help='Jinja2 file extention')
 @click.option('--searchlist', help='Comma separated list of directories to search for jinja2 templates')
 @click.option('--noop/--no-noop', default=False, help='Skip writing the rendered template, only render the template')
-def e2j2(searchlist, extention, noop):
+@click.option('-r', '--recursive', is_flag=True, help='Traverse recursively trough the search list')
+def e2j2(searchlist, extention, noop, recursive):
 
-    if not searchlist and 'E2J2_SEARCHLIST' not in os.environ:
-        print('{}Searchlist not specified{}'.format(Fore.RED, Style.RESET_ALL))
-        exit(1)
-
-    if not searchlist and 'E2J2_SEARCHLIST' in os.environ:
-        searchlist = os.environ['E2J2_SEARCHLIST']
+    if not searchlist:
+        searchlist = os.environ['E2J2_SEARCHLIST'] if 'E2J2_SEARCHLIST' in os.environ else '.'
 
     j2vars = j2vars_from_environment()
     old_directory = ''
-    for j2file in find_j2files(searchlist=searchlist, j2file_ext=extention):
+
+    for j2file in find_j2files(searchlist=searchlist, j2file_ext=extention, recurse=recursive):
         try:
             directory = os.path.dirname(j2file)
             filename = re.sub(r'{}$'.format(extention), '', j2file)
 
             if directory != old_directory:
-                sys.stdout.write('\n{}In: {}{}\n'.format(Fore.GREEN, Fore.WHITE, os.path.dirname(j2file)))
+                sys.stdout.write('\n{}In: {}{}\n'.format(GREEN, WHITE, os.path.dirname(j2file)))
 
-            sys.stdout.write('    {}rendering: {}{:25}{} => '.format(Fore.GREEN, Fore.WHITE,
-                                                                     os.path.basename(j2file), Fore.GREEN))
-            rendered_file = render_template(j2file=j2file, j2vars=j2vars)
-            sys.stdout.write('{}done{:7} => writing: {}{:25}{} => '.format(Fore.LIGHTGREEN_EX, Fore.GREEN, Fore.WHITE,
-                                                                           os.path.basename(filename), Fore.GREEN))
+            sys.stdout.write('    {}rendering: {}{:35}{} => '.format(GREEN, WHITE, os.path.basename(j2file), GREEN))
+
+            try:
+                rendered_file = render_template(j2file=j2file, j2vars=j2vars)
+                status = LIGHTGREEN + 'success' + RESET_ALL
+            except Exception as e:
+                filename += '.err'
+                rendered_file = str(e)
+                status = BRIGHT_RED + 'failed ' + RESET_ALL
+
+            if ERROR in rendered_file:
+                # template contains error so we will write content to filename.failed
+                filename += '.err'
+                status = BRIGHT_RED + 'failed ' + RESET_ALL
+
+            sys.stdout.write('{}{:7} => writing: {}{:25}{} => '.format(status, GREEN, WHITE,
+                                                                       os.path.basename(filename), GREEN))
+
             if noop:
-                sys.stdout.write('{}skipped{}\n'.format(Fore.YELLOW, Style.RESET_ALL))
+                sys.stdout.write('{}skipped{}\n'.format(YELLOW, RESET_ALL))
             else:
-                # FIXME don't write on failure!!
                 with open(filename, mode='w') as fh:
                     fh.writelines(rendered_file)
-                sys.stdout.write('{}done{}\n'.format(Fore.LIGHTGREEN_EX, Style.RESET_ALL))
-
+                sys.stdout.write('{}success{}\n'.format(LIGHTGREEN, RESET_ALL))
         except Exception as e:
-            sys.stdout.write('{}failed{} ({}){}\n'.format(Fore.LIGHTRED_EX, Fore.WHITE, str(e), Style.RESET_ALL))
+            sys.stdout.write('{}failed{} ({})\n'.format(BRIGHT_RED, RESET_ALL, str(e)))
         finally:
             old_directory = directory
             sys.stdout.flush()
