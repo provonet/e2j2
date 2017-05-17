@@ -6,7 +6,7 @@ import click
 from e2j2.helpers import templates
 from e2j2.helpers.constants import ERROR, BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
 
-VERSION = '0.1.1'
+VERSION = '0.1.2'
 
 
 @click.command()

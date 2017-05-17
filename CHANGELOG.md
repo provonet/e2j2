@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 (2017-05-17)
+
+### Fixed
+- additional fix for install issue on python2 (added MANIFEST.in)
+
 ## 0.1.1 (2017-05-17)
 
 ### Fixed
