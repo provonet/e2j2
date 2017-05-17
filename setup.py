@@ -11,6 +11,7 @@ setup(name='e2j2',
       author='Johan Bakker',
       author_email='johan.bakker@gmail.com',
       license='MIT',
+      package_data={'': ['LICENSE', 'README.rst', 'CHANGELOG.rst']},
       packages=['e2j2', 'e2j2.helpers'],
       scripts=['bin/e2j2'],
       zip_safe=True)
