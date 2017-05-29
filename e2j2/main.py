@@ -2,28 +2,40 @@ import sys
 import os
 import re
 
-import click
+import argparse
 from e2j2.helpers import templates
-from e2j2.helpers.constants import ERROR, BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
+from e2j2.helpers.constants import ERROR, BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 
-@click.command()
-@click.version_option(version=VERSION)
-@click.option('-e', '--extention', default='.j2', help='Jinja2 file extention')
-@click.option('-s', '--searchlist', help='Comma separated list of directories to search for jinja2 templates')
-@click.option('-N', '--noop/--no-noop', default=False, help="Only render the template, don't write to disk")
-@click.option('-r', '--recursive', is_flag=True, help='Traverse recursively through the search list')
-def e2j2(searchlist, extention, noop, recursive):
+def e2j2():
 
-    if not searchlist:
-        searchlist = os.environ['E2J2_SEARCHLIST'] if 'E2J2_SEARCHLIST' in os.environ else '.'
+    arg_parser = argparse.ArgumentParser(prog='e2j2', description=DESCRIPTION)
+    arg_parser.add_argument('-e', '--ext', '--extention',
+                            default='.j2',
+                            type=str,
+                            help='Jinja2 file extention')
+    arg_parser.add_argument('-s', '--searchlist',
+                            type=str,
+                            help='Comma separated list of directories to search for jinja2 templates')
+    arg_parser.add_argument('-N', '--noop',
+                            action='store_true',
+                            help="Only render the template, don't write to disk")
+    arg_parser.add_argument('-r', '--recursive',
+                            action='store_true',
+                            help='Traverse recursively through the search list')
+
+    args = arg_parser.parse_args()
+
+    searchlist = args.searchlist if args.searchlist else os.environ.get('E2J2_SEARCHLIST', '.')
+    recursive =  args.recursive
+    extention = args.ext
 
     j2vars = templates.get_vars()
     old_directory = ''
 
-    for j2file in templates.find(searchlist=searchlist, j2file_ext=extention, recurse=recursive):
+    for j2file in templates.find(searchlist=searchlist, j2file_ext=args.ext, recurse=recursive):
         try:
             directory = os.path.dirname(j2file)
             filename = re.sub(r'{}$'.format(extention), '', j2file)
@@ -49,7 +61,7 @@ def e2j2(searchlist, extention, noop, recursive):
             sys.stdout.write('{}{:7} => writing: {}{:25}{} => '.format(status, GREEN, WHITE,
                                                                        os.path.basename(filename), GREEN))
 
-            if noop:
+            if args.noop:
                 sys.stdout.write('{}skipped{}\n'.format(YELLOW, RESET_ALL))
             else:
                 with open(filename, mode='w') as fh:

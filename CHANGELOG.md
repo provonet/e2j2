@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 unreleased (2017-05-29)
+
+### Changed
+- remove dependency click, use argparse instead.
+
 ## 0.1.2 (2017-05-17)
 
 ### Fixed
@@ -19,12 +24,12 @@
 ## 0.1.0 (2017-05-16)
 
 ### Added
-+ add short options for extention (-e) searchlist (-s) and noop (-N)
-+ add (MIT) license
+- add short options for extention (-e) searchlist (-s) and noop (-N)
+- add (MIT) license
 
 ### Changed
-* e2j2 is now packaged as pip package
-* split script and module, script will be installed in /usr/bin or /usr/local/bin
+- e2j2 is now packaged as pip package
+- split script and module, script will be installed in /usr/bin or /usr/local/bin
 
 ## 0.0.2 (2017-05-16)
 
