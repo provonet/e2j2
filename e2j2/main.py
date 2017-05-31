@@ -60,3 +60,7 @@ def e2j2(searchlist, extention, noop, recursive):
         finally:
             old_directory = directory
             sys.stdout.flush()
+
+
+if __name__ == '__main__':
+    e2j2()
