@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.1.3 unreleased (2017-05-29)
+-----------------------------
+
+Changed
+~~~~~~~
+
+-  remove dependency click, use argparse instead.
+
 0.1.2 (2017-05-17)
 ------------------
 
