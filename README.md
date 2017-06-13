@@ -33,11 +33,17 @@ server {
   }
 }
 ```
-if you then set the NGINX environment variable within you're container, running e2j2 will render the jinja2 template and place it in the same folder.
+if you then set the NGINX environment variable, running e2j2 will render the jinja2 template and place it in the same folder.
 
 ```bash
-~> set | grep NGINX
-NGINX='json:{"server_name": "www.myweb.com", "index_page": "index.php", "web_root": "/usr/local/www/myweb", "fcgi_params": "/usr/local/etc/nginx/myweb-fcgi-params", "fpm_socket": "/var/run/php-fpm/myweb.socket"}'
+~> export NGINX=export NGINX='json:
+{
+"server_name": "www.myweb.com",
+"index_page": "index.php",
+"web_root": "/usr/local/www/myweb",
+"fcgi_params": "/usr/local/etc/nginx/myweb-fcgi-params",
+"fpm_socket": "/var/run/php-fpm/myweb.socket"
+}'
 ~> e2j2
 
 In: .
@@ -82,7 +88,7 @@ will render json-example.j2 to
 This is a json-example
 ```
 
-### jsonfile
+### jsonfile:
 
 Example:
 
@@ -95,7 +101,7 @@ will render jsonfile-example.j2 to
 This is a jsonfile example with subkey
 ```
 
-### base64
+### base64:
 
 Example:
 
