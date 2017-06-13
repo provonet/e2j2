@@ -8,7 +8,7 @@ Breaking change
 ~~~~~~~~~~~~~~~
 
 -  the consul tags will now use dots as seperator between subkeys (you
-   can access subkeys as follows: {{ VAR['subkey1.subkey2.subkey3] }})'
+   can access subkeys as follows: {{VAR['subkey1.subkey2.subkey3]}})
 
 Changed
 ~~~~~~~
