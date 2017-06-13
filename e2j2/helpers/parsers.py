@@ -51,13 +51,12 @@ def parse_consul(value):
     if not kv_entries:
         # Mark as failed if we can't find the consul key
         return ERROR
-
     flattend = {}
     for entry in kv_entries:
         # strip 'root' key from value, and store subkeys as keys in the returned dict
         # deeper nested keys will be stored in the form subkey_key or subkey_subsubkey_key, ..
-        key = entry['Key'].replace(value + '/', '').replace('/', '_')
-        flattend[key] = entry['Value']
+        key = entry['Key'].replace(value + '/', '').replace('/', '.')
+        flattend[key] = entry['Value'].decode('utf-8') if hasattr(entry['Value'], 'decode') else entry['Value']
 
     return flattend[value] if value in flattend else flattend
 

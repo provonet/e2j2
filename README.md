@@ -33,7 +33,8 @@ server {
   }
 }
 ```
-if you then set the NGINX environment variable, running e2j2 will render the jinja2 template and place it in the same folder.
+if you then set the NGINX environment variable, running e2j2 will render the jinja2 template and place it in the same
+folder:
 
 ```bash
 ~> export NGINX=export NGINX='json:
@@ -75,7 +76,7 @@ server {
 
 ## Environment variable examples:
 
-### Plain environment variable
+### Plain environment variable:
 
 Example:
 
