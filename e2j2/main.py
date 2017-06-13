@@ -72,3 +72,7 @@ def e2j2():
         finally:
             old_directory = directory
             sys.stdout.flush()
+
+
+if __name__ == '__main__':
+    e2j2()
