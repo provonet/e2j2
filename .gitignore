@@ -2,6 +2,10 @@
 .virtualenv
 .env
 *.pyc
+*.err
 build/
 dist/
 e2j2.egg-info/
+examples/json-example
+examples/jsonfile-example
+examples/base64-example

@@ -27,7 +27,7 @@ def parse_json_file(json_file):
 
 def parse_base64(value):
     try:
-        return b64decode(value)
+        return b64decode(value).decode('utf-8')
     except TypeError:
         # Mark as failed
         return ERROR

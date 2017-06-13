@@ -1,10 +1,13 @@
 
-e2j2
-=========
+# e2j2
+
+## What is e2j2?
+
 e2j2 (environment to jinja2 variables) is a commandline tool which will render jinja2 templates to textfiles. all environment variables can be used in the jinja2 templates, within the environment variables you can use special tags which give you the option to insert json, json file paths, base64 hashes, consul kv keys.
 
 e2j2 is intended to be used within docker containers, you can simply add the j2 extention to a configuration file and then run e2j2 before you're starting the actual executable.  
 
+## Example:
 lets assume we want to render the following server block in nginx, if we place the server configuration in a nginx include directory for example /etc/nginx/conf.d
 
 ```bash
@@ -64,4 +67,44 @@ server {
 }
 ```
 
-you can also point to a json file by using the jsonfile: tag or place you're configuration in a consul key/value store.
+## Tags
+
+### json
+
+Example:
+
+Setting:
+```
+MYJSONVAR='json:{"key": "json-example"}'
+```
+will render json-example.j2 to
+```
+This is a json-example
+```
+
+### jsonfile
+
+Example:
+
+Setting:
+```
+MYJSONFILEVAR='jsonfile:jsonfile-example.json'
+```
+will render jsonfile-example.j2 to
+```
+This is a jsonfile example with subkey
+```
+
+### base64
+
+Example:
+
+Setting:
+```
+export MYBASE64VAR='base64:YmFzZTY0IGV4YW1wbGU='
+```
+will render base64-example.j2 to:
+```
+This is a base64 example
+```
+
