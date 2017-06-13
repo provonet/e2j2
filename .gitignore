@@ -7,6 +7,7 @@ build/
 dist/
 e2j2.egg-info/
 examples/nginx_vhost_config.conf
+examples/envvar-example
 examples/json-example
 examples/jsonfile-example
 examples/base64-example

@@ -73,9 +73,21 @@ server {
 }
 ```
 
-## Tags
+## Environment variables / Environment variable with tag
 
-### json
+### Plain environment variable
+
+Example:
+
+Setting:
+```
+MYENVVAR='plain environment variable'
+```
+will render envvar-example.j2 to:
+```
+This is a plain environment variable
+```
+### Tag json:
 
 Example:
 
@@ -83,12 +95,12 @@ Setting:
 ```
 MYJSONVAR='json:{"key": "json-example"}'
 ```
-will render json-example.j2 to
+will render json-example.j2 to:
 ```
 This is a json-example
 ```
 
-### jsonfile:
+### Tag jsonfile:
 
 Example:
 
@@ -96,12 +108,12 @@ Setting:
 ```
 MYJSONFILEVAR='jsonfile:jsonfile-example.json'
 ```
-will render jsonfile-example.j2 to
+will render jsonfile-example.j2 to:
 ```
 This is a jsonfile example with subkey
 ```
 
-### base64:
+### Tag base64:
 
 Example:
 
