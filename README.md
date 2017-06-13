@@ -73,13 +73,13 @@ server {
 }
 ```
 
-## Environment variables / Environment variable with tag
+## Environment variable examples:
 
 ### Plain environment variable
 
 Example:
 
-Setting:
+setting:
 ```
 MYENVVAR='plain environment variable'
 ```
@@ -91,7 +91,7 @@ This is a plain environment variable
 
 Example:
 
-Setting:
+setting:
 ```
 MYJSONVAR='json:{"key": "json-example"}'
 ```
@@ -104,7 +104,7 @@ This is a json-example
 
 Example:
 
-Setting:
+setting:
 ```
 MYJSONFILEVAR='jsonfile:jsonfile-example.json'
 ```
