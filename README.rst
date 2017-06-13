@@ -1,6 +1,9 @@
 e2j2
 ====
 
+What is e2j2?
+-------------
+
 e2j2 (environment to jinja2 variables) is a commandline tool which will
 render jinja2 templates to textfiles. all environment variables can be
 used in the jinja2 templates, within the environment variables you can
@@ -10,6 +13,9 @@ paths, base64 hashes, consul kv keys.
 e2j2 is intended to be used within docker containers, you can simply add
 the j2 extention to a configuration file and then run e2j2 before you're
 starting the actual executable.
+
+Example:
+--------
 
 lets assume we want to render the following server block in nginx, if we
 place the server configuration in a nginx include directory for example
@@ -39,14 +45,19 @@ place the server configuration in a nginx include directory for example
       }
     }
 
-if you then set the NGINX environment variable within you're container,
-running e2j2 will render the jinja2 template and place it in the same
-folder.
+if you then set the NGINX environment variable, running e2j2 will render
+the jinja2 template and place it in the same folder:
 
 .. code:: bash
 
-    ~> set | grep NGINX
-    NGINX='json:{"server_name": "www.myweb.com", "index_page": "index.php", "web_root": "/usr/local/www/myweb", "fcgi_params": "/usr/local/etc/nginx/myweb-fcgi-params", "fpm_socket": "/var/run/php-fpm/myweb.socket"}'
+    ~> export NGINX=export NGINX='json:
+    {
+    "server_name": "www.myweb.com",
+    "index_page": "index.php",
+    "web_root": "/usr/local/www/myweb",
+    "fcgi_params": "/usr/local/etc/nginx/myweb-fcgi-params",
+    "fpm_socket": "/var/run/php-fpm/myweb.socket"
+    }'
     ~> e2j2
 
     In: .
@@ -75,5 +86,73 @@ folder.
       }
     }
 
-you can also point to a json file by using the jsonfile: tag or place
-you're configuration in a consul key/value store.
+Environment variable examples:
+------------------------------
+
+Plain environment variable:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Example:
+
+setting:
+
+::
+
+    MYENVVAR='plain environment variable'
+
+will render envvar-example.j2 to:
+
+::
+
+    This is a plain environment variable
+
+Tag json:
+~~~~~~~~~
+
+Example:
+
+setting:
+
+::
+
+    MYJSONVAR='json:{"key": "json-example"}'
+
+will render json-example.j2 to:
+
+::
+
+    This is a json-example
+
+Tag jsonfile:
+~~~~~~~~~~~~~
+
+Example:
+
+setting:
+
+::
+
+    MYJSONFILEVAR='jsonfile:jsonfile-example.json'
+
+will render jsonfile-example.j2 to:
+
+::
+
+    This is a jsonfile example with subkey
+
+Tag base64:
+~~~~~~~~~~~
+
+Example:
+
+Setting:
+
+::
+
+    export MYBASE64VAR='base64:YmFzZTY0IGV4YW1wbGU='
+
+will render base64-example.j2 to:
+
+::
+
+    This is a base64 example

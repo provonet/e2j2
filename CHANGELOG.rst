@@ -1,13 +1,24 @@
 Changelog
 =========
 
-0.1.3 unreleased (2017-05-29)
------------------------------
+0.1.3 unreleased
+----------------
+
+Breaking change
+~~~~~~~~~~~~~~~
+
+-  the consul tags will now use dots as seperator between subkeys (you
+   can access subkeys as follows: {{ VAR['subkey1.subkey2.subkey3] }})'
 
 Changed
 ~~~~~~~
 
 -  remove dependency click, use argparse instead.
+
+Fixed
+~~~~~
+
+-  make sure that cast bytes as strings (for base64 and consul tags)
 
 0.1.2 (2017-05-17)
 ------------------
