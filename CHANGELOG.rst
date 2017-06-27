@@ -7,8 +7,8 @@ Changelog
 Breaking change
 ~~~~~~~~~~~~~~~
 
--  the consul tags will now use dots as seperator between subkeys (you
-   can access subkeys as follows: {{VAR['subkey1.subkey2.subkey3]}})
+-  the consul tags will now use default jinja2 objects, this breaks the
+   previous behaviour of separation by underscores
 
 Changed
 ~~~~~~~
