@@ -6,6 +6,19 @@ from consul.base import ACLPermissionDenied
 from base64 import b64decode
 from e2j2.helpers.constants import ERROR, BRIGHT_RED, RESET_ALL
 
+
+def dict_merge(dict1, dict2):
+    if not dict1:
+        dict1 = dict2
+
+    for key in dict2:
+        if key in dict1 and isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
+            dict_merge(dict1[key], dict2[key])
+        else:
+            dict1[key] = dict2[key]
+
+    return dict1
+
 def parse_json_string(json_string):
     try:
         return json.loads(json_string)
@@ -51,14 +64,19 @@ def parse_consul(value):
     if not kv_entries:
         # Mark as failed if we can't find the consul key
         return ERROR
-    flattend = {}
+    struct = {}
     for entry in kv_entries:
-        # strip 'root' key from value, and store subkeys as keys in the returned dict
-        # deeper nested keys will be stored in the form subkey_key or subkey_subsubkey_key, ..
-        key = entry['Key'].replace(value + '/', '').replace('/', '.')
-        flattend[key] = entry['Value'].decode('utf-8') if hasattr(entry['Value'], 'decode') else entry['Value']
+        subkeys = entry['Key'].split('/')
+        value =  entry['Value'].decode('utf-8')  if hasattr(entry['Value'], 'decode') else entry['Value']
+        if '/' in entry['Key']:
+            key = '{"' + entry['Key'].replace('/', '":{"') + '": "' + value + '"}'.ljust(len(subkeys)+1,'}')
+            struct = dict_merge(struct, json.loads(key))
+        else:
+            struct[entry['Key']] = value
 
-    return flattend[value] if value in flattend else flattend
+    # return subkeys relative to rootkey
+    rootkey = list(struct.keys())[0]
+    return struct[rootkey]
 
 
 def parse_tag(tag, value):
