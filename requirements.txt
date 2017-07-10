@@ -1,3 +1,4 @@
 # pyinit: python3
 jinja2==2.9.6
 python-consul==0.7.0
+deepmerge==0.0.4

@@ -5,19 +5,8 @@ from consul import Consul
 from consul.base import ACLPermissionDenied
 from base64 import b64decode
 from e2j2.helpers.constants import ERROR, BRIGHT_RED, RESET_ALL
+from deepmerge import Merger
 
-
-def dict_merge(dict1, dict2):
-    if not dict1:
-        dict1 = dict2
-
-    for key in dict2:
-        if key in dict1 and isinstance(dict1[key], dict) and isinstance(dict2[key], dict):
-            dict_merge(dict1[key], dict2[key])
-        else:
-            dict1[key] = dict2[key]
-
-    return dict1
 
 def parse_json_string(json_string):
     try:
@@ -54,6 +43,8 @@ def parse_consul(value):
     port = consul_config['port'] if 'port' in consul_config else 8500
     token = consul_config['token'] if 'token' in consul_config else None
 
+    consul_merger = Merger([(list, ['append']), (dict, ['merge'])], ['override'], ['override'])
+
     try:
         consul = Consul(scheme=scheme, host=host, port=port, token=token)
         _, kv_entries = consul.kv.get(recurse=True, key=value)
@@ -64,19 +55,19 @@ def parse_consul(value):
     if not kv_entries:
         # Mark as failed if we can't find the consul key
         return ERROR
-    struct = {}
+    consul_dict = {}
     for entry in kv_entries:
         subkeys = entry['Key'].split('/')
-        value =  entry['Value'].decode('utf-8')  if hasattr(entry['Value'], 'decode') else entry['Value']
+        value = entry['Value'].decode('utf-8') if hasattr(entry['Value'], 'decode') else entry['Value']
         if '/' in entry['Key']:
-            key = '{"' + entry['Key'].replace('/', '":{"') + '": "' + value + '"}'.ljust(len(subkeys)+1,'}')
-            struct = dict_merge(struct, json.loads(key))
+            key = '{"' + entry['Key'].replace('/', '":{"') + '": "' + value + '"}'.ljust(len(subkeys)+1, '}')
+            consul_dict = consul_merger.merge(consul_dict, json.loads(key))
         else:
-            struct[entry['Key']] = value
+            consul_dict[entry['Key']] = value
 
     # return subkeys relative to rootkey
-    rootkey = list(struct.keys())[0]
-    return struct[rootkey]
+    rootkey = list(consul_dict.keys())[0]
+    return consul_dict[rootkey]
 
 
 def parse_tag(tag, value):

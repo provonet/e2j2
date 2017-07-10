@@ -29,7 +29,7 @@ def e2j2():
     args = arg_parser.parse_args()
 
     searchlist = args.searchlist if args.searchlist else os.environ.get('E2J2_SEARCHLIST', '.')
-    recursive =  args.recursive
+    recursive = args.recursive
     extention = args.ext
 
     j2vars = templates.get_vars()
