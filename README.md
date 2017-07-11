@@ -127,3 +127,43 @@ will render base64-example.j2 to:
 This is a base64 example
 ```
 
+### Tag consul:
+
+Configuration:
+
+You can configure the consul tag by setting the CONSUL_CONFIG environment variable. The following config items are supported:
+
+| Item     | Explanation              | Default   |
+| -------- | ------------------------ | --------- |
+| scheme   | url scheme http or https | http      |
+| host     | consul host              | localhost |
+| port     | consul http(s) port      | 8500      |
+| token    | consul token             | none      |
+
+Config example:
+```
+$ read -d '' CONSUL_CONFIG << EOF
+> {
+>   "scheme": "https",
+>   "host": "consul.foobar.tld",
+>   "port": 443,
+>   "token": "abcdef01-0123-abcd-1234-0123456789ab"
+> }
+> EOF
+```
+
+Example:
+
+Setting:
+
+key: consulvar in consul to value: consul example
+
+and
+
+```
+export MYCONSULVAR='consul:consulvar'
+```
+will render consul-example.j2 to:
+```
+This is a consul example
+```
