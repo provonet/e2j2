@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.3 unreleased
+## 0.1.3 (2017-07-11)
 
 ### Breaking change
 - the consul tags will now use default jinja2 objects, this breaks the previous behaviour of separation by underscores
