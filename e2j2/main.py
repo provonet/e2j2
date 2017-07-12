@@ -6,12 +6,13 @@ import argparse
 from e2j2.helpers import templates
 from e2j2.helpers.constants import ERROR, BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
 
-VERSION = '0.1.3'
-
 
 def e2j2():
 
     arg_parser = argparse.ArgumentParser(prog='e2j2', description=DESCRIPTION)
+    arg_parser.add_argument('-v', '--version',
+                            action='version',
+                            version='%(prog)s 0.1.4')
     arg_parser.add_argument('-e', '--ext', '--extention',
                             default='.j2',
                             type=str,

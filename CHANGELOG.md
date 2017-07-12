@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4 (unreleased)
+
+### Added
+- add version option
+
+
 ## 0.1.3 (2017-07-11)
 
 ### Breaking change
