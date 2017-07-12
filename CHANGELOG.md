@@ -9,7 +9,7 @@
 - remove dependency click, use argparse instead.
 
 ### Fixed
-- make sure that cast bytes as strings (for base64 and consul tags)
+- make sure that bytes are casted to strings (for base64 and consul tags)
 
 ## 0.1.2 (2017-05-17)
 
