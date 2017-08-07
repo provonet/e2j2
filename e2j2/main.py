@@ -27,7 +27,7 @@ def e2j2():
                             action='store_true',
                             help='Traverse recursively through the search list')
     arg_parser.add_argument('-f', '--filename',
-                            action='store_true',
+                            type=str
                             help='Render one file, ignore -r, -s')
 
     args = arg_parser.parse_args()
