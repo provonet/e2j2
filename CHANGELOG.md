@@ -4,7 +4,10 @@
 
 ### Added
 - add version option
+- add file list option
 
+### Fixed
+- Fix bug with empty consul key values
 
 ## 0.1.3 (2017-07-11)
 

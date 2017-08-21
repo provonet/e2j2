@@ -68,7 +68,6 @@ def parse_consul(value):
 
     # return subkeys relative to rootkey
     rootkey = list(consul_dict.keys())[0]
-    print(consul_dict)
     return consul_dict[rootkey]
 
 

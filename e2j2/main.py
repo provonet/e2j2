@@ -17,6 +17,9 @@ def e2j2():
                             default='.j2',
                             type=str,
                             help='Jinja2 file extention')
+    arg_parser.add_argument('-f', '--filelist',
+                            type=str,
+                            help='Comma separated list of jinja2 templates')
     arg_parser.add_argument('-s', '--searchlist',
                             type=str,
                             help='Comma separated list of directories to search for jinja2 templates')
@@ -36,7 +39,10 @@ def e2j2():
     j2vars = templates.get_vars()
     old_directory = ''
 
-    for j2file in templates.find(searchlist=searchlist, j2file_ext=args.ext, recurse=recursive):
+    j2files = args.filelist.split(',') if args.filelist else \
+        templates.find(searchlist=searchlist, j2file_ext=args.ext, recurse=recursive)
+
+    for j2file in j2files:
         try:
             directory = os.path.dirname(j2file)
             filename = re.sub(r'{}$'.format(extention), '', j2file)
