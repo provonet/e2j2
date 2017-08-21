@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.4 (unreleased)
+## 0.1.4 (2017-08-21)
 
 ### Added
 - add version option
