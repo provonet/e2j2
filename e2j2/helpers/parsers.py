@@ -59,7 +59,8 @@ def parse_consul(value):
     for entry in kv_entries:
         subkeys = entry['Key'].split('/')
         value = entry['Value'].decode('utf-8') if hasattr(entry['Value'], 'decode') else entry['Value']
-        if '/' in entry['Key'] and entry['Value']:
+        value = '' if value is None else value
+        if '/' in entry['Key']:
             key = '{"' + entry['Key'].replace('/', '":{"') + '": "' + value + '"}'.ljust(len(subkeys)+1, '}')
             consul_dict = consul_merger.merge(consul_dict, json.loads(key))
         else:
@@ -67,6 +68,7 @@ def parse_consul(value):
 
     # return subkeys relative to rootkey
     rootkey = list(consul_dict.keys())[0]
+    print(consul_dict)
     return consul_dict[rootkey]
 
 
