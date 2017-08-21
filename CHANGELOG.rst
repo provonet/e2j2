@@ -8,6 +8,12 @@ Added
 ~~~~~
 
 -  add version option
+-  add file list option
+
+Fixed
+~~~~~
+
+-  Fix bug with empty consul key values
 
 0.1.3 (2017-07-11)
 ------------------
@@ -26,7 +32,8 @@ Changed
 Fixed
 ~~~~~
 
--  make sure that cast bytes as strings (for base64 and consul tags)
+-  make sure that bytes are casted to strings (for base64 and consul
+   tags)
 
 0.1.2 (2017-05-17)
 ------------------
