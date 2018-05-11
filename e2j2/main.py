@@ -12,7 +12,7 @@ def e2j2():
     arg_parser = argparse.ArgumentParser(prog='e2j2', description=DESCRIPTION)
     arg_parser.add_argument('-v', '--version',
                             action='version',
-                            version='%(prog)s 0.1.4')
+                            version='%(prog)s 0.1.5')
     arg_parser.add_argument('-e', '--ext', '--extention',
                             default='.j2',
                             type=str,
@@ -29,12 +29,28 @@ def e2j2():
     arg_parser.add_argument('-r', '--recursive',
                             action='store_true',
                             help='Traverse recursively through the search list')
+    arg_parser.add_argument('--no-color',
+                            action='store_true',
+                            help='Disable the use of ANSI color escapes')
 
     args = arg_parser.parse_args()
 
     searchlist = args.searchlist if args.searchlist else os.environ.get('E2J2_SEARCHLIST', '.')
     recursive = args.recursive
     extention = args.ext
+
+    # initialize colors
+    use_color = False if args.no_color else True
+
+    if use_color:
+        bright_red = BRIGHT_RED
+        green = GREEN
+        lightgreen = LIGHTGREEN
+        white = WHITE
+        yellow = YELLOW
+        reset_all = RESET_ALL
+    else:
+        bright_red, reset_all, green, lightgreen, white, yellow, reset_all = ("",) * 7
 
     j2vars = templates.get_vars()
     old_directory = ''
@@ -48,34 +64,34 @@ def e2j2():
             filename = re.sub(r'{}$'.format(extention), '', j2file)
 
             if directory != old_directory:
-                sys.stdout.write('\n{}In: {}{}\n'.format(GREEN, WHITE, os.path.dirname(j2file)))
+                sys.stdout.write('\n{}In: {}{}\n'.format(green, white, os.path.dirname(j2file)))
 
-            sys.stdout.write('    {}rendering: {}{:35}{} => '.format(GREEN, WHITE, os.path.basename(j2file), GREEN))
+            sys.stdout.write('    {}rendering: {}{:35}{} => '.format(green, white, os.path.basename(j2file), green))
 
             try:
                 rendered_file = templates.render(j2file=j2file, j2vars=j2vars)
-                status = LIGHTGREEN + 'success' + RESET_ALL
+                status = lightgreen + 'success' + reset_all
             except Exception as e:
                 filename += '.err'
                 rendered_file = str(e)
-                status = BRIGHT_RED + 'failed ' + RESET_ALL
+                status = bright_red + 'failed ' + reset_all
 
             if ERROR in rendered_file:
                 # template contains error so we will write content to filename.failed
                 filename += '.err'
-                status = BRIGHT_RED + 'failed ' + RESET_ALL
+                status = bright_red + 'failed ' + reset_all
 
-            sys.stdout.write('{}{:7} => writing: {}{:25}{} => '.format(status, GREEN, WHITE,
-                                                                       os.path.basename(filename), GREEN))
+            sys.stdout.write('{}{:7} => writing: {}{:25}{} => '.format(status, green, white,
+                                                                       os.path.basename(filename), green))
 
             if args.noop:
-                sys.stdout.write('{}skipped{}\n'.format(YELLOW, RESET_ALL))
+                sys.stdout.write('{}skipped{}\n'.format(yellow, reset_all))
             else:
                 with open(filename, mode='w') as fh:
                     fh.writelines(rendered_file)
-                sys.stdout.write('{}success{}\n'.format(LIGHTGREEN, RESET_ALL))
+                sys.stdout.write('{}success{}\n'.format(lightgreen, reset_all))
         except Exception as e:
-            sys.stdout.write('{}failed{} ({})\n'.format(BRIGHT_RED, RESET_ALL, str(e)))
+            sys.stdout.write('{}failed{} ({})\n'.format(bright_red, reset_all, str(e)))
         finally:
             old_directory = directory
             sys.stdout.flush()
