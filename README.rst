@@ -50,7 +50,7 @@ the jinja2 template and place it in the same folder:
 
 .. code:: bash
 
-   ~> export NGINX=export NGINX='json:
+   ~> export NGINX='json:
    {
    "server_name": "www.myweb.com",
    "index_page": "index.php",

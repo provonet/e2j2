@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.1.6 (2018-05-17)
+------------------
+
+Changed
+~~~~~~~
+
+-  Improved error messages
+-  Handle json decode errors
+
+.. _section-1:
+
 0.1.5 (2018-05-11)
 ------------------
 
@@ -9,7 +20,7 @@ Added
 
 -  add no-color option
 
-.. _section-1:
+.. _section-2:
 
 0.1.4 (2017-08-21)
 ------------------
@@ -27,7 +38,7 @@ Fixed
 
 -  Fix bug with empty consul key values
 
-.. _section-2:
+.. _section-3:
 
 0.1.3 (2017-07-11)
 ------------------
@@ -37,6 +48,8 @@ Breaking change
 
 -  the consul tags will now use default jinja2 objects, this breaks the
    previous behaviour of separation by underscores
+
+.. _changed-1:
 
 Changed
 ~~~~~~~
@@ -51,7 +64,7 @@ Fixed
 -  make sure that bytes are casted to strings (for base64 and consul
    tags)
 
-.. _section-3:
+.. _section-4:
 
 0.1.2 (2017-05-17)
 ------------------
@@ -63,7 +76,7 @@ Fixed
 
 -  additional fix for install issue on python2 (added MANIFEST.in)
 
-.. _section-4:
+.. _section-5:
 
 0.1.1 (2017-05-17)
 ------------------
@@ -81,14 +94,14 @@ Removed
 
 -  remove dependency colorama
 
-.. _changed-1:
+.. _changed-2:
 
 Changed
 ~~~~~~~
 
 -  move methods to separate helper files
 
-.. _section-5:
+.. _section-6:
 
 0.1.0 (2017-05-16)
 ------------------
@@ -101,7 +114,7 @@ Added
 -  add short options for extention (-e) searchlist (-s) and noop (-N)
 -  add (MIT) license
 
-.. _changed-2:
+.. _changed-3:
 
 Changed
 ~~~~~~~
@@ -110,7 +123,7 @@ Changed
 -  split script and module, script will be installed in /usr/bin or
    /usr/local/bin
 
-.. _section-6:
+.. _section-7:
 
 0.0.2 (2017-05-16)
 ------------------
@@ -122,7 +135,7 @@ Added
 
 -  Add recurse flag
 
-.. _changed-3:
+.. _changed-4:
 
 Changed
 ~~~~~~~
@@ -133,7 +146,7 @@ Changed
 -  Improve error handling, e2j2 will now report failures and render
    \*.err files which will make debugging errors much easier
 
-.. _section-7:
+.. _section-8:
 
 0.0.1 (2017-05-01)
 ------------------
