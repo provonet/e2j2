@@ -37,7 +37,7 @@ if you then set the NGINX environment variable, running e2j2 will render the jin
 folder:
 
 ```bash
-~> export NGINX=export NGINX='json:
+~> export NGINX='json:
 {
 "server_name": "www.myweb.com",
 "index_page": "index.php",

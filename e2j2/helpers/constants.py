@@ -1,4 +1,4 @@
-ERROR = '**ERROR**'
+ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
 YELLOW = '\033[93m'

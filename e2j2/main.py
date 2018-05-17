@@ -12,7 +12,7 @@ def e2j2():
     arg_parser = argparse.ArgumentParser(prog='e2j2', description=DESCRIPTION)
     arg_parser.add_argument('-v', '--version',
                             action='version',
-                            version='%(prog)s 0.1.5')
+                            version='%(prog)s 0.1.6')
     arg_parser.add_argument('-e', '--ext', '--extention',
                             default='.j2',
                             type=str,
@@ -74,11 +74,6 @@ def e2j2():
             except Exception as e:
                 filename += '.err'
                 rendered_file = str(e)
-                status = bright_red + 'failed ' + reset_all
-
-            if ERROR in rendered_file:
-                # template contains error so we will write content to filename.failed
-                filename += '.err'
                 status = bright_red + 'failed ' + reset_all
 
             sys.stdout.write('{}{:7} => writing: {}{:25}{} => '.format(status, green, white,

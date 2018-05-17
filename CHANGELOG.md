@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6 (2018-05-17)
+### Changed
+- Improved error messages
+- Handle json decode errors
+
 ## 0.1.5 (2018-05-11)
 ### Added
 - add no-color option

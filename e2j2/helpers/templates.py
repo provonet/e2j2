@@ -1,5 +1,6 @@
 import os
 import jinja2
+from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL
 from e2j2.helpers import parsers
 
 
@@ -20,9 +21,15 @@ def get_vars():
         envvalue = os.environ[envvar]
         defined_tag = [tag for tag in tags if envvalue.startswith(tag)]
         envcontext[envvar] = parsers.parse_tag(defined_tag[0], envvalue) if defined_tag else envvalue
+
+        if '** ERROR:' in envcontext[envvar]:
+            print(BRIGHT_RED + "{}='{}'".format(envvar, envcontext[envvar]) + RESET_ALL)
+
     return envcontext
 
 
 def render(j2file, j2vars):
     path, filename = os.path.split(j2file)
-    return jinja2.Environment(loader=jinja2.FileSystemLoader(path or './')).get_template(filename).render(j2vars)
+    return jinja2.Environment(
+        loader=jinja2.FileSystemLoader(path or './'),
+        undefined=jinja2.StrictUndefined).get_template(filename).render(j2vars)

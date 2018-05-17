@@ -1,19 +1,25 @@
 import json
 import os
 import re
+import binascii
 from consul import Consul
 from consul.base import ACLPermissionDenied
 from base64 import b64decode
-from e2j2.helpers.constants import ERROR, BRIGHT_RED, RESET_ALL
 from deepmerge import Merger
+
+
+try:
+    from json.decoder import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 
 def parse_json_string(json_string):
     try:
         return json.loads(json_string)
-    except ValueError:
+    except JSONDecodeError:
         # Mark as failed
-        return ERROR
+        return '** ERROR: Decoding JSON **'
 
 
 def parse_json_file(json_file):
@@ -22,23 +28,27 @@ def parse_json_file(json_file):
             data = json.load(json_file)
     except IOError:
         # Mark as failed
-        return ERROR
-    except ValueError:
-        # Mark as failed
-        return 'Decoding JSON has failed'
+        return '** ERROR: IOError raised while reading file **'
+    except JSONDecodeError:
+        return '** Error: Decoding JSON **'
+
     return data
 
 
 def parse_base64(value):
     try:
         return b64decode(value).decode('utf-8')
-    except TypeError:
+    except (TypeError, binascii.Error):
         # Mark as failed
-        return ERROR
+        return '** ERROR: decoding BASE64 string **'
 
 
 def parse_consul(value):
-    consul_config = json.loads(os.environ['CONSUL_CONFIG']) if 'CONSUL_CONFIG' in os.environ else {}
+    try:
+        consul_config = json.loads(os.environ['CONSUL_CONFIG']) if 'CONSUL_CONFIG' in os.environ else {}
+    except JSONDecodeError:
+        # Mark as failed
+        return '** ERROR: parsing consul_config **'
 
     scheme = consul_config['scheme'] if 'scheme' in consul_config else 'http'
     host = consul_config['host'] if 'host' in consul_config else '127.0.0.1'
@@ -51,12 +61,11 @@ def parse_consul(value):
         consul = Consul(scheme=scheme, host=host, port=port, token=token)
         _, kv_entries = consul.kv.get(recurse=True, key=value)
     except ACLPermissionDenied:
-        print(BRIGHT_RED + 'Access denied connecting to: {}://{}:{}'.format(scheme, host, port) + RESET_ALL)
-        return ERROR
+        return '** Access denied connecting to: {}://{}:{} **'.format(scheme, host, port)
 
     if not kv_entries:
         # Mark as failed if we can't find the consul key
-        return ERROR
+        return '** ERROR: Key not found **'
     consul_dict = {}
     for entry in kv_entries:
         subkeys = entry['Key'].split('/')
@@ -85,4 +94,4 @@ def parse_tag(tag, value):
     elif tag == 'consul:':
         return parse_consul(value)
     else:
-        raise KeyError('tag: {} not implemented')
+        return '** ERROR: tag: %s not implemented **' % tag
