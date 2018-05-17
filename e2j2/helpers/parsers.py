@@ -23,7 +23,9 @@ def parse_json_file(json_file):
     except IOError:
         # Mark as failed
         return ERROR
-
+    except ValueError:
+        # Mark as failed
+        return 'Decoding JSON has failed'
     return data
 
 
