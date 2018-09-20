@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.7 (2018-09-20)
+### Added
+- Add list tag which will parse a comma separated list 
+
 ## 0.1.6 (2018-05-17)
 ### Changed
 - Improved error messages

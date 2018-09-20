@@ -167,3 +167,19 @@ will render consul-example.j2 to:
 ```
 This is a consul example
 ```
+
+### Tag list:
+
+Example:
+
+Setting:
+```
+export MYLIST='list:list:"first","second", "third",  "fourth"'
+```
+will render list-example.j2 to:
+```
+"first"
+"second"
+"third"
+"fourth"
+```

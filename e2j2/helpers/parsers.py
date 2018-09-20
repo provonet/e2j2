@@ -82,6 +82,14 @@ def parse_consul(value):
     return consul_dict[rootkey]
 
 
+def parse_list(value):
+    try:
+        return re.split(",\s*", value)
+    except:
+        # Mark as failed
+        return '** ERROR: Parsing comma separated list **'
+
+
 def parse_tag(tag, value):
     # strip tag from value
     value = re.sub(r'^{}'.format(tag), '', value).strip()
@@ -93,5 +101,7 @@ def parse_tag(tag, value):
         return parse_base64(value)
     elif tag == 'consul:':
         return parse_consul(value)
+    elif tag == 'list:':
+        return parse_list(value)
     else:
         return '** ERROR: tag: %s not implemented **' % tag

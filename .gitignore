@@ -12,3 +12,5 @@ examples/json-example
 examples/jsonfile-example
 examples/base64-example
 examples/consul-example
+examples/list-example
+.venv
