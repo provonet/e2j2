@@ -6,8 +6,6 @@ from consul import Consul
 from consul.base import ACLPermissionDenied
 from base64 import b64decode
 from deepmerge import Merger
-# Fix to make pycharm happy
-from builtins import IOError, ImportError, ValueError, TypeError, open, hasattr, list, dict
 
 
 try:

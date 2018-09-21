@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.9 (2018-09-21)
+### Fixed
+- fix import issue on python 2.7
+
 ## 0.1.8 (2018-09-21)
 ### Added
 - handle hashrocket characters in json tag (as produced by hiera)
