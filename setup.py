@@ -3,7 +3,7 @@ from setuptools import setup
 description = 'e2j2 is a commandline utility to render text/configuration files from jinja2 templates'
 
 setup(name='e2j2',
-      version='0.1.7',
+      version='0.1.8',
       description=description,
       long_description=open('README.rst').read() + '\n\n' + open('CHANGELOG.rst').read(),
       install_requires=['jinja2>=2.9.0', 'python-consul>=0.6.0', 'deepmerge>=0.0.4'],
@@ -27,6 +27,7 @@ setup(name='e2j2',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: System :: Systems Administration',
         'Topic :: Software Development :: Libraries'
         ],

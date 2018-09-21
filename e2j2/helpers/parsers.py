@@ -6,6 +6,8 @@ from consul import Consul
 from consul.base import ACLPermissionDenied
 from base64 import b64decode
 from deepmerge import Merger
+# Fix to make pycharm happy
+from builtins import IOError, ImportError, ValueError, TypeError, open, hasattr, list, dict
 
 
 try:
@@ -16,7 +18,11 @@ except ImportError:
 
 def parse_json_string(json_string):
     try:
-        return json.loads(json_string)
+        # handle hashrocket styled json
+        if re.search('"\s*=>\s*["{[]', json_string):
+            return json.loads(re.sub('"\s*=>\s*', '":', json_string))
+        else:
+            return json.loads(json_string)
     except JSONDecodeError:
         # Mark as failed
         return '** ERROR: Decoding JSON **'

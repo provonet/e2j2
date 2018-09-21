@@ -1,15 +1,27 @@
 Changelog
 =========
 
+0.1.8 (2018-09-21)
+------------------
+
+Added
+~~~~~
+
+-  handle hashrocket characters in json tag (as produced by hiera)
+
+.. _section-1:
+
 0.1.7 (2018-09-20)
 ------------------
+
+.. _added-1:
 
 Added
 ~~~~~
 
 -  Add list tag which will parse a comma separated list
 
-.. _section-1:
+.. _section-2:
 
 0.1.6 (2018-05-17)
 ------------------
@@ -20,24 +32,24 @@ Changed
 -  Improved error messages
 -  Handle json decode errors
 
-.. _section-2:
+.. _section-3:
 
 0.1.5 (2018-05-11)
 ------------------
 
-.. _added-1:
+.. _added-2:
 
 Added
 ~~~~~
 
 -  add no-color option
 
-.. _section-3:
+.. _section-4:
 
 0.1.4 (2017-08-21)
 ------------------
 
-.. _added-2:
+.. _added-3:
 
 Added
 ~~~~~
@@ -50,7 +62,7 @@ Fixed
 
 -  Fix bug with empty consul key values
 
-.. _section-4:
+.. _section-5:
 
 0.1.3 (2017-07-11)
 ------------------
@@ -76,7 +88,7 @@ Fixed
 -  make sure that bytes are casted to strings (for base64 and consul
    tags)
 
-.. _section-5:
+.. _section-6:
 
 0.1.2 (2017-05-17)
 ------------------
@@ -88,7 +100,7 @@ Fixed
 
 -  additional fix for install issue on python2 (added MANIFEST.in)
 
-.. _section-6:
+.. _section-7:
 
 0.1.1 (2017-05-17)
 ------------------
@@ -113,12 +125,12 @@ Changed
 
 -  move methods to separate helper files
 
-.. _section-7:
+.. _section-8:
 
 0.1.0 (2017-05-16)
 ------------------
 
-.. _added-3:
+.. _added-4:
 
 Added
 ~~~~~
@@ -135,12 +147,12 @@ Changed
 -  split script and module, script will be installed in /usr/bin or
    /usr/local/bin
 
-.. _section-8:
+.. _section-9:
 
 0.0.2 (2017-05-16)
 ------------------
 
-.. _added-4:
+.. _added-5:
 
 Added
 ~~~~~
@@ -158,7 +170,7 @@ Changed
 -  Improve error handling, e2j2 will now report failures and render
    \*.err files which will make debugging errors much easier
 
-.. _section-9:
+.. _section-10:
 
 0.0.1 (2017-05-01)
 ------------------

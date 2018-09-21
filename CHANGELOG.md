@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8 (2018-09-21)
+### Added
+- handle hashrocket characters in json tag (as produced by hiera)
+
 ## 0.1.7 (2018-09-20)
 ### Added
 - Add list tag which will parse a comma separated list 
