@@ -12,7 +12,7 @@ def e2j2():
     arg_parser = argparse.ArgumentParser(prog='e2j2', description=DESCRIPTION)
     arg_parser.add_argument('-v', '--version',
                             action='version',
-                            version='%(prog)s 0.1.9')
+                            version='%(prog)s 0.1.10')
     arg_parser.add_argument('-e', '--ext', '--extention',
                             default='.j2',
                             type=str,

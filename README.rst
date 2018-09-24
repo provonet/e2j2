@@ -106,6 +106,23 @@ will render envvar-example.j2 to:
 
    This is a plain environment variable
 
+Tag file:
+~~~~~~~~~
+
+Example:
+
+setting:
+
+::
+
+   MYFILEVAR=file:./file-example.txt
+
+will render file-example.j2 to:
+
+::
+
+   This is a file example
+
 Tag json:
 ~~~~~~~~~
 

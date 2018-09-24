@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.10 (2018-09-24)
+### Added
+- add file tag, this tag will place the content of the file into the variable
+
 ## 0.1.9 (2018-09-21)
 ### Fixed
 - fix import issue on python 2.7

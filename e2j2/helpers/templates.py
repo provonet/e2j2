@@ -15,7 +15,7 @@ def find(searchlist, j2file_ext, recurse=False):
 
 
 def get_vars():
-    tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:']
+    tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:']
     envcontext = {}
     for envvar in os.environ:
         envvalue = os.environ[envvar]

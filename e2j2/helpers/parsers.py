@@ -94,6 +94,15 @@ def parse_list(value):
         return '** ERROR: Parsing comma separated list **'
 
 
+def parse_file(file_name):
+    try:
+        with open(file_name) as file_handle:
+            return file_handle.read()
+    except IOError:
+        # Mark as failed
+        return '** ERROR: IOError raised while reading file **'
+
+
 def parse_tag(tag, value):
     # strip tag from value
     value = re.sub(r'^{}'.format(tag), '', value).strip()
@@ -107,5 +116,7 @@ def parse_tag(tag, value):
         return parse_consul(value)
     elif tag == 'list:':
         return parse_list(value)
+    elif tag == 'file:':
+        return parse_file(value)
     else:
         return '** ERROR: tag: %s not implemented **' % tag
