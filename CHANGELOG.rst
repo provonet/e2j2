@@ -1,6 +1,20 @@
 Changelog
 =========
 
+0.1.11
+------
+
+Changed
+-------
+
+-  Changed behavior of nested keys with the consul tag.
+
+example: in consul we have an key key1/key2/123 envvar
+KEY=consul:key1/key2 => {{ KEY }} will now render to 123 and no longer
+to {“key2”: 123}
+
+.. _section-1:
+
 0.1.10 (2018-09-24)
 -------------------
 
@@ -10,7 +24,7 @@ Added
 -  add file tag, this tag will place the content of the file into the
    variable
 
-.. _section-1:
+.. _section-2:
 
 0.1.9 (2018-09-21)
 ------------------
@@ -20,7 +34,7 @@ Fixed
 
 -  fix import issue on python 2.7
 
-.. _section-2:
+.. _section-3:
 
 0.1.8 (2018-09-21)
 ------------------
@@ -32,7 +46,7 @@ Added
 
 -  handle hashrocket characters in json tag (as produced by hiera)
 
-.. _section-3:
+.. _section-4:
 
 0.1.7 (2018-09-20)
 ------------------
@@ -44,10 +58,12 @@ Added
 
 -  Add list tag which will parse a comma separated list
 
-.. _section-4:
+.. _section-5:
 
 0.1.6 (2018-05-17)
 ------------------
+
+.. _changed-1:
 
 Changed
 ~~~~~~~
@@ -55,7 +71,7 @@ Changed
 -  Improved error messages
 -  Handle json decode errors
 
-.. _section-5:
+.. _section-6:
 
 0.1.5 (2018-05-11)
 ------------------
@@ -67,7 +83,7 @@ Added
 
 -  add no-color option
 
-.. _section-6:
+.. _section-7:
 
 0.1.4 (2017-08-21)
 ------------------
@@ -87,7 +103,7 @@ Fixed
 
 -  Fix bug with empty consul key values
 
-.. _section-7:
+.. _section-8:
 
 0.1.3 (2017-07-11)
 ------------------
@@ -98,7 +114,7 @@ Breaking change
 -  the consul tags will now use default jinja2 objects, this breaks the
    previous behaviour of separation by underscores
 
-.. _changed-1:
+.. _changed-2:
 
 Changed
 ~~~~~~~
@@ -113,7 +129,7 @@ Fixed
 -  make sure that bytes are casted to strings (for base64 and consul
    tags)
 
-.. _section-8:
+.. _section-9:
 
 0.1.2 (2017-05-17)
 ------------------
@@ -125,7 +141,7 @@ Fixed
 
 -  additional fix for install issue on python2 (added MANIFEST.in)
 
-.. _section-9:
+.. _section-10:
 
 0.1.1 (2017-05-17)
 ------------------
@@ -143,14 +159,14 @@ Removed
 
 -  remove dependency colorama
 
-.. _changed-2:
+.. _changed-3:
 
 Changed
 ~~~~~~~
 
 -  move methods to separate helper files
 
-.. _section-10:
+.. _section-11:
 
 0.1.0 (2017-05-16)
 ------------------
@@ -163,7 +179,7 @@ Added
 -  add short options for extention (-e) searchlist (-s) and noop (-N)
 -  add (MIT) license
 
-.. _changed-3:
+.. _changed-4:
 
 Changed
 ~~~~~~~
@@ -172,7 +188,7 @@ Changed
 -  split script and module, script will be installed in /usr/bin or
    /usr/local/bin
 
-.. _section-11:
+.. _section-12:
 
 0.0.2 (2017-05-16)
 ------------------
@@ -184,7 +200,7 @@ Added
 
 -  Add recurse flag
 
-.. _changed-4:
+.. _changed-5:
 
 Changed
 ~~~~~~~
@@ -195,7 +211,7 @@ Changed
 -  Improve error handling, e2j2 will now report failures and render
    \*.err files which will make debugging errors much easier
 
-.. _section-12:
+.. _section-13:
 
 0.0.1 (2017-05-01)
 ------------------
