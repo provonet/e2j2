@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION='0.1.10'
+VERSION='0.1.11'
 pandoc --from=markdown --to=rst --output=README.rst README.md
 pandoc --from=markdown --to=rst --output=CHANGELOG.rst CHANGELOG.md
 python setup.py sdist bdist_wheel

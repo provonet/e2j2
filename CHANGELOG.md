@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.11
+## Changed
+- Changed behavior of nested keys with the consul tag.
+
+example: in consul we have an key key1/key2/123
+envvar KEY=consul:key1/key2 => {{ KEY }} will now render to 123 and no longer to {"key2": 123}  
+
 ## 0.1.10 (2018-09-24)
 ### Added
 - add file tag, this tag will place the content of the file into the variable
