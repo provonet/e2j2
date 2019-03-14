@@ -1,7 +1,11 @@
 # Changelog
 
-## 0.1.11
-## Changed
+## 0.1.12 (2019-03-14)
+### Added
+- add support for two pass rendering
+
+## 0.1.11 (2019-01-30)
+### Changed
 - Changed behavior of nested keys with the consul tag.
 
 example: in consul we have an key key1/key2/123
@@ -16,7 +20,7 @@ envvar KEY=consul:key1/key2 => {{ KEY }} will now render to 123 and no longer to
 - fix import issue on python 2.7
 
 ## 0.1.8 (2018-09-21)
-### Added
+### Changed
 - handle hashrocket characters in json tag (as produced by hiera)
 
 ## 0.1.7 (2018-09-20)

@@ -28,8 +28,12 @@ def get_vars():
     return envcontext
 
 
-def render(j2file, j2vars):
+def render(j2file, j2vars, twopass=False):
     path, filename = os.path.split(j2file)
-    return jinja2.Environment(
-        loader=jinja2.FileSystemLoader(path or './'),
-        undefined=jinja2.StrictUndefined).get_template(filename).render(j2vars)
+    firstpass = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './'),
+                             undefined=jinja2.StrictUndefined).get_template(filename).render(j2vars)
+
+    if twopass:
+        return jinja2.Environment(loader=jinja2.BaseLoader()).from_string(firstpass).render(j2vars)
+    else:
+        return firstpass

@@ -12,7 +12,7 @@ def e2j2():
     arg_parser = argparse.ArgumentParser(prog='e2j2', description=DESCRIPTION)
     arg_parser.add_argument('-v', '--version',
                             action='version',
-                            version='%(prog)s 0.1.11')
+                            version='%(prog)s 0.1.12')
     arg_parser.add_argument('-e', '--ext', '--extention',
                             default='.j2',
                             type=str,
@@ -32,6 +32,9 @@ def e2j2():
     arg_parser.add_argument('--no-color',
                             action='store_true',
                             help='Disable the use of ANSI color escapes')
+    arg_parser.add_argument('-2', '--twopass',
+                            action='store_true',
+                            help='Enable two pass rendering')
 
     args = arg_parser.parse_args()
 
@@ -69,7 +72,7 @@ def e2j2():
             sys.stdout.write('    {}rendering: {}{:35}{} => '.format(green, white, os.path.basename(j2file), green))
 
             try:
-                rendered_file = templates.render(j2file=j2file, j2vars=j2vars)
+                rendered_file = templates.render(j2file=j2file, j2vars=j2vars, twopass=args.twopass)
                 status = lightgreen + 'success' + reset_all
             except Exception as e:
                 filename += '.err'
