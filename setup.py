@@ -1,6 +1,6 @@
 from setuptools import setup
 
-description = 'e2j2 is a commandline utility to render text/configuration files from jinja2 templates'
+description = 'e2j2 is a commandline utility to render text/configuration files from jinja2 templates from shell environment variables'
 
 setup(name='e2j2',
       version='0.1.12',

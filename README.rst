@@ -231,7 +231,7 @@ Setting:
 
 ::
 
-   export MYLIST='list:list:"first","second", "third",  "fourth"'
+   export MYLIST='list:"first","second","third","fourth"'
 
 will render list-example.j2 to:
 
@@ -241,3 +241,35 @@ will render list-example.j2 to:
    "second"
    "third"
    "fourth"
+
+Two pass rendering
+~~~~~~~~~~~~~~~~~~
+
+Starting from version 0.1.12 e2j2 supports embedding jinja2 macros in
+environment variables.
+
+Example:
+
+Setting the following two environment variables:
+
+::
+
+    export WORDPRESS='json:{"database": {"name": "mydb", "user": "mydb_user", "password": "{{ DBSECRET }}", "host": "localhost"}}'
+    export DBSECRET='file:./twopass-secret'
+
+will render (by running: ``e2j2 -f twopass-example.j2 -2``) to:
+
+::
+
+   // ** MySQL settings - You can get this info from your web host ** //
+   /** The name of the database for WordPress */
+   define( 'DB_NAME', 'mydb' );
+
+   /** MySQL database username */
+   define( 'DB_USER', 'mydb_user' );
+
+   /** MySQL database password */
+   define( 'DB_PASSWORD', 'Db$ecr3t' );
+
+   /** MySQL hostname */
+   define( 'DB_HOST', 'localhost' );
