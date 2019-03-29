@@ -1,4 +1,5 @@
 import os
+import re
 import jinja2
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL
 from e2j2.helpers import parsers
@@ -30,10 +31,25 @@ def get_vars():
 
 def render(j2file, j2vars, twopass=False):
     path, filename = os.path.split(j2file)
-    firstpass = jinja2.Environment(loader=jinja2.FileSystemLoader(path or './'),
-                             undefined=jinja2.StrictUndefined).get_template(filename).render(j2vars)
 
     if twopass:
-        return jinja2.Environment(loader=jinja2.BaseLoader()).from_string(firstpass).render(j2vars)
+        with open(j2file, 'r') as file:
+            template = file.read()
+
+            # add extra raw tags for 2nd pass
+            template = re.sub(r'(\{%\s*raw\s*%\})', r'\1%%%RAW%%%', template, flags=re.IGNORECASE)
+            template = re.sub(r'(\{%\s*endraw\s*%\})', r'\1%%%ENDRAW%%%', template, flags=re.IGNORECASE)
+
+            # first pass
+            template = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(template).render(j2vars)
+
+            # re insert raw tags
+            template = re.sub(r'%%%RAW%%%', r'{% raw %}', template)
+            template = re.sub(r'%%%ENDRAW%%%', r'{% endraw %}', template)
+
+            # second pass
+            return jinja2.Environment(loader=jinja2.BaseLoader()).from_string(template).render(j2vars)
     else:
-        return firstpass
+        return jinja2.Environment(loader=jinja2.FileSystemLoader(path or './'),
+                                  undefined=jinja2.StrictUndefined).get_template(filename).render(j2vars)
+
