@@ -41,15 +41,17 @@ def render(j2file, j2vars, twopass=False):
             template = re.sub(r'(\{%\s*endraw\s*%\})', r'\1%%%ENDRAW%%%', template, flags=re.IGNORECASE)
 
             # first pass
-            template = jinja2.Environment(loader=jinja2.BaseLoader()).from_string(template).render(j2vars)
+            template = jinja2.Environment(
+                loader=jinja2.BaseLoader(), keep_trailing_newline=True).from_string(template).render(j2vars)
 
             # re insert raw tags
             template = re.sub(r'%%%RAW%%%', r'{% raw %}', template)
             template = re.sub(r'%%%ENDRAW%%%', r'{% endraw %}', template)
 
             # second pass
-            return jinja2.Environment(loader=jinja2.BaseLoader()).from_string(template).render(j2vars)
+            return jinja2.Environment(
+                loader=jinja2.BaseLoader(), keep_trailing_newline=True).from_string(template).render(j2vars)
     else:
         return jinja2.Environment(loader=jinja2.FileSystemLoader(path or './'),
+                                  keep_trailing_newline=True,
                                   undefined=jinja2.StrictUndefined).get_template(filename).render(j2vars)
-
