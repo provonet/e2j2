@@ -1,4 +1,8 @@
 # Changelog
+## 0.1.14 (unreleased)
+### Fixed
+- preserve newlines at end of file
+
 ## 0.1.13 (2019-03-29)
 ### Fixed
 - Fix for ignored raw tag with two-pass rendering
