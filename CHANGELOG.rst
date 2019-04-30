@@ -1,15 +1,28 @@
 Changelog
 =========
 
+0.1.14 (2019-04-30)
+-------------------
+
+Fixed
+~~~~~
+
+-  preserve newlines at end of file
+-  CVE-2019-10906, module now requires jinja2>=2.10.1
+
+.. _section-1:
+
 0.1.13 (2019-03-29)
 -------------------
+
+.. _fixed-1:
 
 Fixed
 ~~~~~
 
 -  Fix for ignored raw tag with two-pass rendering
 
-.. _section-1:
+.. _section-2:
 
 0.1.12 (2019-03-14)
 -------------------
@@ -19,7 +32,7 @@ Added
 
 -  add support for two pass rendering
 
-.. _section-2:
+.. _section-3:
 
 0.1.11 (2019-01-30)
 -------------------
@@ -33,7 +46,7 @@ example: in consul we have an key key1/key2/123 envvar
 KEY=consul:key1/key2 => {{ KEY }} will now render to 123 and no longer
 to {“key2”: 123}
 
-.. _section-3:
+.. _section-4:
 
 0.1.10 (2018-09-24)
 -------------------
@@ -46,19 +59,19 @@ Added
 -  add file tag, this tag will place the content of the file into the
    variable
 
-.. _section-4:
+.. _section-5:
 
 0.1.9 (2018-09-21)
 ------------------
 
-.. _fixed-1:
+.. _fixed-2:
 
 Fixed
 ~~~~~
 
 -  fix import issue on python 2.7
 
-.. _section-5:
+.. _section-6:
 
 0.1.8 (2018-09-21)
 ------------------
@@ -70,7 +83,7 @@ Changed
 
 -  handle hashrocket characters in json tag (as produced by hiera)
 
-.. _section-6:
+.. _section-7:
 
 0.1.7 (2018-09-20)
 ------------------
@@ -82,7 +95,7 @@ Added
 
 -  Add list tag which will parse a comma separated list
 
-.. _section-7:
+.. _section-8:
 
 0.1.6 (2018-05-17)
 ------------------
@@ -95,7 +108,7 @@ Changed
 -  Improved error messages
 -  Handle json decode errors
 
-.. _section-8:
+.. _section-9:
 
 0.1.5 (2018-05-11)
 ------------------
@@ -107,7 +120,7 @@ Added
 
 -  add no-color option
 
-.. _section-9:
+.. _section-10:
 
 0.1.4 (2017-08-21)
 ------------------
@@ -120,14 +133,14 @@ Added
 -  add version option
 -  add file list option
 
-.. _fixed-2:
+.. _fixed-3:
 
 Fixed
 ~~~~~
 
 -  Fix bug with empty consul key values
 
-.. _section-10:
+.. _section-11:
 
 0.1.3 (2017-07-11)
 ------------------
@@ -145,7 +158,7 @@ Changed
 
 -  remove dependency click, use argparse instead.
 
-.. _fixed-3:
+.. _fixed-4:
 
 Fixed
 ~~~~~
@@ -153,24 +166,24 @@ Fixed
 -  make sure that bytes are casted to strings (for base64 and consul
    tags)
 
-.. _section-11:
+.. _section-12:
 
 0.1.2 (2017-05-17)
 ------------------
 
-.. _fixed-4:
+.. _fixed-5:
 
 Fixed
 ~~~~~
 
 -  additional fix for install issue on python2 (added MANIFEST.in)
 
-.. _section-12:
+.. _section-13:
 
 0.1.1 (2017-05-17)
 ------------------
 
-.. _fixed-5:
+.. _fixed-6:
 
 Fixed
 ~~~~~
@@ -190,7 +203,7 @@ Changed
 
 -  move methods to separate helper files
 
-.. _section-13:
+.. _section-14:
 
 0.1.0 (2017-05-16)
 ------------------
@@ -212,7 +225,7 @@ Changed
 -  split script and module, script will be installed in /usr/bin or
    /usr/local/bin
 
-.. _section-14:
+.. _section-15:
 
 0.0.2 (2017-05-16)
 ------------------
@@ -235,7 +248,7 @@ Changed
 -  Improve error handling, e2j2 will now report failures and render
    \*.err files which will make debugging errors much easier
 
-.. _section-15:
+.. _section-16:
 
 0.0.1 (2017-05-01)
 ------------------

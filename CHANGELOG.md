@@ -1,7 +1,8 @@
 # Changelog
-## 0.1.14 (unreleased)
+## 0.1.14 (2019-04-30)
 ### Fixed
 - preserve newlines at end of file
+- CVE-2019-10906, module now requires jinja2>=2.10.1
 
 ## 0.1.13 (2019-03-29)
 ### Fixed
