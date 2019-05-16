@@ -29,29 +29,23 @@ def get_vars():
     return envcontext
 
 
-def render(j2file, j2vars, twopass=False):
-    path, filename = os.path.split(j2file)
+def render(**kwargs):
+    with open(kwargs['j2file'], 'r') as file:
+        template = file.read()
 
-    if twopass:
-        with open(j2file, 'r') as file:
-            template = file.read()
+    j2 = jinja2.Environment(
+        loader=jinja2.BaseLoader(),
+        keep_trailing_newline=True,
+        block_start_string=kwargs['block_start'],
+        block_end_string=kwargs['block_end'],
+        variable_start_string=kwargs['variable_start'],
+        variable_end_string=kwargs['variable_end'],
+        comment_start_string=kwargs['comment_start'],
+        comment_end_string=kwargs['comment_end'])
 
-            # add extra raw tags for 2nd pass
-            template = re.sub(r'(\{%\s*raw\s*%\})', r'\1%%%RAW%%%', template, flags=re.IGNORECASE)
-            template = re.sub(r'(\{%\s*endraw\s*%\})', r'\1%%%ENDRAW%%%', template, flags=re.IGNORECASE)
-
-            # first pass
-            template = jinja2.Environment(
-                loader=jinja2.BaseLoader(), keep_trailing_newline=True).from_string(template).render(j2vars)
-
-            # re insert raw tags
-            template = re.sub(r'%%%RAW%%%', r'{% raw %}', template)
-            template = re.sub(r'%%%ENDRAW%%%', r'{% endraw %}', template)
-
-            # second pass
-            return jinja2.Environment(
-                loader=jinja2.BaseLoader(), keep_trailing_newline=True).from_string(template).render(j2vars)
+    first_pass = j2.from_string(template).render(kwargs['j2vars'])
+    if kwargs['twopass']:
+        # second pass
+        return j2.from_string(first_pass).render(kwargs['j2vars'])
     else:
-        return jinja2.Environment(loader=jinja2.FileSystemLoader(path or './'),
-                                  keep_trailing_newline=True,
-                                  undefined=jinja2.StrictUndefined).get_template(filename).render(j2vars)
+        return first_pass

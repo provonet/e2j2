@@ -1,13 +1,14 @@
 import unittest
-from mock import patch, Mock
+from mock import patch
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
+
 
 class ArgumentParser:
     pass
 
 
-class TestMain(unittest.TestCase):
+class TestCli(unittest.TestCase):
     def setUp(self):
         pass
 
@@ -28,7 +29,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(cli.get_search_list('foo,bar'), 'foo,bar')
 
         # from environment
-        with patch('os.environ.get', return_value='foo,bar'):
+        with patch('e2j2.cli.os.environ.get', return_value='foo,bar'):
             self.assertEqual(cli.get_search_list(None), 'foo,bar')
 
     def test_use_color(self):
@@ -64,44 +65,45 @@ class TestMain(unittest.TestCase):
         args.noop = True
         with patch('e2j2.cli.arg_parse', return_value=args):
             with patch('e2j2.cli.get_files', return_value=args.filelist):
-                with patch('os.path.dirname', side_effect=['foo']):
+                with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.helpers.templates.render', side_effect=['content1']):
-                        with patch('sys.stdout.write') as sys_stdout_patch:
+                        with patch('e2j2.cli.sys.stdout.write') as sys_stdout_mock:
                             cli.e2j2()
-                            sys_stdout_patch.assert_called_with('skipped\n')
+                            sys_stdout_mock.assert_called_with('skipped\n')
 
         # normal run
         args.noop = False
         with patch('e2j2.cli.arg_parse', return_value=args):
             with patch('e2j2.cli.get_files', return_value=args.filelist):
-                with patch('os.path.dirname', side_effect=['foo']):
+                with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.helpers.templates.render', side_effect=['content1']):
-                        with patch('e2j2.cli.write_file') as write_patch:
+                        with patch('e2j2.cli.write_file') as write_mock:
                             cli.e2j2()
-                            write_patch.assert_called_with('/foo/file1', 'content1')
+                            write_mock.assert_called_with('/foo/file1', 'content1')
 
         # IOError raised
         args.noop = False
         with patch('e2j2.cli.arg_parse', return_value=args):
             with patch('e2j2.cli.get_files', return_value=args.filelist):
-                with patch('os.path.dirname', side_effect=['foo']):
+                with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.helpers.templates.render', side_effect=['content1']):
-                        with patch('e2j2.cli.write_file') as write_patch:
-                            with patch('sys.stdout.write') as sys_stdout_patch:
-                                write_patch.side_effect = IOError()
+                        with patch('e2j2.cli.write_file') as write_mock:
+                            with patch('e2j2.cli.sys.stdout.write') as sys_stdout_mock:
+                                write_mock.side_effect = IOError()
                                 cli.e2j2()
-                                sys_stdout_patch.assert_called_with('failed ()\n')
+                                sys_stdout_mock.assert_called_with('failed ()\n')
 
         # KeyError raised
         args.noop = False
         with patch('e2j2.cli.arg_parse', return_value=args):
             with patch('e2j2.cli.get_files', return_value=args.filelist):
-                with patch('os.path.dirname', side_effect=['foo']):
-                    with patch('e2j2.helpers.templates.render') as render_patch:
-                        render_patch.side_effect = KeyError('Error')
-                        with patch('e2j2.cli.write_file') as write_patch:
+                with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
+                    with patch('e2j2.helpers.templates.render') as render_mock:
+                        render_mock.side_effect = KeyError('Error')
+                        with patch('e2j2.cli.write_file') as write_mock:
                             cli.e2j2()
-                            write_patch.assert_called_with('/foo/file1.err', "'Error'")
+                            write_mock.assert_called_with('/foo/file1.err', "'Error'")
+
 
 if __name__ == '__main__':
     unittest.main()

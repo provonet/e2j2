@@ -1,4 +1,10 @@
 # Changelog
+## 0.1.15 (2019-05-16)
+- add options to overwrite the default jinja2 markers (block start/end, variable start/end and comment start/end)
+
+### Breaking change
+- removed "hack" for twopass rendering, you can use the new marker for handling conflicting characters in your template  
+
 ## 0.1.14 (2019-04-30)
 ### Fixed
 - preserve newlines at end of file

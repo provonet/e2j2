@@ -7,8 +7,8 @@ from e2j2.helpers import templates
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
 
 
-def arg_parse(prog, description, version):
-    arg_parser = argparse.ArgumentParser(prog=prog, description=description)
+def arg_parse(program, description, version):
+    arg_parser = argparse.ArgumentParser(prog=program, description=description)
     arg_parser.add_argument('-v', '--version',
                             action='version',
                             version='%(prog)s {}'.format(version))
@@ -34,7 +34,30 @@ def arg_parse(prog, description, version):
     arg_parser.add_argument('-2', '--twopass',
                             action='store_true',
                             help='Enable two pass rendering')
-
+    arg_parser.add_argument('--block_start',
+                            type=str,
+                            default='%{',
+                            help="Block marker start (default: '{%%')")
+    arg_parser.add_argument('--block_end',
+                            type=str,
+                            default='%}',
+                            help="Block marker end (default: '%%}')")
+    arg_parser.add_argument('--variable_start',
+                            type=str,
+                            default='{{',
+                            help="Variable marker start (default: '{{')")
+    arg_parser.add_argument('--variable_end',
+                            type=str,
+                            default='}}',
+                            help="Variable marker start (default: '}}')")
+    arg_parser.add_argument('--comment_start',
+                            type=str,
+                            default='#}',
+                            help="Comment marker start (default: '{#')")
+    arg_parser.add_argument('--comment_end',
+                            type=str,
+                            default='#}',
+                            help="Comment marker end (default: '#}')")
     return arg_parser.parse_args()
 
 
@@ -83,6 +106,7 @@ def e2j2():
 
     j2files = get_files(filelist=args.filelist,  searchlist=search_list, extension=args.ext, recurse=recursive)
 
+    directory = None
     for j2file in j2files:
         try:
             directory = os.path.dirname(j2file)
@@ -94,7 +118,16 @@ def e2j2():
             sys.stdout.write('    {}rendering: {}{:35}{} => '.format(green, white, os.path.basename(j2file), green))
 
             try:
-                content = templates.render(j2file=j2file, j2vars=j2vars, twopass=args.twopass)
+                content = templates.render(
+                    j2file=j2file,
+                    j2vars=j2vars,
+                    twopass=args.twopass,
+                    block_start=args.block_start,
+                    block_end=args.block_end,
+                    variable_start=args.variable_start,
+                    variable_end=args.variable_end,
+                    comment_start=args.comment_start,
+                    comment_end=args.comment_end)
                 status = lightgreen + 'success' + reset_all
             except Exception as e:
                 filename += '.err'

@@ -49,9 +49,10 @@ def parse_base64(value):
         return '** ERROR: decoding BASE64 string **'
 
 
-def parse_consul(path):
+def parse_consul(key):
     try:
-        consul_config = json.loads(os.environ['CONSUL_CONFIG']) if 'CONSUL_CONFIG' in os.environ else {}
+        env = os.environ
+        consul_config = json.loads(env['CONSUL_CONFIG']) if 'CONSUL_CONFIG' in env else {}
     except JSONDecodeError:
         # Mark as failed
         return '** ERROR: parsing consul_config **'
@@ -62,11 +63,11 @@ def parse_consul(path):
     token = consul_config['token'] if 'token' in consul_config else None
 
     consul_merger = Merger([(list, ['append']), (dict, ['merge'])], ['override'], ['override'])
-    path = path.rstrip('/')
+    key = key.rstrip('/')
 
     try:
         consul = Consul(scheme=scheme, host=host, port=port, token=token)
-        _, kv_entries = consul.kv.get(recurse=True, key=path)
+        _, kv_entries = consul.kv.get(recurse=True, key=key)
     except ACLPermissionDenied:
         return '** Access denied connecting to: {}://{}:{} **'.format(scheme, host, port)
 
@@ -83,7 +84,7 @@ def parse_consul(path):
             consul_dict = consul_merger.merge(consul_dict, json.loads(key))
         else:
             consul_dict[entry['Key']] = value
-    return reduce(operator.getitem, path.split('/'), consul_dict)
+    return reduce(operator.getitem, key.split('/'), consul_dict)
 
 
 def parse_list(value):
