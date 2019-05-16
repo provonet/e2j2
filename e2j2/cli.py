@@ -36,7 +36,7 @@ def arg_parse(program, description, version):
                             help='Enable two pass rendering')
     arg_parser.add_argument('--block_start',
                             type=str,
-                            default='%{',
+                            default='{%',
                             help="Block marker start (default: '{%%')")
     arg_parser.add_argument('--block_end',
                             type=str,
@@ -52,7 +52,7 @@ def arg_parse(program, description, version):
                             help="Variable marker start (default: '}}')")
     arg_parser.add_argument('--comment_start',
                             type=str,
-                            default='#}',
+                            default='{#',
                             help="Comment marker start (default: '{#')")
     arg_parser.add_argument('--comment_end',
                             type=str,
@@ -92,7 +92,7 @@ def write_file(filename, content):
 
 
 def e2j2():
-    args = arg_parse('e2j2', DESCRIPTION, '0.1.15')
+    args = arg_parse('e2j2', DESCRIPTION, '0.1.16')
 
     search_list = get_search_list(args.searchlist)
     recursive = args.recursive

@@ -1,5 +1,10 @@
 # Changelog
+## 0.1.16 (2019-05-16)
+## Changed
+- Fix bug with default jinja marker
+
 ## 0.1.15 (2019-05-16)
+## Changed
 - add options to overwrite the default jinja2 markers (block start/end, variable start/end and comment start/end)
 
 ### Breaking change
