@@ -1,4 +1,7 @@
 # Changelog
+## 0.1.18 (2019-05-17)
+- Fix bug in consul parser
+
 ## 0.1.17 (2019-05-17)
 ## Fixed
 - Fix bug with include statements in jinja2 template

@@ -3,6 +3,7 @@
 .env
 *.pyc
 *.err
+*.rst
 build/
 dist/
 e2j2.egg-info/
