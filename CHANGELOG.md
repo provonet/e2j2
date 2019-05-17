@@ -1,6 +1,10 @@
 # Changelog
+## 0.1.17 (2019-05-17)
+## Fixed
+- Fix bug with include statements in jinja2 template
+
 ## 0.1.16 (2019-05-16)
-## Changed
+## Fixed
 - Fix bug with default jinja marker
 
 ## 0.1.15 (2019-05-16)

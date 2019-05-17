@@ -92,7 +92,7 @@ def write_file(filename, content):
 
 
 def e2j2():
-    args = arg_parse('e2j2', DESCRIPTION, '0.1.16')
+    args = arg_parse('e2j2', DESCRIPTION, '0.1.17')
 
     search_list = get_search_list(args.searchlist)
     recursive = args.recursive

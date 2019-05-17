@@ -30,11 +30,11 @@ def get_vars():
 
 
 def render(**kwargs):
-    with open(kwargs['j2file'], 'r') as file:
-        template = file.read()
+    path, filename = os.path.split(kwargs['j2file'])
 
     j2 = jinja2.Environment(
-        loader=jinja2.BaseLoader(),
+        loader=jinja2.FileSystemLoader(path or './'),
+        undefined=jinja2.StrictUndefined,
         keep_trailing_newline=True,
         block_start_string=kwargs['block_start'],
         block_end_string=kwargs['block_end'],
@@ -43,7 +43,7 @@ def render(**kwargs):
         comment_start_string=kwargs['comment_start'],
         comment_end_string=kwargs['comment_end'])
 
-    first_pass = j2.from_string(template).render(kwargs['j2vars'])
+    first_pass = j2.get_template(filename).render(kwargs['j2vars'])
     if kwargs['twopass']:
         # second pass
         return j2.from_string(first_pass).render(kwargs['j2vars'])
