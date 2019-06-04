@@ -26,14 +26,15 @@ class TestTemplates(unittest.TestCase):
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
 
-            with patch('e2j2.helpers.templates.parsers.parse_tag', return_value='** ERROR: Key not found **'):
-                self.assertEqual(templates.get_vars(), {'FOO_ENV': '** ERROR: Key not found **'})
+            with patch('builtins.print'):
+                with patch('e2j2.helpers.templates.parsers.parse_tag', return_value='** ERROR: Key not found **'):
+                    self.assertEqual(templates.get_vars(), {'FOO_ENV': '** ERROR: Key not found **'})
 
     def test_render(self):
-        # one pass
         with patch('e2j2.helpers.templates.jinja2.Environment') as jinja2_mock:
-            jinja2_mock.return_value.get_template.return_value.render.return_value='rendered template'
 
+            # one pass
+            jinja2_mock.return_value.get_template.return_value.render.return_value = 'rendered template'
             response = templates.render(
                         j2file='/foo/file1.j2',
                         twopass=False,
@@ -49,7 +50,23 @@ class TestTemplates(unittest.TestCase):
             jinja2_mock.return_value.get_template.return_value.render.assert_called_with({"FOO": "BAR"})
             self.assertEqual(response, 'rendered template')
 
-        # two pass
+            # two pass
+            jinja2_mock.return_value.from_string.return_value.render.return_value = 'rendered template'
+            response = templates.render(
+                        j2file='/foo/file1.j2',
+                        twopass=True,
+                        block_start='{%',
+                        block_end='%}',
+                        variable_start='{{',
+                        variable_end='}}',
+                        comment_start='{#',
+                        comment_end='#}',
+                        j2vars={"FOO": "BAR"})
+
+            jinja2_mock.return_value.from_string.assert_called_with('rendered template')
+            jinja2_mock.return_value.from_string.return_value.render.assert_called_with({"FOO": "BAR"})
+            self.assertEqual(response, 'rendered template')
+
 
 if __name__ == '__main__':
     unittest.main()

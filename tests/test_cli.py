@@ -1,7 +1,7 @@
 import unittest
 from mock import patch, mock_open
 from e2j2 import cli
-from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
+from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
 
 
 class ArgumentParser:
@@ -14,12 +14,13 @@ class TestCli(unittest.TestCase):
 
     def test_arg_parse(self):
         # no arguments
-        args = cli.arg_parse('e2j2', '', 'x.x.x')
+        with patch('sys.argv'):
+            args = cli.arg_parse('e2j2', '', 'x.x.x')
 
-        self.assertFalse(args.no_color)
-        self.assertFalse(args.recursive)
-        self.assertFalse(args.noop)
-        self.assertFalse(args.twopass)
+            self.assertFalse(args.no_color)
+            self.assertFalse(args.recursive)
+            self.assertFalse(args.noop)
+            self.assertFalse(args.twopass)
 
     def test_search_list(self):
         # default

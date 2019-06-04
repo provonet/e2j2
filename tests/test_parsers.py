@@ -137,3 +137,6 @@ class TestParsers(unittest.TestCase):
 
         self.assertEqual(parsers.parse_tag('unknown:', 'foobar'), '** ERROR: tag: unknown: not implemented **')
 
+
+if __name__ == '__main__':
+    unittest.main()
