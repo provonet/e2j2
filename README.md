@@ -1,5 +1,5 @@
 
-# e2j2
+# e2j2 [![Build Status](https://travis-ci.org/provonet/e2j2.svg?branch=master)]
 
 ## What is e2j2?
 
