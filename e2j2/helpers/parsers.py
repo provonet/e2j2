@@ -16,6 +16,22 @@ except ImportError:
     JSONDecodeError = ValueError
 
 
+class ConsulKV:
+    def __init__(self, config):
+        self.scheme = config['scheme'] if 'scheme' in config else 'http'
+        self.host = config['host'] if 'host' in config else '127.0.0.1'
+        self.port = config['port'] if 'port' in config else 8500
+        self.token = config['token'] if 'token' in config else None
+        self.client = self.setup()
+
+    def setup(self):
+        return Consul(scheme=self.scheme, host=self.host, port=self.port, token=self.token)
+
+    def get(self, key, recurse=False):
+        _, entries = self.client.kv.get(recurse=recurse, key=key)
+        return entries
+
+
 def parse_json_string(json_string):
     try:
         # handle hashrocket styled json
@@ -57,19 +73,14 @@ def parse_consul(consul_key):
         # Mark as failed
         return '** ERROR: parsing consul_config **'
 
-    scheme = consul_config['scheme'] if 'scheme' in consul_config else 'http'
-    host = consul_config['host'] if 'host' in consul_config else '127.0.0.1'
-    port = consul_config['port'] if 'port' in consul_config else 8500
-    token = consul_config['token'] if 'token' in consul_config else None
-
+    consul_kv = ConsulKV(config=consul_config)
     consul_merger = Merger([(list, ['append']), (dict, ['merge'])], ['override'], ['override'])
     consul_key = consul_key.rstrip('/')
 
     try:
-        consul = Consul(scheme=scheme, host=host, port=port, token=token)
-        _, kv_entries = consul.kv.get(recurse=True, key=consul_key)
+        kv_entries = consul_kv.get(recurse=True, key=consul_key)
     except ACLPermissionDenied:
-        return '** Access denied connecting to: {}://{}:{} **'.format(scheme, host, port)
+        return '** Access denied connecting to: {}://{}:{} **'.format(consul_kv.scheme, consul_kv.host, consul_kv.port)
 
     if not kv_entries:
         # Mark as failed if we can't find the consul key
@@ -88,11 +99,7 @@ def parse_consul(consul_key):
 
 
 def parse_list(value):
-    try:
-        return re.split(",\s*", value)
-    except:
-        # Mark as failed
-        return '** ERROR: Parsing comma separated list **'
+    return re.split(r",\s*", value)
 
 
 def parse_file(file_name):

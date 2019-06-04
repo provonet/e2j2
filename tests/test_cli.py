@@ -1,5 +1,5 @@
 import unittest
-from mock import patch
+from mock import patch, mock_open
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
 
@@ -52,6 +52,11 @@ class TestCli(unittest.TestCase):
                 ['file1.j2', 'file2.j2']
             )
 
+    def test_write_file(self):
+        with patch('e2j2.cli.open', mock_open()) as open_mock:
+            cli.write_file('file.txt', 'content')
+            open_mock.assert_called_with('file.txt', mode='w')
+
     def test_e2j2(self):
         args = ArgumentParser()
         args.filelist = ['/foo/file1.j2']
@@ -60,6 +65,12 @@ class TestCli(unittest.TestCase):
         args.ext = '.j2'
         args.no_color = True
         args.twopass = False
+        args.block_start = '{%'
+        args.block_end = '%}'
+        args.variable_start = '{{'
+        args.variable_end = '}}'
+        args.comment_start = '{#'
+        args.comment_end = '#}'
 
         # noop run
         args.noop = True

@@ -1,5 +1,4 @@
 import os
-import re
 import jinja2
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL
 from e2j2.helpers import parsers
