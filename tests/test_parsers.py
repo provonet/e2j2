@@ -1,6 +1,6 @@
 import unittest
-from mock import patch, mock_open
-from unittest.mock import MagicMock
+import six
+from mock import patch, mock_open, MagicMock
 from consul.base import ACLPermissionDenied
 from e2j2.helpers import parsers
 
@@ -25,6 +25,7 @@ class TestParsers(unittest.TestCase):
         # invalid json
         self.assertEqual(parsers.parse_json_string('<invalid>'), '** ERROR: Decoding JSON **')
 
+    @unittest.skipIf(six.PY2, "not compatible with Python 2")
     def test_parse_json_file(self):
         with patch('builtins.open'):
             with patch('e2j2.helpers.parsers.json.load', return_value={'foo': 'bar'}):

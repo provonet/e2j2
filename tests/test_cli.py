@@ -1,4 +1,5 @@
 import unittest
+import six
 from mock import patch, mock_open
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
@@ -58,6 +59,7 @@ class TestCli(unittest.TestCase):
             cli.write_file('file.txt', 'content')
             open_mock.assert_called_with('file.txt', mode='w')
 
+    @unittest.skipIf(six.PY2, "not compatible with Python 2")
     def test_e2j2(self):
         args = ArgumentParser()
         args.filelist = ['/foo/file1.j2']

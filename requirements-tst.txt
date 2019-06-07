@@ -1,3 +1,4 @@
 mock
 unittest2
 coveralls
+six
