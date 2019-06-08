@@ -1,5 +1,5 @@
-e2j2 [|Build Status|]
-=====================
+e2j2 [|Build Status| |Coverage Status|]
+=======================================
 
 What is e2j2?
 -------------
@@ -275,4 +275,6 @@ will render (by running: ``e2j2 -f twopass-example.j2 -2``) to:
    define( 'DB_HOST', 'localhost' );
 
 .. |Build Status| image:: https://travis-ci.org/provonet/e2j2.svg?branch=master
-
+   :target: https://travis-ci.org/provonet/e2j2
+.. |Coverage Status| image:: https://coveralls.io/repos/github/provonet/e2j2/badge.svg
+   :target: https://coveralls.io/github/provonet/e2j2
