@@ -16,3 +16,4 @@ examples/list-example
 examples/file-example
 examples/twopass-example
 .venv
+.coverage
