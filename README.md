@@ -1,5 +1,5 @@
 
-# e2j2 [![Build Status](https://travis-ci.org/provonet/e2j2.svg?branch=master)![Coverage Status](https://coveralls.io/repos/github/provonet/e2j2/badge.svg)](https://coveralls.io/github/provonet/e2j2)]
+# e2j2 [[![Build Status](https://travis-ci.org/provonet/e2j2.svg?branch=master)|![Coverage Status](https://coveralls.io/repos/github/provonet/e2j2/badge.svg)](https://coveralls.io/github/provonet/e2j2)]
 
 ## What is e2j2?
 
