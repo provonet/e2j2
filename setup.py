@@ -7,6 +7,7 @@ setup(name='e2j2',
       description=description,
       long_description=open('README.rst').read() + '\n\n' + open('CHANGELOG.rst').read(),
       install_requires=['jinja2>=2.10.1', 'python-consul>=0.6.0', 'deepmerge>=0.0.4'],
+      tests_require=['mock', 'unittest2', 'six'],
       url='http://github.com/provonet/e2j2',
       author='Johan Bakker',
       author_email='johan.bakker@gmail.com',
@@ -29,4 +30,5 @@ setup(name='e2j2',
         'Topic :: System :: Systems Administration',
         'Topic :: Software Development :: Libraries'
         ],
+      test_suite="tests",
       zip_safe=True)
