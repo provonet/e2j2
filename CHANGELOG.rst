@@ -1,9 +1,22 @@
 Changelog
 =========
+0.1.19 (unreleased)
+-------------------
+
+Fixed
+-----
+- set proper exit codes (0=success / 1=failure)
+
+Changed
+-------
+- add unittests
+- add functional tests
 
 0.1.18 (2019-05-17)
 -------------------
 
+Fixed
+-----
 -  Fix bug in consul parser
 
 .. _section-1:
