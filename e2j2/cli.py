@@ -1,9 +1,10 @@
 import sys
-import os
 import re
-
 import argparse
+import os
+from os.path import basename
 from e2j2.helpers import templates
+from e2j2.helpers.templates import stdout
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
 
 
@@ -113,9 +114,9 @@ def e2j2():
             filename = re.sub(r'{}$'.format(extension), '', j2file)
 
             if directory != old_directory:
-                sys.stdout.write('\n{}In: {}{}\n'.format(green, white, directory))
+                stdout('\n{}In: {}{}\n'.format(green, white, directory))
 
-            sys.stdout.write('    {}rendering: {}{:35}{} => '.format(green, white, os.path.basename(j2file), green))
+            stdout('    {}rendering: {}{:35}{} => '.format(green, white, basename(j2file), green))
 
             try:
                 content = templates.render(
@@ -134,16 +135,15 @@ def e2j2():
                 content = str(e)
                 status = bright_red + 'failed ' + reset_all
 
-            sys.stdout.write('{}{:7} => writing: {}{:25}{} => '.format(status, green, white,
-                                                                       os.path.basename(filename), green))
+            stdout('{}{:7} => writing: {}{:25}{} => '.format(status, green, white, basename(filename), green))
 
             if args.noop:
-                sys.stdout.write('{}skipped{}\n'.format(yellow, reset_all))
+                stdout('{}skipped{}\n'.format(yellow, reset_all))
             else:
                 write_file(filename, content)
-                sys.stdout.write('{}success{}\n'.format(lightgreen, reset_all))
+                stdout('{}success{}\n'.format(lightgreen, reset_all))
         except Exception as e:
-            sys.stdout.write('{}failed{} ({})\n'.format(bright_red, reset_all, str(e)))
+            stdout('{}failed{} ({})\n'.format(bright_red, reset_all, str(e)))
         finally:
             old_directory = directory
             sys.stdout.flush()

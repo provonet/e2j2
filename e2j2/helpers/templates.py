@@ -1,7 +1,12 @@
 import os
+import sys
 import jinja2
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL
 from e2j2.helpers import parsers
+
+
+def stdout(msg):
+    sys.stdout.write(msg)
 
 
 def find(searchlist, j2file_ext, recurse=False):
@@ -23,7 +28,7 @@ def get_vars():
         envcontext[envvar] = parsers.parse_tag(defined_tag[0], envvalue) if defined_tag else envvalue
 
         if '** ERROR:' in envcontext[envvar]:
-            print(BRIGHT_RED + "{}='{}'".format(envvar, envcontext[envvar]) + RESET_ALL)
+            stdout(BRIGHT_RED + "{}='{}'".format(envvar, envcontext[envvar]) + RESET_ALL + '\n')
 
     return envcontext
 

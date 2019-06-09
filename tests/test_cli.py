@@ -1,5 +1,4 @@
 import unittest
-import six
 from mock import patch, mock_open
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
@@ -59,7 +58,6 @@ class TestCli(unittest.TestCase):
             cli.write_file('file.txt', 'content')
             open_mock.assert_called_with('file.txt', mode='w')
 
-    @unittest.skipIf(six.PY2, "not compatible with Python 2")
     def test_e2j2(self):
         args = ArgumentParser()
         args.filelist = ['/foo/file1.j2']
@@ -81,9 +79,9 @@ class TestCli(unittest.TestCase):
             with patch('e2j2.cli.get_files', return_value=args.filelist):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.helpers.templates.render', side_effect=['content1']):
-                        with patch('e2j2.cli.sys.stdout.write') as sys_stdout_mock:
+                        with patch('e2j2.cli.stdout') as stdout_mock:
                             cli.e2j2()
-                            sys_stdout_mock.assert_called_with('skipped\n')
+                            stdout_mock.assert_called_with('skipped\n')
 
         # normal run
         args.noop = False
@@ -102,10 +100,10 @@ class TestCli(unittest.TestCase):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.helpers.templates.render', side_effect=['content1']):
                         with patch('e2j2.cli.write_file') as write_mock:
-                            with patch('e2j2.cli.sys.stdout.write') as sys_stdout_mock:
+                            with patch('e2j2.cli.stdout') as stdout_mock:
                                 write_mock.side_effect = IOError()
                                 cli.e2j2()
-                                sys_stdout_mock.assert_called_with('failed ()\n')
+                                stdout_mock.assert_called_with('failed ()\n')
 
         # KeyError raised
         args.noop = False

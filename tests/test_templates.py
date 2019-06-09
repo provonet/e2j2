@@ -1,5 +1,4 @@
 import unittest
-import six
 from mock import patch
 from e2j2.helpers import templates
 
@@ -19,7 +18,6 @@ class TestTemplates(unittest.TestCase):
             templates.find(searchlist='/etc', j2file_ext='.j2', recurse=False)
             dirlist_mock.assert_called_with('/etc')
 
-    @unittest.skipIf(six.PY2, "not compatible with Python 2")
     def test_get_vars(self):
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
@@ -28,7 +26,7 @@ class TestTemplates(unittest.TestCase):
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
 
-            with patch('builtins.print'):
+            with patch('e2j2.helpers.templates.stdout'):
                 with patch('e2j2.helpers.templates.parsers.parse_tag', return_value='** ERROR: Key not found **'):
                     self.assertEqual(templates.get_vars(), {'FOO_ENV': '** ERROR: Key not found **'})
 
