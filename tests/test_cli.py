@@ -1,5 +1,5 @@
 import unittest
-from mock import patch, mock_open
+from mock import patch, mock, mock_open
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
 
@@ -80,7 +80,8 @@ class TestCli(unittest.TestCase):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.helpers.templates.render', side_effect=['content1']):
                         with patch('e2j2.cli.stdout') as stdout_mock:
-                            cli.e2j2()
+                            exit_code = cli.e2j2()
+                            self.assertEqual(exit_code, 0)
                             stdout_mock.assert_called_with('skipped\n')
 
         # normal run
@@ -90,7 +91,8 @@ class TestCli(unittest.TestCase):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.helpers.templates.render', side_effect=['content1']):
                         with patch('e2j2.cli.write_file') as write_mock:
-                            cli.e2j2()
+                            exit_code = cli.e2j2()
+                            self.assertEqual(exit_code, 0)
                             write_mock.assert_called_with('/foo/file1', 'content1')
 
         # IOError raised
@@ -102,7 +104,8 @@ class TestCli(unittest.TestCase):
                         with patch('e2j2.cli.write_file') as write_mock:
                             with patch('e2j2.cli.stdout') as stdout_mock:
                                 write_mock.side_effect = IOError()
-                                cli.e2j2()
+                                exit_code = cli.e2j2()
+                                self.assertEqual(exit_code, 1)
                                 stdout_mock.assert_called_with('failed ()\n')
 
         # KeyError raised
@@ -113,7 +116,8 @@ class TestCli(unittest.TestCase):
                     with patch('e2j2.helpers.templates.render') as render_mock:
                         render_mock.side_effect = KeyError('Error')
                         with patch('e2j2.cli.write_file') as write_mock:
-                            cli.e2j2()
+                            exit_code = cli.e2j2()
+                            self.assertEqual(exit_code, 1)
                             write_mock.assert_called_with('/foo/file1.err', "'Error'")
 
 

@@ -93,6 +93,7 @@ def write_file(filename, content):
 
 
 def e2j2():
+    exit_code = 0
     args = arg_parse('e2j2', DESCRIPTION, '0.1.18')
 
     search_list = get_search_list(args.searchlist)
@@ -107,7 +108,6 @@ def e2j2():
 
     j2files = get_files(filelist=args.filelist,  searchlist=search_list, extension=args.ext, recurse=recursive)
 
-    directory = None
     for j2file in j2files:
         try:
             directory = os.path.dirname(j2file)
@@ -134,6 +134,7 @@ def e2j2():
                 filename += '.err'
                 content = str(e)
                 status = bright_red + 'failed ' + reset_all
+                exit_code = 1
 
             stdout('{}{:7} => writing: {}{:25}{} => '.format(status, green, white, basename(filename), green))
 
@@ -144,10 +145,11 @@ def e2j2():
                 stdout('{}success{}\n'.format(lightgreen, reset_all))
         except Exception as e:
             stdout('{}failed{} ({})\n'.format(bright_red, reset_all, str(e)))
+            exit_code = 1
         finally:
-            old_directory = directory
             sys.stdout.flush()
+            return exit_code
 
 
 if __name__ == '__main__':
-    e2j2()
+    sys.exit(e2j2())
