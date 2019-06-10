@@ -1,5 +1,6 @@
 import unittest
-from mock import patch, mock, mock_open
+import os
+from mock import patch, mock_open
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
 
@@ -72,6 +73,8 @@ class TestCli(unittest.TestCase):
         args.variable_end = '}}'
         args.comment_start = '{#'
         args.comment_end = '#}'
+        args.env_whitelist = None
+        args.env_blacklist = None
 
         # noop run
         args.noop = True

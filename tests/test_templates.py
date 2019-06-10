@@ -21,14 +21,17 @@ class TestTemplates(unittest.TestCase):
     def test_get_vars(self):
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
-            self.assertEqual(templates.get_vars(), {'FOO_ENV': {'key': 'value'}})
+            self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
 
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
 
             with patch('e2j2.helpers.templates.stdout'):
                 with patch('e2j2.helpers.templates.parsers.parse_tag', return_value='** ERROR: Key not found **'):
-                    self.assertEqual(templates.get_vars(), {'FOO_ENV': '** ERROR: Key not found **'})
+                    self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': '** ERROR: Key not found **'})
+
+        # whitelist / blacklist
+        self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
 
     def test_render(self):
         with patch('e2j2.helpers.templates.jinja2.Environment') as jinja2_mock:

@@ -3,6 +3,10 @@ Changelog
 0.1.19 (unreleased)
 -------------------
 
+Added
+-----
+- add option to whitelist / blacklist environment variables
+
 Fixed
 -----
 - set proper exit codes (0=success / 1=failure)

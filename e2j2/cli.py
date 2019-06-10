@@ -59,6 +59,12 @@ def arg_parse(program, description, version):
                             type=str,
                             default='#}',
                             help="Comment marker end (default: '#}')")
+    arg_parser.add_argument('-w', '--env_whitelist',
+                            type=str,
+                            help="Include listed environment variables (default all)")
+    arg_parser.add_argument('-b', '--env_blacklist',
+                            type=str,
+                            help="Exclude listed environment variables (default none)")
     return arg_parser.parse_args()
 
 
@@ -103,7 +109,9 @@ def e2j2():
     # initialize colors
     bright_red, green, lightgreen, white, yellow, reset_all = use_color(not args.no_color)
 
-    j2vars = templates.get_vars()
+    env_whitelist = args.env_whitelist.split(',') if args.env_whitelist else os.environ
+    env_blacklist = args.env_blacklist.split(',') if args.env_blacklist else []
+    j2vars = templates.get_vars(whitelist=env_whitelist, blacklist=env_blacklist)
     old_directory = ''
 
     j2files = get_files(filelist=args.filelist,  searchlist=search_list, extension=args.ext, recurse=recursive)

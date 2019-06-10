@@ -19,10 +19,11 @@ def find(searchlist, j2file_ext, recurse=False):
                 for j2file in os.listdir(searchlist_item) if j2file.endswith(j2file_ext)]
 
 
-def get_vars():
+def get_vars(whitelist, blacklist):
+    env_list = [entry for entry in whitelist if entry not in blacklist]
     tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:']
     envcontext = {}
-    for envvar in os.environ:
+    for envvar in env_list:
         envvalue = os.environ[envvar]
         defined_tag = [tag for tag in tags if envvalue.startswith(tag)]
         envcontext[envvar] = parsers.parse_tag(defined_tag[0], envvalue) if defined_tag else envvalue
