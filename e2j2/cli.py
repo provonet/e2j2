@@ -156,7 +156,7 @@ def e2j2():
             exit_code = 1
         finally:
             sys.stdout.flush()
-            return exit_code
+    return exit_code
 
 
 if __name__ == '__main__':
