@@ -92,18 +92,29 @@ class TestCli(unittest.TestCase):
         with patch('e2j2.cli.arg_parse', return_value=args):
             with patch('e2j2.cli.get_files', return_value=args.filelist):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
-                    with patch('e2j2.helpers.templates.render', side_effect=['content1']):
+                    with patch('e2j2.helpers.templates.render', side_effect=['file1 content']):
                         with patch('e2j2.cli.write_file') as write_mock:
                             exit_code = cli.e2j2()
                             self.assertEqual(exit_code, 0)
-                            write_mock.assert_called_with('/foo/file1', 'content1')
+                            write_mock.assert_called_with('/foo/file1', 'file1 content')
+
+        # normal run with two files
+        args.noop = False
+        with patch('e2j2.cli.arg_parse', return_value=args):
+            with patch('e2j2.cli.get_files', return_value=['/foo/file2.j2', '/bar/file3.j2']):
+                with patch('e2j2.cli.os.path.dirname', side_effect=['foo', 'bar']):
+                    with patch('e2j2.helpers.templates.render', side_effect=['file2 content', 'file3 content']):
+                        with patch('e2j2.cli.write_file') as write_mock:
+                            exit_code = cli.e2j2()
+                            self.assertEqual(exit_code, 0)
+                            self.assertEqual(write_mock.call_count, 2)
 
         # IOError raised
         args.noop = False
         with patch('e2j2.cli.arg_parse', return_value=args):
-            with patch('e2j2.cli.get_files', return_value=args.filelist):
+            with patch('e2j2.cli.get_files', return_value='/foo/file4.j2'):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
-                    with patch('e2j2.helpers.templates.render', side_effect=['content1']):
+                    with patch('e2j2.helpers.templates.render', side_effect=['file4 content']):
                         with patch('e2j2.cli.write_file') as write_mock:
                             with patch('e2j2.cli.stdout') as stdout_mock:
                                 write_mock.side_effect = IOError()
