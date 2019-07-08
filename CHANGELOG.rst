@@ -1,5 +1,12 @@
 Changelog
 =========
+0.1.21 (unreleased)
+-------------------
+
+Added
+-----
+- Add option to "copy" file ownership and file permissions
+
 0.1.20 (2019-06-12)
 -------------------
 

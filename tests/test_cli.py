@@ -2,7 +2,7 @@ import unittest
 from mock import patch, mock_open
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
-
+from stat import ST_MODE
 
 class ArgumentParser:
     pass
@@ -58,6 +58,27 @@ class TestCli(unittest.TestCase):
             cli.write_file('file.txt', 'content')
             open_mock.assert_called_with('file.txt', mode='w')
 
+    def test_copy_file_permissions(self):
+        # assume that a file is owned by uid: 1000 and guid: 1000
+        # and permissions are set to 644
+        class Stat:
+            def __init__(self):
+                self.st_uid = 1000
+                self.st_gid = 1000
+                self.st_mode = [0o644]
+
+            def __getitem__(self, item):
+                return self.st_mode[item]
+
+        # check is os.chown and os.chmod are called with the correct values
+        stat = Stat()
+        with patch('e2j2.cli.os.stat', return_value=stat):
+            with patch('e2j2.cli.os.chown') as chown_mock:
+                with patch('e2j2.cli.os.chmod') as chmod_mock:
+                    cli.copy_file_permissions('bar.j2', 'bar')
+                    chown_mock.assert_called_with('bar', 1000, 1000)
+                    chmod_mock.assert_called_with('bar', 0o644)
+
     def test_e2j2(self):
         args = ArgumentParser()
         args.filelist = ['/foo/file1.j2']
@@ -74,6 +95,7 @@ class TestCli(unittest.TestCase):
         args.comment_end = '#}'
         args.env_whitelist = None
         args.env_blacklist = None
+        args.copy_file_permissions = False
 
         # noop run
         args.noop = True
@@ -132,6 +154,19 @@ class TestCli(unittest.TestCase):
                             exit_code = cli.e2j2()
                             self.assertEqual(exit_code, 1)
                             write_mock.assert_called_with('/foo/file1.err', "'Error'")
+
+
+        # set permssions
+        args.noop = False
+        args.copy_file_permissions = True
+        with patch('e2j2.cli.arg_parse', return_value=args):
+            with patch('e2j2.cli.get_files', return_value=args.filelist):
+                with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
+                    with patch('e2j2.helpers.templates.render', side_effect=['file1 content']):
+                        with patch('e2j2.cli.write_file'):
+                            with patch('e2j2.cli.copy_file_permissions') as permission_mock:
+                                cli.e2j2()
+                                permission_mock.assert_called_with('/foo/file1.j2', '/foo/file1')
 
 
 if __name__ == '__main__':

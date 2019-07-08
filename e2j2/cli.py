@@ -3,6 +3,7 @@ import re
 import argparse
 import os
 from os.path import basename
+from stat import ST_MODE
 from e2j2.helpers import templates
 from e2j2.helpers.templates import stdout
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
@@ -65,6 +66,10 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('-b', '--env_blacklist',
                             type=str,
                             help="Exclude listed environment variables (default none)")
+    arg_parser.add_argument('-P', '--copy_file_permissions',
+                            action='store_true',
+                            help='copy file permissions from template to rendered file'
+                            )
     return arg_parser.parse_args()
 
 
@@ -93,6 +98,16 @@ def get_files(**kwargs):
                               j2file_ext=kwargs['extension'], recurse=kwargs['recurse'])
 
 
+def copy_file_permissions(source, destination):
+    stat = os.stat(source)
+
+    # set ownership
+    os.chown(destination, stat.st_uid, stat.st_gid)
+    # set permissions
+    perm = oct(stat[ST_MODE] & 0o777)
+    os.chmod(destination, int(perm, 8))
+
+
 def write_file(filename, content):
     with open(filename, mode='w') as fh:
         fh.writelines(content)
@@ -100,7 +115,7 @@ def write_file(filename, content):
 
 def e2j2():
     exit_code = 0
-    args = arg_parse('e2j2', DESCRIPTION, '0.1.20')
+    args = arg_parse('e2j2', DESCRIPTION, '0.1.21')
 
     search_list = get_search_list(args.searchlist)
     recursive = args.recursive
@@ -150,7 +165,12 @@ def e2j2():
                 stdout('{}skipped{}\n'.format(yellow, reset_all))
             else:
                 write_file(filename, content)
+
+                if args.copy_file_permissions:
+                    copy_file_permissions(j2file, filename)
+
                 stdout('{}success{}\n'.format(lightgreen, reset_all))
+
         except Exception as e:
             stdout('{}failed{} ({})\n'.format(bright_red, reset_all, str(e)))
             exit_code = 1
