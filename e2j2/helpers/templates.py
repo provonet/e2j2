@@ -38,7 +38,7 @@ def render(**kwargs):
     path, filename = os.path.split(kwargs['j2file'])
 
     j2 = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(path or './'),
+        loader=jinja2.FileSystemLoader([path or './', '/']),
         undefined=jinja2.StrictUndefined,
         keep_trailing_newline=True,
         block_start_string=kwargs['block_start'],

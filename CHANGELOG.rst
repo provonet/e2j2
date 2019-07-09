@@ -3,6 +3,10 @@ Changelog
 0.1.21 (unreleased)
 -------------------
 
+Fixed
+-----
+- Fix issue with included templates in other directories
+
 Added
 -----
 - Add option to "copy" file ownership and file permissions
