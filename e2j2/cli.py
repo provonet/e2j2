@@ -6,7 +6,7 @@ from os.path import basename
 from stat import ST_MODE
 from e2j2.helpers import templates
 from e2j2.helpers.templates import stdout
-from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION
+from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
 
 
 def arg_parse(program, description, version):
@@ -115,7 +115,7 @@ def write_file(filename, content):
 
 def e2j2():
     exit_code = 0
-    args = arg_parse('e2j2', DESCRIPTION, '0.1.21')
+    args = arg_parse('e2j2', DESCRIPTION, VERSION)
 
     search_list = get_search_list(args.searchlist)
     recursive = args.recursive
