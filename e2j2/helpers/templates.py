@@ -3,8 +3,7 @@ import sys
 import jinja2
 import re
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL
-from e2j2.tags import base64, consul, file, json, jsonfile, vault
-from e2j2.tags import list as list_tag
+from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag
 
 
 def stdout(msg):
@@ -40,19 +39,19 @@ def parse_tag(tag, value):
     # strip tag from value
     value = re.sub(r'^{}'.format(tag), '', value).strip()
     if tag == 'json:':
-        return json.parse(value)
+        return json_tag.parse(value)
     elif tag == 'jsonfile:':
-        return jsonfile.parse(value)
+        return jsonfile_tag.parse(value)
     elif tag == 'base64:':
-        return base64.parse(value)
+        return base64_tag.parse(value)
     elif tag == 'consul:':
-        return consul.parse(value)
+        return consul_tag.parse(value)
     elif tag == 'list:':
         return list_tag.parse(value)
     elif tag == 'file:':
-        return file.parse(value)
+        return file_tag.parse(value)
     elif tag == 'vault:':
-        return vault.parse(value)
+        return vault_tag.parse(value)
     else:
         return '** ERROR: tag: %s not implemented **' % tag
 
