@@ -1,5 +1,11 @@
 Changelog
 =========
+0.1.22 (unreleased)
+-------------------
+
+Added
+- vault secrets support
+
 0.1.21 (2019-07-09)
 -------------------
 

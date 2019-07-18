@@ -278,3 +278,76 @@ will render (by running: ``e2j2 -f twopass-example.j2 -2``) to:
    :target: https://travis-ci.org/provonet/e2j2
 .. |Coverage Status| image:: https://coveralls.io/repos/github/provonet/e2j2/badge.svg
    :target: https://coveralls.io/github/provonet/e2j2
+
+Tag vault:
+~~~~~~~~~~~
+
+Configuration:
+
+You can configure the vault tag by setting the VAULT_CONFIG
+environment variable. The following config items are supported:
+
+====== ======================== =========
+Item   Explanation              Default
+====== ======================== =========
+scheme url scheme http or https http
+host   vault host               localhost
+port   vault http(s) port       8200
+token  vault token              none
+====== ======================== =========
+
+Config example:
+
+::
+
+   $ read -d '' VAUL_CONFIG << EOF
+   > {
+   >   "scheme": "https",
+   >   "host": "vault.foobar.tld",
+   >   "port": 8200,
+   >   "token": "abcdef01-0123-abcd-1234-0123456789ab"
+   > }
+   > EOF
+
+Example1:
+
+Prepare:
+
+Mounting the KV version 1 secrets store on /secret
+
+Setting:
+
+key: secret/my-secret in vault to value: topsecret
+
+and
+
+::
+
+   export MYVAULTVAR='vault:secret/my-secret'
+
+will render vault-kv1-example.j2 to:
+
+::
+   ** topsecret **
+   This is a vault example
+
+Example2:
+
+Prepare
+
+Mounting the KV version 2 secrets store on /secret
+
+Setting:
+
+key: secret/my-secret in vault to value: topsecret
+
+and
+
+::
+   export MYVAULTVAR='vault:secret/data/my-secret'
+
+will render vault-kv2-example.j2 to:
+
+::
+   ** topsecret **
+   This is a vault example

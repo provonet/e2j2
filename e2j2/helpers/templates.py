@@ -1,8 +1,10 @@
 import os
 import sys
 import jinja2
+import re
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL
-from e2j2.helpers import parsers
+from e2j2.tags import base64, consul, file, json, jsonfile, vault
+from e2j2.tags import list as list_tag
 
 
 def stdout(msg):
@@ -26,12 +28,33 @@ def get_vars(whitelist, blacklist):
     for envvar in env_list:
         envvalue = os.environ[envvar]
         defined_tag = [tag for tag in tags if envvalue.startswith(tag)]
-        envcontext[envvar] = parsers.parse_tag(defined_tag[0], envvalue) if defined_tag else envvalue
+        envcontext[envvar] = parse_tag(defined_tag[0], envvalue) if defined_tag else envvalue
 
         if '** ERROR:' in envcontext[envvar]:
             stdout(BRIGHT_RED + "{}='{}'".format(envvar, envcontext[envvar]) + RESET_ALL + '\n')
 
     return envcontext
+
+
+def parse_tag(tag, value):
+    # strip tag from value
+    value = re.sub(r'^{}'.format(tag), '', value).strip()
+    if tag == 'json:':
+        return json.parse(value)
+    elif tag == 'jsonfile:':
+        return jsonfile.parse(value)
+    elif tag == 'base64:':
+        return base64.parse(value)
+    elif tag == 'consul:':
+        return consul.parse(value)
+    elif tag == 'list:':
+        return list_tag.parse(value)
+    elif tag == 'file:':
+        return file.parse(value)
+    elif tag == 'vault:':
+        return vault.parse(value)
+    else:
+        return '** ERROR: tag: %s not implemented **' % tag
 
 
 def render(**kwargs):

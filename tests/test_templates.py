@@ -27,7 +27,7 @@ class TestTemplates(unittest.TestCase):
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
 
             with patch('e2j2.helpers.templates.stdout'):
-                with patch('e2j2.helpers.templates.parsers.parse_tag', return_value='** ERROR: Key not found **'):
+                with patch('e2j2.helpers.templates.parse_tag', return_value='** ERROR: Key not found **'):
                     self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': '** ERROR: Key not found **'})
 
         # whitelist / blacklist
@@ -69,6 +69,37 @@ class TestTemplates(unittest.TestCase):
             jinja2_mock.return_value.from_string.assert_called_with('rendered template')
             jinja2_mock.return_value.from_string.return_value.render.assert_called_with({"FOO": "BAR"})
             self.assertEqual(response, 'rendered template')
+
+    def test_parse_tag(self):
+        with patch('e2j2.helpers.templates.json.parse') as json_mock:
+            templates.parse_tag('json:', '{}')
+            json_mock.assert_called_with('{}')
+
+        with patch('e2j2.helpers.templates.jsonfile.parse') as jsonfile_mock:
+            templates.parse_tag('jsonfile:', 'file.json')
+            jsonfile_mock.assert_called_with('file.json')
+
+        with patch('e2j2.helpers.templates.base64.parse') as base64_mock:
+            templates.parse_tag('base64:', 'Zm9vYmFy')
+            base64_mock.assert_called_with('Zm9vYmFy')
+
+        with patch('e2j2.helpers.templates.consul.parse') as consul_mock:
+            templates.parse_tag('consul:', 'consulkey')
+            consul_mock.assert_called_with('consulkey')
+
+        with patch('e2j2.helpers.templates.list_tag.parse') as list_mock:
+            templates.parse_tag('list:', 'foo,bar')
+            list_mock.assert_called_with('foo,bar')
+
+        with patch('e2j2.helpers.templates.file.parse') as file_mock:
+            templates.parse_tag('file:', 'file.txt')
+            file_mock.assert_called_with('file.txt')
+
+        with patch('e2j2.helpers.templates.vault.parse') as vault_mock:
+            templates.parse_tag('vault:', 'secret/data/mysecret')
+            vault_mock.assert_called_with('secret/data/mysecret')
+
+        self.assertEqual(templates.parse_tag('unknown:', 'foobar'), '** ERROR: tag: unknown: not implemented **')
 
 
 if __name__ == '__main__':

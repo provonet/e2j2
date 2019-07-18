@@ -1,14 +1,11 @@
 import json
 import os
-import re
-import binascii
+
 import operator
 from consul import Consul
 from consul.base import ACLPermissionDenied
 from functools import reduce
-from base64 import b64decode
 from deepmerge import Merger
-
 
 try:
     from json.decoder import JSONDecodeError
@@ -32,40 +29,7 @@ class ConsulKV:
         return entries
 
 
-def parse_json_string(json_string):
-    try:
-        # handle hashrocket styled json
-        if re.search('"\s*=>\s*["{[]', json_string):
-            return json.loads(re.sub('"\s*=>\s*', '":', json_string))
-        else:
-            return json.loads(json_string)
-    except JSONDecodeError:
-        # Mark as failed
-        return '** ERROR: Decoding JSON **'
-
-
-def parse_json_file(json_file):
-    try:
-        with open(json_file) as json_file:
-            data = json.load(json_file)
-    except IOError:
-        # Mark as failed
-        return '** ERROR: IOError raised while reading file **'
-    except JSONDecodeError:
-        return '** Error: Decoding JSON **'
-
-    return data
-
-
-def parse_base64(value):
-    try:
-        return b64decode(value).decode('utf-8')
-    except (TypeError, binascii.Error):
-        # Mark as failed
-        return '** ERROR: decoding BASE64 string **'
-
-
-def parse_consul(consul_key):
+def parse(consul_key):
     try:
         env = os.environ
         consul_config = json.loads(env['CONSUL_CONFIG']) if 'CONSUL_CONFIG' in env else {}
@@ -96,35 +60,3 @@ def parse_consul(consul_key):
         else:
             consul_dict[entry['Key']] = value
     return reduce(operator.getitem, consul_key.split('/'), consul_dict)
-
-
-def parse_list(value):
-    return re.split(r",\s*", value)
-
-
-def parse_file(file_name):
-    try:
-        with open(file_name) as file_handle:
-            return file_handle.read()
-    except IOError:
-        # Mark as failed
-        return '** ERROR: IOError raised while reading file **'
-
-
-def parse_tag(tag, value):
-    # strip tag from value
-    value = re.sub(r'^{}'.format(tag), '', value).strip()
-    if tag == 'json:':
-        return parse_json_string(value)
-    elif tag == 'jsonfile:':
-        return parse_json_file(value)
-    elif tag == 'base64:':
-        return parse_base64(value)
-    elif tag == 'consul:':
-        return parse_consul(value)
-    elif tag == 'list:':
-        return parse_list(value)
-    elif tag == 'file:':
-        return parse_file(value)
-    else:
-        return '** ERROR: tag: %s not implemented **' % tag
