@@ -85,7 +85,7 @@ class TestTemplates(unittest.TestCase):
 
         with patch('e2j2.helpers.templates.consul_tag.parse') as consul_mock:
             templates.parse_tag('consul:', 'consulkey')
-            consul_mock.assert_called_with('consulkey')
+            consul_mock.assert_called_with({}, 'consulkey')
 
         with patch('e2j2.helpers.templates.list_tag.parse') as list_mock:
             templates.parse_tag('list:', 'foo,bar')
@@ -95,9 +95,22 @@ class TestTemplates(unittest.TestCase):
             templates.parse_tag('file:', 'file.txt')
             file_mock.assert_called_with('file.txt')
 
+        # no config
         with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
             templates.parse_tag('vault:', 'secret/data/mysecret')
-            vault_mock.assert_called_with('secret/data/mysecret')
+            vault_mock.assert_called_with({}, 'secret/data/mysecret')
+
+        # with config
+        with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
+            templates.parse_tag('vault:', 'config={"url": "https://localhost:8200"}:secret/data/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/data/mysecret')
+
+        # with envvar config
+        with patch('e2j2.helpers.templates.os') as os_mock:
+            os_mock.environ = {'VAULT_CONFIG': '{"url": "https://localhost:8200"}'}
+            with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
+                templates.parse_tag('vault:', 'secret/data/mysecret')
+                vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/data/mysecret')
 
         self.assertEqual(templates.parse_tag('unknown:', 'foobar'), '** ERROR: tag: unknown: not implemented **')
 

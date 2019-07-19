@@ -7,3 +7,12 @@ LIGHTGREEN = '\033[1;32m'
 WHITE = '\033[0;37m'
 DESCRIPTION = 'Parse jinja2 templates with enhanced JSON aware environment variables'
 VERSION = '0.1.22'
+VAULT_STATUSCODES = {
+    '200': 'Success',
+    '204': 'Success, no data',
+    '400': 'Invalid request',
+    '403': 'Forbidden',
+    '404': 'Invalid path',
+    '500': 'Internal server error',
+    '503': 'Sealed'
+}

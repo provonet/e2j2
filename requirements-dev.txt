@@ -3,3 +3,4 @@ unittest2
 twine
 six
 behave
+requests-mock

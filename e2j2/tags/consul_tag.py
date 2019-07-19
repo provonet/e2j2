@@ -1,11 +1,10 @@
 import json
-import os
-
 import operator
 from consul import Consul
 from consul.base import ACLPermissionDenied
 from functools import reduce
 from deepmerge import Merger
+from six.moves.urllib.parse import urlparse
 
 try:
     from json.decoder import JSONDecodeError
@@ -15,10 +14,17 @@ except ImportError:
 
 class ConsulKV:
     def __init__(self, config):
-        self.scheme = config['scheme'] if 'scheme' in config else 'http'
-        self.host = config['host'] if 'host' in config else '127.0.0.1'
-        self.port = config['port'] if 'port' in config else 8500
+        url = urlparse(config['url'] if 'url' in config else 'http://127.0.0.1:8500')
+        if url.port:
+            port = url.port
+        else:
+            port = 80 if url.scheme == 'http' else 443
+
+        self.scheme = config['scheme'] if 'scheme' in config else url.scheme
+        self.host = config['host'] if 'host' in config else url.hostname
+        self.port = config['port'] if 'port' in config else port
         self.token = config['token'] if 'token' in config else None
+        self.url = '%s://%s:%s/v1' % (self.scheme, self.host, self.port)
         self.client = self.setup()
 
     def setup(self):
@@ -29,17 +35,11 @@ class ConsulKV:
         return entries
 
 
-def parse(consul_key):
-    try:
-        env = os.environ
-        consul_config = json.loads(env['CONSUL_CONFIG']) if 'CONSUL_CONFIG' in env else {}
-    except JSONDecodeError:
-        # Mark as failed
-        return '** ERROR: parsing consul_config **'
+def parse(config, value):
 
-    consul_kv = ConsulKV(config=consul_config)
+    consul_kv = ConsulKV(config=config)
     consul_merger = Merger([(list, ['append']), (dict, ['merge'])], ['override'], ['override'])
-    consul_key = consul_key.rstrip('/')
+    consul_key = value.rstrip('/')
 
     try:
         kv_entries = consul_kv.get(recurse=True, key=consul_key)

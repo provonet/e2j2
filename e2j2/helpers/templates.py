@@ -2,6 +2,8 @@ import os
 import sys
 import jinja2
 import re
+import json
+from deepmerge import always_merger
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag
 
@@ -22,12 +24,12 @@ def find(searchlist, j2file_ext, recurse=False):
 
 def get_vars(whitelist, blacklist):
     env_list = [entry for entry in whitelist if entry not in blacklist]
-    tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:']
+    tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:']
     envcontext = {}
     for envvar in env_list:
         envvalue = os.environ[envvar]
-        defined_tag = [tag for tag in tags if envvalue.startswith(tag)]
-        envcontext[envvar] = parse_tag(defined_tag[0], envvalue) if defined_tag else envvalue
+        defined_tag = ''.join([tag for tag in tags if envvalue.startswith(tag)])
+        envcontext[envvar] = parse_tag(defined_tag, envvalue) if defined_tag else envvalue
 
         if '** ERROR:' in envcontext[envvar]:
             stdout(BRIGHT_RED + "{}='{}'".format(envvar, envcontext[envvar]) + RESET_ALL + '\n')
@@ -36,8 +38,19 @@ def get_vars(whitelist, blacklist):
 
 
 def parse_tag(tag, value):
-    # strip tag from value
-    value = re.sub(r'^{}'.format(tag), '', value).strip()
+    var = tag.upper()[:-1] + '_CONFIG'
+    envvar = os.environ.get(var, '{}')
+    config = json.loads(envvar)
+
+    pattern = re.compile(r'config=([^}]+)}:(.+)')
+    match = pattern.match(value)
+    if match:
+        tag_config = json.loads(match.group(1) + '}')
+        config = always_merger.merge(config, tag_config)
+        value = match.group(2)
+    else:
+        value = re.sub(r'^{}'.format(tag), '', value).strip()
+
     if tag == 'json:':
         return json_tag.parse(value)
     elif tag == 'jsonfile:':
@@ -45,13 +58,13 @@ def parse_tag(tag, value):
     elif tag == 'base64:':
         return base64_tag.parse(value)
     elif tag == 'consul:':
-        return consul_tag.parse(value)
+        return consul_tag.parse(config, value)
     elif tag == 'list:':
         return list_tag.parse(value)
     elif tag == 'file:':
         return file_tag.parse(value)
     elif tag == 'vault:':
-        return vault_tag.parse(value)
+        return vault_tag.parse(config, value)
     else:
         return '** ERROR: tag: %s not implemented **' % tag
 
