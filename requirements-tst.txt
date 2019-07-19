@@ -3,3 +3,4 @@ unittest2
 coveralls
 six
 behave
+requests-mock
