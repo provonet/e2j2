@@ -1,4 +1,5 @@
 import requests
+import subprocess
 from six.moves.urllib.parse import urlparse
 from e2j2.helpers.constants import VAULT_STATUSCODES
 
@@ -42,7 +43,6 @@ class Vault:
 
     def get_kv1(self, url):
         response = self.get_raw(url)
-
         # type is string so this will be an error
         if isinstance(response, str):
             return response
@@ -61,11 +61,27 @@ class Vault:
 
 
 def parse(config, value):
+    if 'token_script' and 'token' in config:
+        return '** ERROR use token or token_script not both **'
+
+    if 'token_script' in config:
+        token_script = config['token_script']
+
+        try:
+            token_script = [token_script] if isinstance(token_script, str) else token_script
+            token = subprocess.check_output(token_script).decode('utf-8').rstrip()
+        except FileNotFoundError:
+            return '** ERROR: script: %s not found **' % token_script[0]
+        except Exception as err:
+            return '** ERROR %s raised **' % str(err)
+
+        config['token'] = token
+        del config["token_script"]
+
     vault = Vault(config)
 
     if 'backend' not in config or config['backend'] == 'raw':
         return vault.get_raw(value)
-
     if config['backend'] == 'kv1':
         return vault.get_kv1(value)
     elif config['backend'] == 'kv2':

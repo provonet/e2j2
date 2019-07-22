@@ -6,7 +6,7 @@ GREEN = '\033[0;32m'
 LIGHTGREEN = '\033[1;32m'
 WHITE = '\033[0;37m'
 DESCRIPTION = 'Parse jinja2 templates with enhanced JSON aware environment variables'
-VERSION = '0.1.22'
+VERSION = '0.1.30'
 VAULT_STATUSCODES = {
     '200': 'Success',
     '204': 'Success, no data',

@@ -1,7 +1,7 @@
 import unittest
 import six
 import requests_mock
-from mock import patch, mock_open, MagicMock
+from mock import patch, mock_open, MagicMock, mock
 from consul.base import ACLPermissionDenied
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, vault_tag
 from e2j2.tags import list_tag as list_tag
@@ -214,31 +214,56 @@ class TestParsers(unittest.TestCase):
 
         # test parse no backend
         config = {'url': 'https://localhost:8200'}
-        with requests_mock.mock() as req_mock:
-            req_mock.get('https://localhost:8200/v1/kv1/secret', json=raw_response_v1, status_code=200)
-            response = vault_tag.parse(config, 'kv1/secret')
-            self.assertEqual(response, raw_response_v1)
+        with patch('e2j2.tags.vault_tag.Vault.get_raw') as vault_mock:
+            _ = vault_tag.parse(config, 'kv1/secret')
+            vault_mock.assert_called_with('kv1/secret')
 
         # test parse k/v backend version 1
         config = {'url': 'https://localhost:8200', 'backend': 'kv1'}
-        with requests_mock.mock() as req_mock:
-            req_mock.get('https://localhost:8200/v1/kv1/secret', json=raw_response_v1, status_code=200)
-            response = vault_tag.parse(config, 'kv1/secret')
-            self.assertEqual(response, {'foo': 'bar'})
+        with patch('e2j2.tags.vault_tag.Vault.get_kv1') as vault_mock:
+            _ = vault_tag.parse(config, 'kv1/secret')
+            vault_mock.assert_called_with('kv1/secret')
 
         # test parse  k/v backend version 2
         config = {'url': 'https://localhost:8200', 'backend': 'kv2'}
-        with requests_mock.mock() as req_mock:
-            req_mock.get('https://localhost:8200/v1/kv2/data/secret', json=raw_response_v2, status_code=200)
-            response = vault_tag.parse(config, 'kv2/secret')
-            self.assertEqual(response, {'foo': 'bar'})
+        with patch('e2j2.tags.vault_tag.Vault.get_kv2') as vault_mock:
+            _ = vault_tag.parse(config, 'kv2/secret')
+            vault_mock.assert_called_with('kv2/secret')
 
         # test parse invalid backend
         config = {'url': 'https://localhost:8200', 'backend': 'invalid'}
-        with requests_mock.mock() as req_mock:
-            req_mock.get('https://localhost:8200/v1/kv2/data/secret', json=raw_response_v2, status_code=200)
-            response = vault_tag.parse(config, 'kv2/secret')
-            self.assertEqual(response, '** ERROR: Unknown backend **')
+        response = vault_tag.parse(config, 'kv2/secret')
+        self.assertEqual(response, '** ERROR: Unknown backend **')
+
+        # check with both options token and token_script set
+        config = {'url': 'https://localhost:8200', 'token': 'abcd', 'token_script': './foo.sh'}
+        response = vault_tag.parse(config, 'kv2/secret')
+        self.assertEqual(response, '** ERROR use token or token_script not both **')
+
+        # with token_script and token_script as string
+        config = {'url': 'https://localhost:8200', 'token_script': './foo.sh'}
+        with patch('e2j2.tags.vault_tag.subprocess.check_output', return_value=b'abcd\n') as subprocess_mock:
+            with patch('e2j2.tags.vault_tag.Vault') as vault_mock:
+                _ = vault_tag.parse(config, 'kv2/secret')
+                subprocess_mock.assert_called_with(['./foo.sh'])
+                vault_mock.assert_called_with({'url': 'https://localhost:8200', 'token': 'abcd'})
+
+        # with token_script and token_script as list and script params
+        config = {'url': 'https://localhost:8200', 'token_script': ['./foo.sh', '--param', 'param_value']}
+        with patch('e2j2.tags.vault_tag.subprocess.check_output', return_value=b'abcd\n') as subprocess_mock:
+            with patch('e2j2.tags.vault_tag.Vault'):
+                _ = vault_tag.parse(config, 'kv2/secret')
+                subprocess_mock.assert_called_with(['./foo.sh', '--param', 'param_value'])
+
+        # file not found
+        config = {'url': 'https://localhost:8200', 'token_script': './foo.sh'}
+        with patch('e2j2.tags.vault_tag.subprocess.check_output', side_effect=FileNotFoundError()):
+            self.assertEqual(vault_tag.parse(config, 'kv2/secret'), '** ERROR: script: ./foo.sh not found **')
+
+        # other exception raised
+        config = {'url': 'https://localhost:8200', 'token_script': './foo.sh'}
+        with patch('e2j2.tags.vault_tag.subprocess.check_output', side_effect=Exception('foobar')):
+            self.assertEqual(vault_tag.parse(config, 'kv2/secret'), '** ERROR foobar raised **')
 
 
 if __name__ == '__main__':
