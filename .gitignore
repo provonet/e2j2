@@ -15,6 +15,7 @@ examples/consul-example
 examples/list-example
 examples/file-example
 examples/twopass-example
+examples/vault-example
 .venv
 .coverage
 vault.txt
