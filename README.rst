@@ -287,14 +287,29 @@ Configuration:
 You can configure the vault tag by setting the VAULT_CONFIG
 environment variable. The following config items are supported:
 
-====== ======================== =========
-Item   Explanation              Default
-====== ======================== =========
-scheme url scheme http or https http
-host   vault host               localhost
-port   vault http(s) port       8200
-token  vault token              none
-====== ======================== =========
+============ ======================== =====================
+Item         Explanation              Default
+============ ======================== =====================
+url          vault url                http://127.0.0.1:8200
+scheme       url scheme http or https scheme from url
+host         vault host               hostname from url
+port         vault http(s) port       port from url
+backend      vault secret backend     raw
+token        vault token              none
+token_script token request script     none
+============ ======================== =====================
+
+Use either token or token_script not both!
+
+the following backends are supported:
+
+======= =========================================
+backend Description
+======= =========================================
+raw     use plain GET request to secret store API
+kv1     key/value version 1
+kv2     key/value version 2
+======= =========================================
 
 Config example:
 
@@ -305,49 +320,23 @@ Config example:
    >   "scheme": "https",
    >   "host": "vault.foobar.tld",
    >   "port": 8200,
-   >   "token": "abcdef01-0123-abcd-1234-0123456789ab"
+   >   "token": "abcdef01-0123-abcd-1234-0123456789ab",
+   >   "backend: "kv2"
    > }
    > EOF
 
 Example1:
 
-Prepare:
-
-Mounting the KV version 1 secrets store on /secret
-
 Setting:
-
-key: secret/my-secret in vault to value: topsecret
-
-and
 
 ::
 
+   vault kv put secret/mysql-database my-secret=topsecret
    export MYVAULTVAR='vault:secret/my-secret'
 
 will render vault-kv1-example.j2 to:
 
 ::
-   ** topsecret **
-   This is a vault example
 
-Example2:
-
-Prepare
-
-Mounting the KV version 2 secrets store on /secret
-
-Setting:
-
-key: secret/my-secret in vault to value: topsecret
-
-and
-
-::
-   export MYVAULTVAR='vault:secret/data/my-secret'
-
-will render vault-kv2-example.j2 to:
-
-::
    ** topsecret **
    This is a vault example

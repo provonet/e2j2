@@ -61,7 +61,8 @@ class Vault:
 
 
 def parse(config, value):
-    if 'token_script' and 'token' in config:
+    print(config)
+    if 'token_script' in config and 'token' in config:
         return '** ERROR use token or token_script not both **'
 
     if 'token_script' in config:
