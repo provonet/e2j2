@@ -8,6 +8,11 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError
+
 
 class Vault:
     def __init__(self, config):
