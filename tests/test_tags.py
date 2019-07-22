@@ -257,7 +257,7 @@ class TestParsers(unittest.TestCase):
 
         # file not found
         config = {'url': 'https://localhost:8200', 'token_script': './foo.sh'}
-        with patch('e2j2.tags.vault_tag.subprocess.check_output', side_effect=FileNotFoundError()):
+        with patch('e2j2.tags.vault_tag.subprocess.check_output', side_effect=IOError()):
             self.assertEqual(vault_tag.parse(config, 'kv2/secret'), '** ERROR: script: ./foo.sh not found **')
 
         # other exception raised

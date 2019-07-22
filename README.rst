@@ -287,17 +287,17 @@ Configuration:
 You can configure the vault tag by setting the VAULT_CONFIG
 environment variable. The following config items are supported:
 
-============ ======================== =====================
-Item         Explanation              Default
-============ ======================== =====================
-url          vault url                http://127.0.0.1:8200
-scheme       url scheme http or https scheme from url
-host         vault host               hostname from url
-port         vault http(s) port       port from url
-backend      vault secret backend     raw
-token        vault token              none
-token_script token request script     none
-============ ======================== =====================
+============ ============================== =====================
+Item         Explanation                    Default
+============ ============================== =====================
+url          vault url                      http://127.0.0.1:8200
+scheme       vault url scheme http or https scheme from url
+host         vault host                     hostname from url
+port         vault http(s) port             port from url
+backend      vault secret backend           raw
+token        vault token                    none
+token_script token request script           none
+============ ============================== =====================
 
 Use either token or token_script not both!
 
@@ -325,7 +325,7 @@ Config example:
    > }
    > EOF
 
-Example1:
+Example:
 
 Setting:
 

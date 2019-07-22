@@ -71,7 +71,7 @@ def parse(config, value):
         try:
             token_script = [token_script] if isinstance(token_script, str) else token_script
             token = subprocess.check_output(token_script).decode('utf-8').rstrip()
-        except FileNotFoundError:
+        except (FileNotFoundError, IOError):
             return '** ERROR: script: %s not found **' % token_script[0]
         except Exception as err:
             return '** ERROR %s raised **' % str(err)
