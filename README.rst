@@ -192,20 +192,30 @@ port         consul http(s) port             port from url
 token        consul token                    none
 ============ =============================== =====================
 
-Config example:
+Global config example:
 
 ::
 
    read -d '' CONSUL_CONFIG << EOF
    {
-      "scheme": "https",
-      "host": "consul.foobar.tld",
-      "port": 443,
+      "url": "https://consul.foobar.tld",
       "token": "abcdef01-0123-abcd-1234-0123456789ab"
    }
    EOF
 
-Example:
+The ACL token can be configured by either use the above configuration or by setting the CONSUL_TOKEN variable.
+
+As an alternative for the global configuration it is also possible to configure / adjust the global configuration for each consul tag, by simply include the configuration when using the consul tag.
+
+Tag config example:
+
+::
+
+    export MYCONSULVAR='consul:config={"url": "https://consul2.foobar.tld", "token": "012345678-0123-abcd-1234-0123456789ab"}:consulvar"
+
+
+
+Consul example:
 
 Setting:
 
@@ -305,21 +315,29 @@ kv1     key/value version 1
 kv2     key/value version 2
 ======= =========================================
 
-Config example:
+Global config example:
 
 ::
 
    read -d '' VAULT_CONFIG << EOF
     {
-      "scheme": "https",
-      "host": "vault.foobar.tld",
-      "port": 8200,
+      "url": "https://vault.foobar.tld:8200",
       "token": "s.xxxxxxxxxxxxxxxxxxxxxxx",
       "backend: "kv2"
     }
    EOF
 
-Example:
+The Authentication token can be configured by either use the above configuration or by setting the VAULT_TOKEN variable.
+
+As an alternative for the global configuration it is also possible to configure / adjust the global configuration for each vault tag, by simply include the configuration when using the vault tag.
+
+Tag config example:
+
+::
+
+    export MYVAULTVAR='vault:config={"backend": "kv1"}:kv/my-secret"
+
+Vault example:
 
 Setting:
 
