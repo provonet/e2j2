@@ -196,14 +196,14 @@ Config example:
 
 ::
 
-   $ read -d '' CONSUL_CONFIG << EOF
-   > {
-   >   "scheme": "https",
-   >   "host": "consul.foobar.tld",
-   >   "port": 443,
-   >   "token": "abcdef01-0123-abcd-1234-0123456789ab"
-   > }
-   > EOF
+   read -d '' CONSUL_CONFIG << EOF
+   {
+      "scheme": "https",
+      "host": "consul.foobar.tld",
+      "port": 443,
+      "token": "abcdef01-0123-abcd-1234-0123456789ab"
+   }
+   EOF
 
 Example:
 
@@ -275,10 +275,6 @@ will render (by running: ``e2j2 -f twopass-example.j2 -2``) to:
    /** MySQL hostname */
    define( 'DB_HOST', 'localhost' );
 
-.. |Build Status| image:: https://travis-ci.org/provonet/e2j2.svg?branch=master
-   :target: https://travis-ci.org/provonet/e2j2
-.. |Coverage Status| image:: https://coveralls.io/repos/github/provonet/e2j2/badge.svg
-   :target: https://coveralls.io/github/provonet/e2j2
 
 Tag vault:
 ~~~~~~~~~~~
@@ -313,15 +309,15 @@ Config example:
 
 ::
 
-   $ read -d '' VAUL_CONFIG << EOF
-   > {
-   >   "scheme": "https",
-   >   "host": "vault.foobar.tld",
-   >   "port": 8200,
-   >   "token": "abcdef01-0123-abcd-1234-0123456789ab",
-   >   "backend: "kv2"
-   > }
-   > EOF
+   read -d '' VAULT_CONFIG << EOF
+    {
+      "scheme": "https",
+      "host": "vault.foobar.tld",
+      "port": 8200,
+      "token": "s.xxxxxxxxxxxxxxxxxxxxxxx",
+      "backend: "kv2"
+    }
+   EOF
 
 Example:
 
@@ -329,12 +325,17 @@ Setting:
 
 ::
 
-   vault kv put secret/mysql-database my-secret=topsecret
+   vault kv put secret/my-secret secret=topsecret
    export MYVAULTVAR='vault:secret/my-secret'
 
-will render vault-kv1-example.j2 to:
+will render vault-kv1-example.j2 (by running: ``e2j2 -f vault-example.j2``) to:
 
 ::
 
    ** topsecret **
    This is a vault example
+
+.. |Build Status| image:: https://travis-ci.org/provonet/e2j2.svg?branch=master
+   :target: https://travis-ci.org/provonet/e2j2
+.. |Coverage Status| image:: https://coveralls.io/repos/github/provonet/e2j2/badge.svg
+   :target: https://coveralls.io/github/provonet/e2j2

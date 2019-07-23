@@ -8,6 +8,11 @@ from deepmerge import always_merger
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag
 
+try:
+    from json.decoder import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
+
 
 def stdout(msg):
     sys.stdout.write(msg)
@@ -45,21 +50,25 @@ def parse_tag(tag, value):
         envvars = os.environ
         config_var = tag.upper()[:-1] + '_CONFIG'
         token_var = tag.upper()[:-1] + '_TOKEN'
-        config = json.loads(envvars.get(config_var, '{}'))
+        try:
+            config = json.loads(envvars.get(config_var, '{}'))
 
-        if token_var in envvars:
-            config['token'] = os.environ[token_var]
+            if token_var in envvars:
+                config['token'] = os.environ[token_var]
 
-        pattern = re.compile(r'config=([^}]+)}:(.+)')
-        match = pattern.match(value)
-        if match:
-            tag_config = json.loads(match.group(1) + '}')
-            config = always_merger.merge(config, tag_config)
-            value = match.group(2)
+            pattern = re.compile(r'config=([^}]+)}:(.+)')
+            match = pattern.match(value)
+            if match:
+                tag_config = json.loads(match.group(1) + '}')
+                config = always_merger.merge(config, tag_config)
+                value = match.group(2)
+
+        except JSONDecodeError:
+            return '** ERROR: Decoding JSON **'
 
         try:
             validate(instance=config, schema=CONFIG_SCHEMAS[tag], format_checker=draft7_format_checker)
-        except ValidationError as err:
+        except ValidationError:
             return '** ERROR: config validation failed **'
 
     if tag == 'json:':

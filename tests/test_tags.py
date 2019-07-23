@@ -1,6 +1,7 @@
 import unittest
 import six
 import requests_mock
+from requests.exceptions import RequestException
 from mock import patch, mock_open, MagicMock, mock
 from consul.base import ACLPermissionDenied
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, vault_tag
@@ -182,6 +183,11 @@ class TestParsers(unittest.TestCase):
             req_mock.get('https://localhost:8200/v1/kv1/secret', json=raw_response_v1, status_code=999)
             response = vault.get_raw('kv1/secret')
             self.assertEqual(response, '** ERROR: 999 **')
+
+        # request exception raised
+        with patch('e2j2.tags.vault_tag.requests.get', side_effect=RequestException):
+            response = vault.get_raw('kv1/secret')
+            self.assertEqual(response, '** ERROR: failed to connect to https://localhost:8200/v1/kv1/secret **')
 
         # k/v backend version 1
         vault = vault_tag.Vault(config={'url': 'https://localhost:8200', 'backend': 'kv1'})

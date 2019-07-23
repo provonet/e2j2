@@ -1,12 +1,7 @@
 import requests
-import subprocess
+from requests.exceptions import RequestException
 from six.moves.urllib.parse import urlparse
 from e2j2.helpers.constants import VAULT_STATUSCODES
-
-try:
-    from json.decoder import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
 
 try:
     FileNotFoundError
@@ -37,7 +32,11 @@ class Vault:
 
     def get_raw(self, url):
         url = self.url + '/' + url
-        response = self.session.get(url)
+        try:
+            response = self.session.get(url)
+        except RequestException:
+            return '** ERROR: failed to connect to %s **' % url
+
         if response.status_code == 200:
             return response.json()
 

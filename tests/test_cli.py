@@ -2,7 +2,7 @@ import unittest
 from mock import patch, mock_open
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
-from stat import ST_MODE
+# from stat import ST_MODE
 
 class ArgumentParser:
     pass

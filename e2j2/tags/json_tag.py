@@ -15,5 +15,4 @@ def parse(json_string):
         else:
             return json.loads(json_string)
     except JSONDecodeError:
-        # Mark as failed
         return '** ERROR: Decoding JSON **'
