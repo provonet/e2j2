@@ -66,24 +66,6 @@ class Vault:
 
 
 def parse(config, value):
-    print(config)
-    if 'token_script' in config and 'token' in config:
-        return '** ERROR use token or token_script not both **'
-
-    if 'token_script' in config:
-        token_script = config['token_script']
-
-        try:
-            token_script = [token_script] if isinstance(token_script, str) else token_script
-            token = subprocess.check_output(token_script).decode('utf-8').rstrip()
-        except (FileNotFoundError, IOError):
-            return '** ERROR: script: %s not found **' % token_script[0]
-        except Exception as err:
-            return '** ERROR %s raised **' % str(err)
-
-        config['token'] = token
-        del config["token_script"]
-
     vault = Vault(config)
 
     if 'backend' not in config or config['backend'] == 'raw':

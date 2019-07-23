@@ -182,14 +182,15 @@ Configuration:
 You can configure the consul tag by setting the CONSUL_CONFIG
 environment variable. The following config items are supported:
 
-====== ======================== =========
-Item   Explanation              Default
-====== ======================== =========
-scheme url scheme http or https http
-host   consul host              localhost
-port   consul http(s) port      8500
-token  consul token             none
-====== ======================== =========
+============ =============================== =====================
+Item         Explanation                     Default
+============ =============================== =====================
+url          consul url                      http://127.0.0.1:8500
+scheme       consul url scheme http or https scheme from url
+host         consul host                     hostname from url
+port         consul http(s) port             port from url
+token        consul token                    none
+============ ==============================  =====================
 
 Config example:
 
@@ -296,10 +297,7 @@ host         vault host                     hostname from url
 port         vault http(s) port             port from url
 backend      vault secret backend           raw
 token        vault token                    none
-token_script token request script           none
 ============ ============================== =====================
-
-Use either token or token_script not both!
 
 the following backends are supported:
 

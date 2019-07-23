@@ -1,10 +1,17 @@
 Changelog
 =========
-0.1.30 (unreleased)
--------------------
+0.2.0 (unreleased)
+------------------
 
 Added
+-----
 - vault secrets support
+- per tag config (for the consul and vault tags)
+- add support for token variables (for the consul and vault tags)
+
+Changed
+-------
+- Add json schema validation for consul and vault config
 
 0.1.21 (2019-07-09)
 -------------------

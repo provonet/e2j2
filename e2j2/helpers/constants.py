@@ -16,3 +16,33 @@ VAULT_STATUSCODES = {
     '500': 'Internal server error',
     '503': 'Sealed'
 }
+uri = {'type': 'string', 'format': 'uri'}
+scheme = {'type': 'string', 'enum': ['http', 'https']}
+host = {'type': 'string', 'format': 'hostname'}
+port = {'type': 'number', 'minimum': 0, 'maximum': 65535}
+token = {'type': 'string', "minLength": 5}
+CONFIG_SCHEMAS = {
+    'consul:': {
+        'type': 'object',
+        'properties': {
+            'url': uri,
+            'scheme': scheme,
+            'host': host,
+            'port': port,
+            'token': token,
+        },
+        "additionalProperties":   False
+    },
+    'vault:': {
+        'type': 'object',
+        'properties': {
+            'url': uri,
+            'scheme': scheme,
+            'host': host,
+            'port': port,
+            'token': token,
+            'backend': {'type': 'string', 'enum': ['raw', 'kv1', 'kv2']},
+        },
+        "additionalProperties":   False
+    }
+}

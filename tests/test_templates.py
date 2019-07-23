@@ -97,21 +97,34 @@ class TestTemplates(unittest.TestCase):
 
         # no config
         with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag('vault:', 'secret/data/mysecret')
-            vault_mock.assert_called_with({}, 'secret/data/mysecret')
+            templates.parse_tag('vault:', 'secret/mysecret')
+            vault_mock.assert_called_with({}, 'secret/mysecret')
 
         # with config
         with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag('vault:', 'config={"url": "https://localhost:8200"}:secret/data/mysecret')
-            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/data/mysecret')
+            templates.parse_tag('vault:', 'config={"url": "https://localhost:8200"}:secret/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
 
-        # with envvar config
+        # with envar config
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'VAULT_CONFIG': '{"url": "https://localhost:8200"}'}
             with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
-                templates.parse_tag('vault:', 'secret/data/mysecret')
-                vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/data/mysecret')
+                templates.parse_tag('vault:', 'secret/mysecret')
+                vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
 
+        # with envvar config and token envvar
+        with patch('e2j2.helpers.templates.os') as os_mock:
+            os_mock.environ = {'VAULT_CONFIG': '{"url": "https://localhost:8200"}', 'VAULT_TOKEN': 'aabbccddee'}
+            with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
+                templates.parse_tag('vault:', 'secret/mysecret')
+                vault_mock.assert_called_with(
+                    {'url': 'https://localhost:8200', 'token': 'aabbccddee'}, 'secret/mysecret')
+
+        # schema validation error
+        self.assertEqual(templates.parse_tag(
+            'vault:', 'config={"invalid": "foobar"}:secret/mysecret'), '** ERROR: config validation failed **')
+
+        # unknown tag
         self.assertEqual(templates.parse_tag('unknown:', 'foobar'), '** ERROR: tag: unknown: not implemented **')
 
 

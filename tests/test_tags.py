@@ -142,9 +142,6 @@ class TestParsers(unittest.TestCase):
             'auth': None
         }
 
-        # rsp = vault_tag.parse(
-        #     {'url': 'http://localhost:8200', 'token': 's.TnXKAJyYIM6tHnXDly58nGYx', 'backend': 'kv2'}, 'kv_v2/my-secret')
-        # self.assertEqual(rsp, {"my-value": "s3cr3t"})
         config = {'url': 'https://localhost', 'token': 'aabbccddee'}
 
         # test setup with config dict
@@ -234,36 +231,6 @@ class TestParsers(unittest.TestCase):
         config = {'url': 'https://localhost:8200', 'backend': 'invalid'}
         response = vault_tag.parse(config, 'kv2/secret')
         self.assertEqual(response, '** ERROR: Unknown backend **')
-
-        # check with both options token and token_script set
-        config = {'url': 'https://localhost:8200', 'token': 'abcd', 'token_script': './foo.sh'}
-        response = vault_tag.parse(config, 'kv2/secret')
-        self.assertEqual(response, '** ERROR use token or token_script not both **')
-
-        # with token_script and token_script as string
-        config = {'url': 'https://localhost:8200', 'token_script': './foo.sh'}
-        with patch('e2j2.tags.vault_tag.subprocess.check_output', return_value=b'abcd\n') as subprocess_mock:
-            with patch('e2j2.tags.vault_tag.Vault') as vault_mock:
-                _ = vault_tag.parse(config, 'kv2/secret')
-                subprocess_mock.assert_called_with(['./foo.sh'])
-                vault_mock.assert_called_with({'url': 'https://localhost:8200', 'token': 'abcd'})
-
-        # with token_script and token_script as list and script params
-        config = {'url': 'https://localhost:8200', 'token_script': ['./foo.sh', '--param', 'param_value']}
-        with patch('e2j2.tags.vault_tag.subprocess.check_output', return_value=b'abcd\n') as subprocess_mock:
-            with patch('e2j2.tags.vault_tag.Vault'):
-                _ = vault_tag.parse(config, 'kv2/secret')
-                subprocess_mock.assert_called_with(['./foo.sh', '--param', 'param_value'])
-
-        # file not found
-        config = {'url': 'https://localhost:8200', 'token_script': './foo.sh'}
-        with patch('e2j2.tags.vault_tag.subprocess.check_output', side_effect=IOError()):
-            self.assertEqual(vault_tag.parse(config, 'kv2/secret'), '** ERROR: script: ./foo.sh not found **')
-
-        # other exception raised
-        config = {'url': 'https://localhost:8200', 'token_script': './foo.sh'}
-        with patch('e2j2.tags.vault_tag.subprocess.check_output', side_effect=Exception('foobar')):
-            self.assertEqual(vault_tag.parse(config, 'kv2/secret'), '** ERROR foobar raised **')
 
 
 if __name__ == '__main__':

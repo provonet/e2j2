@@ -3,8 +3,9 @@ import sys
 import jinja2
 import re
 import json
+from jsonschema import validate, ValidationError, draft7_format_checker
 from deepmerge import always_merger
-from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL
+from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag
 
 
@@ -38,18 +39,28 @@ def get_vars(whitelist, blacklist):
 
 
 def parse_tag(tag, value):
-    var = tag.upper()[:-1] + '_CONFIG'
-    envvar = os.environ.get(var, '{}')
-    config = json.loads(envvar)
+    config = {}
+    value = re.sub(r'^{}'.format(tag), '', value).strip()
+    if tag in CONFIG_SCHEMAS:
+        envvars = os.environ
+        config_var = tag.upper()[:-1] + '_CONFIG'
+        token_var = tag.upper()[:-1] + '_TOKEN'
+        config = json.loads(envvars.get(config_var, '{}'))
 
-    pattern = re.compile(r'config=([^}]+)}:(.+)')
-    match = pattern.match(value)
-    if match:
-        tag_config = json.loads(match.group(1) + '}')
-        config = always_merger.merge(config, tag_config)
-        value = match.group(2)
-    else:
-        value = re.sub(r'^{}'.format(tag), '', value).strip()
+        if token_var in envvars:
+            config['token'] = os.environ[token_var]
+
+        pattern = re.compile(r'config=([^}]+)}:(.+)')
+        match = pattern.match(value)
+        if match:
+            tag_config = json.loads(match.group(1) + '}')
+            config = always_merger.merge(config, tag_config)
+            value = match.group(2)
+
+        try:
+            validate(instance=config, schema=CONFIG_SCHEMAS[tag], format_checker=draft7_format_checker)
+        except ValidationError as err:
+            return '** ERROR: config validation failed **'
 
     if tag == 'json:':
         return json_tag.parse(value)
