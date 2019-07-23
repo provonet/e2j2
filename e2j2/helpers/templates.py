@@ -3,7 +3,7 @@ import sys
 import jinja2
 import re
 import json
-from jsonschema import validate, ValidationError, draft7_format_checker
+from jsonschema import validate, ValidationError, draft4_format_checker
 from deepmerge import always_merger
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag
@@ -67,7 +67,7 @@ def parse_tag(tag, value):
             return '** ERROR: Decoding JSON **'
 
         try:
-            validate(instance=config, schema=CONFIG_SCHEMAS[tag], format_checker=draft7_format_checker)
+            validate(instance=config, schema=CONFIG_SCHEMAS[tag], format_checker=draft4_format_checker)
         except ValidationError:
             return '** ERROR: config validation failed **'
 
