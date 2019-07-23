@@ -190,7 +190,7 @@ scheme       consul url scheme http or https scheme from url
 host         consul host                     hostname from url
 port         consul http(s) port             port from url
 token        consul token                    none
-============ ==============================  =====================
+============ =============================== =====================
 
 Config example:
 
