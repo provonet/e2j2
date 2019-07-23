@@ -203,7 +203,7 @@ Global config example:
    }
    EOF
 
-The ACL token can be configured by either use the above configuration or by setting the CONSUL_TOKEN variable.
+The ACL token can be configured by either the above configuration or by setting the CONSUL_TOKEN variable.
 
 As an alternative for the global configuration it is also possible to configure / adjust the global configuration for each consul tag, by simply include the configuration when using the consul tag.
 
@@ -327,7 +327,7 @@ Global config example:
     }
    EOF
 
-The Authentication token can be configured by either use the above configuration or by setting the VAULT_TOKEN variable.
+The Authentication token can be configured by either the above configuration or by setting the VAULT_TOKEN variable.
 
 As an alternative for the global configuration it is also possible to configure / adjust the global configuration for each vault tag, by simply include the configuration when using the vault tag.
 
