@@ -18,4 +18,3 @@ examples/twopass-example
 examples/vault-example
 .venv
 .coverage
-vault.txt
