@@ -10,9 +10,7 @@ used in the jinja2 templates, within the environment variables you can
 use special tags which give you the option to insert json, json file
 paths, base64 hashes, consul kv keys.
 
-e2j2 is intended to be used within docker containers, you can simply add
-the j2 extention to a configuration file and then run e2j2 before you’re
-starting the actual executable.
+e2j2 can be used within docker containers, or for other simple configuration templating tasks. Within a docker container you can simply add the j2 extention to a configuration file, or to multiple files within one or more folder structures and then run e2j2 as part of your docker entrypoint script.
 
 Example:
 --------
