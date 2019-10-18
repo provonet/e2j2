@@ -4,6 +4,7 @@ import argparse
 import os
 from os.path import basename
 from stat import ST_MODE
+from traceback import format_exc
 from e2j2.helpers import templates
 from e2j2.helpers.templates import stdout
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
@@ -155,7 +156,7 @@ def e2j2():
                 status = lightgreen + 'success' + reset_all
             except Exception as e:
                 filename += '.err'
-                content = str(e)
+                content = "{}\n\n{}".format(str(e), format_exc())
                 status = bright_red + 'failed ' + reset_all
                 exit_code = 1
 
