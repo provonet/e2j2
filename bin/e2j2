@@ -3,4 +3,4 @@ from e2j2.cli import e2j2
 
 
 if __name__ == '__main__':
-    e2j2()
+    exit(e2j2())

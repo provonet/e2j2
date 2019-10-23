@@ -1,5 +1,19 @@
 Changelog
 =========
+0.2.1 (2019-10-23)
+------------------
+
+Added
+-----
+- add --stacktrace flag to include a python stack trace in the error file (thanks: Sylvia van Os/TheLastProject)
+
+Changed
+- show jinja2 render error in console output (thanks: Marco Verleun)
+
+Fixed
+- Fix for pip install issues
+- Pass exit code to calling shell 
+
 0.2.0 (2019-07-23)
 ------------------
 
