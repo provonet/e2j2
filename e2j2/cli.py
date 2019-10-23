@@ -177,7 +177,3 @@ def e2j2():
         finally:
             sys.stdout.flush()
     return exit_code
-
-
-if __name__ == '__main__':
-    sys.exit(e2j2())
