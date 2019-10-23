@@ -96,6 +96,7 @@ class TestCli(unittest.TestCase):
         args.env_whitelist = None
         args.env_blacklist = None
         args.copy_file_permissions = False
+        args.stacktrace = False
 
         # noop run
         args.noop = True
