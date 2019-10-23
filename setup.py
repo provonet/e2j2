@@ -1,10 +1,9 @@
 from setuptools import setup
-from e2j2.helpers.constants import VERSION
 
 description = 'e2j2 is a commandline utility to render text/configuration files from jinja2 templates from shell environment variables'
 
 setup(name='e2j2',
-      version=VERSION,
+      version='0.2.0',
       description=description,
       long_description=open('README.rst').read() + '\n\n' + open('CHANGELOG.rst').read(),
       install_requires=['jinja2>=2.10.1', 'python-consul>=0.6.0', 'deepmerge>=0.0.4', 'six', 'jsonschema', 'rfc3987'],
