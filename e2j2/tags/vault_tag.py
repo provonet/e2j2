@@ -2,6 +2,7 @@ import requests
 from requests.exceptions import RequestException
 from six.moves.urllib.parse import urlparse
 from e2j2.helpers.constants import VAULT_STATUSCODES
+from e2j2.helpers.exception import E2j2Exception
 
 try:
     FileNotFoundError
@@ -35,15 +36,15 @@ class Vault:
         try:
             response = self.session.get(url)
         except RequestException:
-            return '** ERROR: failed to connect to %s **' % url
+            raise E2j2Exception('failed to connect to %s' % url)
 
         if response.status_code == 200:
             return response.json()
 
         if str(response.status_code) in VAULT_STATUSCODES:
-            return '** ERROR: {} **'.format(VAULT_STATUSCODES[str(response.status_code)])
+            raise E2j2Exception(VAULT_STATUSCODES[str(response.status_code)])
 
-        return '** ERROR: {} **'.format(response.status_code)
+        raise E2j2Exception(response.status_code)
 
     def get_kv1(self, url):
         response = self.get_raw(url)
@@ -74,4 +75,4 @@ def parse(config, value):
     elif config['backend'] == 'kv2':
         return vault.get_kv2(value)
     else:
-        return '** ERROR: Unknown backend **'
+        raise E2j2Exception('Unknown K/V backend')

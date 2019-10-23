@@ -1,5 +1,6 @@
 import json
 import re
+from e2j2.helpers.exception import E2j2Exception
 
 try:
     from json.decoder import JSONDecodeError
@@ -15,4 +16,4 @@ def parse(json_string):
         else:
             return json.loads(json_string)
     except JSONDecodeError:
-        return '** ERROR: Decoding JSON **'
+        raise E2j2Exception('invalid JSON')

@@ -5,7 +5,8 @@ import re
 import json
 from jsonschema import validate, ValidationError, draft4_format_checker
 from deepmerge import always_merger
-from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, CONFIG_SCHEMAS
+from e2j2.helpers.exception import E2j2Exception
+from e2j2.helpers.constants import YELLOW, RESET_ALL, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag
 
 try:
@@ -35,10 +36,11 @@ def get_vars(whitelist, blacklist):
     for envvar in env_list:
         envvalue = os.environ[envvar]
         defined_tag = ''.join([tag for tag in tags if envvalue.startswith(tag)])
-        envcontext[envvar] = parse_tag(defined_tag, envvalue) if defined_tag else envvalue
-
-        if '** ERROR:' in envcontext[envvar]:
-            stdout(BRIGHT_RED + "{}='{}'".format(envvar, envcontext[envvar]) + RESET_ALL + '\n')
+        try:
+            envcontext[envvar] = parse_tag(defined_tag, envvalue) if defined_tag else envvalue
+        except E2j2Exception as e:
+            stdout(YELLOW + "** WARNING: parsing {} failed with error: {} **".format(envvar, str(e)) + RESET_ALL + '\n')
+            envcontext[envvar] = None
 
     return envcontext
 

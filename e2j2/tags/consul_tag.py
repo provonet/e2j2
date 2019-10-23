@@ -5,6 +5,7 @@ from consul.base import ACLPermissionDenied
 from functools import reduce
 from deepmerge import Merger
 from six.moves.urllib.parse import urlparse
+from e2j2.helpers.exception import E2j2Exception
 
 try:
     from json.decoder import JSONDecodeError
@@ -44,11 +45,11 @@ def parse(config, value):
     try:
         kv_entries = consul_kv.get(recurse=True, key=consul_key)
     except ACLPermissionDenied:
-        return '** Access denied connecting to: {}://{}:{} **'.format(consul_kv.scheme, consul_kv.host, consul_kv.port)
+        raise 'access denied connecting to: {}://{}:{} **'.format(consul_kv.scheme, consul_kv.host, consul_kv.port)
 
     if not kv_entries:
         # Mark as failed if we can't find the consul key
-        return '** ERROR: Key not found **'
+        raise E2j2Exception('key not found')
     consul_dict = {}
     for entry in kv_entries:
         subkeys = entry['Key'].split('/')

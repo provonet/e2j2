@@ -2,6 +2,7 @@ import sys
 import re
 import argparse
 import os
+from traceback import format_exc
 from os.path import basename
 from stat import ST_MODE
 from e2j2.helpers import templates
@@ -69,6 +70,10 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('-P', '--copy_file_permissions',
                             action='store_true',
                             help='copy file permissions from template to rendered file'
+                            )
+    arg_parser.add_argument('-S', '--stacktrace',
+                            action='store_true',
+                            help='Include stacktrace in error file'
                             )
     return arg_parser.parse_args()
 
@@ -155,8 +160,13 @@ def e2j2():
                 status = lightgreen + 'success' + reset_all
             except Exception as e:
                 filename += '.err'
-                content = str(e)
-                status = bright_red + 'failed ' + reset_all
+
+                if args.stacktrace:
+                    content = "{}\n\n{}".format(str(e), format_exc())
+                else:
+                    content = str(e)
+
+                status = bright_red + 'failed with error: {}'.format(str(e)) + reset_all
                 exit_code = 1
 
             stdout('{}{:7} => writing: {}{:25}{} => '.format(status, green, white, basename(filename), green))
