@@ -2,7 +2,7 @@ import sys
 import re
 import argparse
 import os
-from traceback import format_exc
+import traceback
 from os.path import basename
 from stat import ST_MODE
 from e2j2.helpers import templates
@@ -161,12 +161,20 @@ def e2j2():
             except Exception as e:
                 filename += '.err'
 
-                if args.stacktrace:
-                    content = "{}\n\n{}".format(str(e), format_exc())
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                stacktrace = traceback.format_exception(exc_type, exc_value, exc_tb)
+                match = re.search(r'\sline\s(\d+)', stacktrace[-2])
+
+                if match:
+                    content = 'failed with error: {} at line: {}'.format(str(e), match.group(1))
+                    status = bright_red + 'failed with error: {} at line: {}'.format(str(e), match.group(1)) + reset_all
                 else:
                     content = str(e)
+                    status = bright_red + 'failed with error: {}'.format(str(e)) + reset_all
 
-                status = bright_red + 'failed with error: {}'.format(str(e)) + reset_all
+                if args.stacktrace:
+                    content += "\n\n%s" % traceback.format_exc()
+
                 exit_code = 1
 
             stdout('{}{:7} => writing: {}{:25}{} => '.format(status, green, white, basename(filename), green))

@@ -40,7 +40,6 @@ def get_vars(whitelist, blacklist):
             envcontext[envvar] = parse_tag(defined_tag, envvalue) if defined_tag else envvalue
         except E2j2Exception as e:
             stdout(YELLOW + "** WARNING: parsing {} failed with error: {} **".format(envvar, str(e)) + RESET_ALL + '\n')
-            envcontext[envvar] = None
 
     return envcontext
 
