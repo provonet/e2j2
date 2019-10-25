@@ -1,5 +1,15 @@
 Changelog
 =========
+0.3.0 (2019-10-25)
+Changed
+-------
+- show line numbers on rendering errors
+- envvar tag errors are now disabled as warnings as they are non fatal
+
+Breaking change:
+----------------
+- envvar tag errors will result in undefined variables previously they contained an error message 
+
 0.2.1 (2019-10-23)
 ------------------
 
