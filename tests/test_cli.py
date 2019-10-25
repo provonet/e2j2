@@ -1,8 +1,9 @@
 import unittest
 from mock import patch, mock_open
+from callee import Contains
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
-# from stat import ST_MODE
+
 
 class ArgumentParser:
     pass
@@ -96,7 +97,7 @@ class TestCli(unittest.TestCase):
         args.env_whitelist = None
         args.env_blacklist = None
         args.copy_file_permissions = False
-        args.stacktrace = False
+        args.stacktrace = True
 
         # noop run
         args.noop = True
@@ -154,10 +155,9 @@ class TestCli(unittest.TestCase):
                         with patch('e2j2.cli.write_file') as write_mock:
                             exit_code = cli.e2j2()
                             self.assertEqual(exit_code, 1)
-                            write_mock.assert_called_with('/foo/file1.err', "'Error'")
+                            write_mock.assert_called_with('/foo/file1.err', Contains("failed with error: 'Error'"))
 
-
-        # set permssions
+        # set permissions
         args.noop = False
         args.copy_file_permissions = True
         with patch('e2j2.cli.arg_parse', return_value=args):

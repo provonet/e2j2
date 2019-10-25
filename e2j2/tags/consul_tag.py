@@ -45,7 +45,7 @@ def parse(config, value):
     try:
         kv_entries = consul_kv.get(recurse=True, key=consul_key)
     except ACLPermissionDenied:
-        raise 'access denied connecting to: {}://{}:{} **'.format(consul_kv.scheme, consul_kv.host, consul_kv.port)
+        raise E2j2Exception('access denied connecting to: {}://{}:{} **'.format(consul_kv.scheme, consul_kv.host, consul_kv.port))
 
     if not kv_entries:
         # Mark as failed if we can't find the consul key

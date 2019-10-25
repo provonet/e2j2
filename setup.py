@@ -3,11 +3,11 @@ from setuptools import setup
 description = 'e2j2 is a commandline utility to render text/configuration files from jinja2 templates from shell environment variables'
 
 setup(name='e2j2',
-      version='0.2.1',
+      version='0.3.0',
       description=description,
       long_description=open('README.rst').read() + '\n\n' + open('CHANGELOG.rst').read(),
       install_requires=['jinja2>=2.10.1', 'python-consul>=0.6.0', 'deepmerge>=0.0.4', 'six', 'jsonschema', 'rfc3987'],
-      tests_require=['mock', 'unittest2', 'requests-mock'],
+      tests_require=['mock', 'unittest2', 'requests-mock', 'callee'],
       url='http://github.com/provonet/e2j2',
       author='Johan Bakker',
       author_email='johan.bakker@gmail.com',

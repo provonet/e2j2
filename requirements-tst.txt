@@ -4,3 +4,4 @@ coveralls
 six
 behave
 requests-mock
+callee

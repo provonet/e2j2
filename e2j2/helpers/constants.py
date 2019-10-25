@@ -1,4 +1,4 @@
-VERSION = '0.2.1'
+VERSION = '0.3.0'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
@@ -12,7 +12,7 @@ VAULT_STATUSCODES = {
     '204': 'Success, no data',
     '400': 'Invalid request',
     '403': 'Forbidden',
-    '404': 'Invalid path',
+    '404': 'Path not found',
     '500': 'Internal server error',
     '503': 'Sealed'
 }
