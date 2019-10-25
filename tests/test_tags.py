@@ -1,6 +1,8 @@
 import unittest
 import six
 import requests_mock
+from callee import Contains
+from six import assertRaisesRegex
 from requests.exceptions import RequestException
 from mock import patch, mock_open, MagicMock, mock
 from consul.base import ACLPermissionDenied
@@ -15,6 +17,7 @@ except ImportError:
 
 
 class TestParsers(unittest.TestCase):
+    
     def setUp(self):
         pass
 
@@ -27,7 +30,7 @@ class TestParsers(unittest.TestCase):
         self.assertEqual(json_tag.parse('{"foo"=>"bar"}'), {'foo': 'bar'})
 
         # invalid json
-        with self.assertRaises(E2j2Exception):
+        with assertRaisesRegex(self, E2j2Exception, 'invalid JSON'):
             json_tag.parse('<invalid>')
 
     @unittest.skipIf(six.PY2, "not compatible with Python 2")
@@ -38,24 +41,24 @@ class TestParsers(unittest.TestCase):
 
         with patch('builtins.open') as open_mock:
             open_mock.side_effect = IOError()
-            with self.assertRaises(E2j2Exception):
+            with assertRaisesRegex(self, E2j2Exception, 'IOError raised while reading file'):
                 jsonfile_tag.parse('myfile')
 
         with patch('builtins.open'):
             with patch('e2j2.tags.jsonfile_tag.json.load') as jsonload_mock:
                 jsonload_mock.side_effect = JSONDecodeError('', '', 0)
-                with self.assertRaises(E2j2Exception):
+                with assertRaisesRegex(self, E2j2Exception, 'invalid JSON'):
                     jsonfile_tag.parse('myfile')
 
     def test_base64(self):
         self.assertEqual(base64_tag.parse('Zm9vYmFy'), 'foobar')
 
         # TypeError
-        with self.assertRaises(E2j2Exception):
+        with assertRaisesRegex(self, E2j2Exception, 'invalid BASE64 string'):
             base64_tag.parse(123456)
 
         # binascii.Error
-        with self.assertRaises(E2j2Exception):
+        with assertRaisesRegex(self, E2j2Exception, 'invalid BASE64 string'):
             base64_tag.parse('123456')
 
     def test_consul(self):
@@ -83,13 +86,13 @@ class TestParsers(unittest.TestCase):
         # permission denied
         consul_kv.get = MagicMock(side_effect = ACLPermissionDenied)
         with patch('e2j2.tags.consul_tag.ConsulKV', return_value=consul_kv):
-            with self.assertRaises(E2j2Exception):
+            with assertRaisesRegex(self, E2j2Exception, '^access denied connecting to:'):
                 consul_tag.parse(config, 'foo/bar')
 
         # key not found
         consul_kv.get = MagicMock(return_value=[])
         with patch('e2j2.tags.consul_tag.ConsulKV', return_value=consul_kv):
-            with self.assertRaises(E2j2Exception):
+            with assertRaisesRegex(self, E2j2Exception, 'key not found'):
                 consul_tag.parse(config, 'foo/bar')
 
         # get nested consul entry
@@ -116,7 +119,7 @@ class TestParsers(unittest.TestCase):
         open_mock = mock_open()
         open_mock.side_effect = IOError
         with patch('e2j2.tags.file_tag.open', open_mock):
-            with self.assertRaises(E2j2Exception):
+            with assertRaisesRegex(self, E2j2Exception, 'IOError raised while reading file'):
                 file_tag.parse('file.txt')
 
     def test_vault(self):
@@ -178,24 +181,24 @@ class TestParsers(unittest.TestCase):
         # not found
         with requests_mock.mock() as req_mock:
             req_mock.get('https://localhost:8200/v1/kv1/secret', json=raw_response_v1, status_code=404)
-            with self.assertRaisesRegex(E2j2Exception, 'Path not found'):
+            with assertRaisesRegex(self, E2j2Exception, 'Path not found'):
                 _ = vault.get_raw('kv1/secret')
 
         # access denied
         with requests_mock.mock() as req_mock:
             req_mock.get('https://localhost:8200/v1/kv1/secret', json=raw_response_v1, status_code=403)
-            with self.assertRaisesRegex(E2j2Exception, 'Forbidden'):
+            with assertRaisesRegex(self, E2j2Exception, 'Forbidden'):
                 _ = vault.get_raw('kv1/secret')
 
         # unexpected status_code
         with requests_mock.mock() as req_mock:
             req_mock.get('https://localhost:8200/v1/kv1/secret', json=raw_response_v1, status_code=999)
-            with self.assertRaisesRegex(E2j2Exception, ''):
+            with assertRaisesRegex(self, E2j2Exception, ''):
                 _ = vault.get_raw('kv1/secret')
 
         # request exception raised
         with patch('e2j2.tags.vault_tag.requests.get', side_effect=RequestException):
-            with self.assertRaisesRegex(E2j2Exception, '^failed to connect to.+'):
+            with assertRaisesRegex(self, E2j2Exception, '^failed to connect to.+'):
                 _ = vault.get_raw('kv1/secret')
 
         # k/v backend version 1
@@ -208,7 +211,7 @@ class TestParsers(unittest.TestCase):
         # not found
         with requests_mock.mock() as req_mock:
             req_mock.get('https://localhost:8200/v1/kv1/secret', json=raw_response_v1, status_code=404)
-            with self.assertRaisesRegex(E2j2Exception, 'Path not found'):
+            with assertRaisesRegex(self, E2j2Exception, 'Path not found'):
                 _ = vault.get_kv1('kv1/secret')
 
         # k/v backend version 2
@@ -221,7 +224,7 @@ class TestParsers(unittest.TestCase):
         # k/v backend version 2
         with requests_mock.mock() as req_mock:
             req_mock.get('https://localhost:8200/v1/kv2/data/secret', json=raw_response_v2, status_code=404)
-            with self.assertRaisesRegex(E2j2Exception, 'Path not found'):
+            with assertRaisesRegex(self, E2j2Exception, 'Path not found'):
                 _ = vault.get_kv2('kv2/secret')
 
         # test parse no backend
@@ -244,7 +247,7 @@ class TestParsers(unittest.TestCase):
 
         # test parse invalid backend
         config = {'url': 'https://localhost:8200', 'backend': 'invalid'}
-        with self.assertRaisesRegex(E2j2Exception, 'Unknown K/V backend'):
+        with assertRaisesRegex(self, E2j2Exception, 'Unknown K/V backend'):
             _ = vault_tag.parse(config, 'kv2/secret')
 
 
