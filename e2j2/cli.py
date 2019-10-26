@@ -165,12 +165,9 @@ def e2j2():
                 stacktrace = traceback.format_exception(exc_type, exc_value, exc_tb)
                 match = re.search(r'\sline\s(\d+)', stacktrace[-2])
 
-                if match:
-                    content = 'failed with error: {} at line: {}'.format(str(e), match.group(1))
-                    status = bright_red + 'failed with error: {} at line: {}'.format(str(e), match.group(1)) + reset_all
-                else:
-                    content = str(e)
-                    status = bright_red + 'failed with error: {}'.format(str(e)) + reset_all
+                content = 'failed with error: {}'.format(str(e))
+                content += ' at line: {}'.format(match.group(1)) if match else ''
+                status = bright_red + content + reset_all
 
                 if args.stacktrace:
                     content += "\n\n%s" % traceback.format_exc()
