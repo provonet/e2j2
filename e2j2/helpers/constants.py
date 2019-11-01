@@ -1,4 +1,4 @@
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
@@ -21,6 +21,7 @@ scheme = {'type': 'string', 'enum': ['http', 'https']}
 host = {'type': 'string', 'format': 'hostname'}
 port = {'type': 'number', 'minimum': 0, 'maximum': 65535}
 token = {'type': 'string', "minLength": 5}
+ip = {'type': 'string', 'oneOf': [{'format': 'ipv4', 'format': 'ipv6'}]}
 CONFIG_SCHEMAS = {
     'consul:': {
         'type': 'object',
@@ -44,5 +45,13 @@ CONFIG_SCHEMAS = {
             'backend': {'type': 'string', 'enum': ['raw', 'kv1', 'kv2']},
         },
         "additionalProperties":   False
+    },
+    'dns:': {
+        'type': 'object',
+        'properties': {
+            'nameservers': {'type': 'array', 'contains': ip},
+            'port': port,
+            'rdtype': {'type': 'string', 'enum': ['A', 'AAAA', 'MX', 'SRV']}
+        }
     }
 }

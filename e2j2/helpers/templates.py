@@ -7,7 +7,7 @@ from jsonschema import validate, ValidationError, draft4_format_checker
 from deepmerge import always_merger
 from e2j2.helpers.exception import E2j2Exception
 from e2j2.helpers.constants import YELLOW, RESET_ALL, CONFIG_SCHEMAS
-from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag
+from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 
 try:
     from json.decoder import JSONDecodeError
@@ -31,7 +31,7 @@ def find(searchlist, j2file_ext, recurse=False):
 
 def get_vars(whitelist, blacklist):
     env_list = [entry for entry in whitelist if entry not in blacklist]
-    tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:']
+    tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:']
     envcontext = {}
     for envvar in env_list:
         envvalue = os.environ[envvar]
@@ -72,6 +72,7 @@ def parse_tag(tag, value):
         except ValidationError:
             return '** ERROR: config validation failed **'
 
+    print(config)
     if tag == 'json:':
         return json_tag.parse(value)
     elif tag == 'jsonfile:':
@@ -86,6 +87,8 @@ def parse_tag(tag, value):
         return file_tag.parse(value)
     elif tag == 'vault:':
         return vault_tag.parse(config, value)
+    elif tag == 'dns:':
+        return dns_tag.parse(config, value)
     else:
         return '** ERROR: tag: %s not implemented **' % tag
 

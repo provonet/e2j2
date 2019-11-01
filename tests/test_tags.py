@@ -1,11 +1,12 @@
 import unittest
 import six
 import requests_mock
+from dns.resolver import Resolver, NoAnswer, NXDOMAIN, Timeout
 from six import assertRaisesRegex
 from requests.exceptions import RequestException
 from mock import patch, mock_open, MagicMock
 from consul.base import ACLPermissionDenied
-from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, vault_tag
+from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, vault_tag, dns_tag
 from e2j2.tags import list_tag as list_tag
 from e2j2.helpers.exception import E2j2Exception
 
@@ -249,6 +250,66 @@ class TestParsers(unittest.TestCase):
         with assertRaisesRegex(self, E2j2Exception, 'Unknown K/V backend'):
             _ = vault_tag.parse(config, 'kv2/secret')
 
+    def test_dns(self):
+        resolver = Resolver()
+
+        class Reply:
+            pass
+
+        # rdtype not set
+        reply = Reply()
+        reply.address = '127.0.0.1'
+        resolver.query = MagicMock(return_value=[reply])
+        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
+            self.assertEqual(dns_tag.parse({}, 'www.foo.bar'), [{'address': '127.0.0.1'}])
+
+        # rdtype set to 'A'
+        reply = Reply()
+        reply.address = '127.0.0.1'
+        resolver.query = MagicMock(return_value=[reply])
+        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
+            self.assertEqual(dns_tag.parse({'rdtype': 'A'}, 'www.foo.bar'), [{'address': '127.0.0.1'}])
+
+        # rdtype set to 'AAAA'
+        reply = Reply()
+        reply.address = '::1'
+        resolver.query = MagicMock(return_value=[reply])
+        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
+            self.assertEqual(dns_tag.parse({'rdtype': 'AAAA'}, 'www.foo.bar'), [{'address': '::1'}])
+
+        # rdtype set to 'MX'
+        reply = Reply()
+        reply.exchange = 'mx1.foo.bar'
+        reply.preference = 10
+        resolver.query = MagicMock(return_value=[reply])
+        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
+            self.assertEqual(dns_tag.parse({'rdtype': 'MX'}, 'mx.foo.bar'),
+                             [{'exchange': 'mx1.foo.bar', 'preference': 10}])
+
+        # rdtype set to 'SRV'
+        reply = Reply()
+        reply.target = 'srv1.foo.bar'
+        reply.priority = 1
+        reply.weight = 1
+        reply.port = 123
+        resolver.query = MagicMock(return_value=[reply])
+        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
+            self.assertEqual(dns_tag.parse({'rdtype': 'SRV'}, 'srv.foo.bar'),
+                             [{'target': 'srv1.foo.bar', 'priority': 1, 'weight': 1, 'port': 123}])
+
+        # raise NXDOMAIN
+        reply = Reply()
+        resolver.query = MagicMock(side_effect=NXDOMAIN)
+        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
+            with assertRaisesRegex(self, E2j2Exception, 'The DNS query name does not exist'):
+                dns_tag.parse({}, 'unknown.foo.bar')
+
+        # raise other exception
+        reply = Reply()
+        resolver.query = MagicMock(side_effect=Exception('error'))
+        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
+            with assertRaisesRegex(self, E2j2Exception, 'error'):
+                dns_tag.parse({}, 'unknown.foo.bar')
 
 if __name__ == '__main__':
     unittest.main()

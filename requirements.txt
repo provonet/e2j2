@@ -5,3 +5,4 @@ deepmerge>=0.0.4
 jsonschema
 rfc3987
 six
+dnspython

@@ -1,0 +1,5 @@
+The following mail servers are used for the gmail.com domain:
+ 
+{% for reply in DNS_VAR -%}
+{{ reply.exchange }}
+{% endfor -%}

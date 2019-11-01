@@ -16,5 +16,6 @@ examples/list-example
 examples/file-example
 examples/twopass-example
 examples/vault-example
+examples/dns-example
 .venv
 .coverage
