@@ -1,10 +1,9 @@
 import unittest
 import six
 import requests_mock
-from callee import Contains
 from six import assertRaisesRegex
 from requests.exceptions import RequestException
-from mock import patch, mock_open, MagicMock, mock
+from mock import patch, mock_open, MagicMock
 from consul.base import ACLPermissionDenied
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, vault_tag
 from e2j2.tags import list_tag as list_tag

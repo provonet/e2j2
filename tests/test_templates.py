@@ -1,6 +1,8 @@
 import unittest
 from mock import patch
+from six import assertRaisesRegex
 from e2j2.helpers import templates
+from e2j2.helpers.exception import E2j2Exception
 
 
 class TestTemplates(unittest.TestCase):
@@ -23,15 +25,9 @@ class TestTemplates(unittest.TestCase):
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
             self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
 
-        with patch('e2j2.helpers.templates.os') as os_mock:
-            os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
-
-            with patch('e2j2.helpers.templates.stdout'):
-                with patch('e2j2.helpers.templates.parse_tag', return_value='** ERROR: Key not found **'):
-                    self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': '** ERROR: Key not found **'})
-
         # whitelist / blacklist
         self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
+
 
     def test_render(self):
         with patch('e2j2.helpers.templates.jinja2.Environment') as jinja2_mock:
