@@ -1,6 +1,6 @@
 import unittest
 from mock import patch
-from six import assertRaisesRegex
+from callee import Contains
 from e2j2.helpers import templates
 from e2j2.helpers.exception import E2j2Exception
 
@@ -24,6 +24,14 @@ class TestTemplates(unittest.TestCase):
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
             self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
+
+        with patch('e2j2.helpers.templates.os') as os_mock:
+            os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
+
+            with patch('e2j2.helpers.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
+                with patch('e2j2.helpers.templates.stdout') as stdout_mock:
+                    templates.get_vars(whitelist=['FOO_ENV'], blacklist=[])
+                    stdout_mock.assert_called_with(Contains('foobar error'))
 
         # whitelist / blacklist
         self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
@@ -115,6 +123,15 @@ class TestTemplates(unittest.TestCase):
                 templates.parse_tag('vault:', 'secret/mysecret')
                 vault_mock.assert_called_with(
                     {'url': 'https://localhost:8200', 'token': 'aabbccddee'}, 'secret/mysecret')
+
+        with patch('e2j2.helpers.templates.dns_tag.parse') as dns_mock:
+            templates.parse_tag('dns:', 'config={"rdtype": "MX"}:mx.foo.bar')
+            dns_mock.assert_called_with({'rdtype': 'MX'}, 'mx.foo.bar')
+
+        # with config
+        with patch('e2j2.helpers.templates.dns_tag.parse') as dns_mock:
+            templates.parse_tag('dns:', 'www.foo.bar')
+            dns_mock.assert_called_with({}, 'www.foo.bar')
 
         # schema validation error
         self.assertEqual(templates.parse_tag(

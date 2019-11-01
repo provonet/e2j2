@@ -1,7 +1,7 @@
 import unittest
 import six
 import requests_mock
-from dns.resolver import Resolver, NoAnswer, NXDOMAIN, Timeout
+from dns.resolver import Resolver, NXDOMAIN
 from six import assertRaisesRegex
 from requests.exceptions import RequestException
 from mock import patch, mock_open, MagicMock
