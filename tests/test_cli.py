@@ -176,7 +176,7 @@ class TestCli(unittest.TestCase):
 
         # Handle exceptions in config
         with patch('e2j2.cli.arg_parse', return_value=args):
-            with patch('e2j2.cli.configure', side_effect=FileNotFoundError('config.json not found')):
+            with patch('e2j2.cli.configure', side_effect=IOError('config.json not found')):
                 with patch('e2j2.cli.stdout') as stdout_mock:
                     error_code = cli.e2j2()
                     stdout_mock.assert_called_with('E2J2 configuration error: config.json not found')
