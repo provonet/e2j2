@@ -6,3 +6,4 @@ jsonschema
 rfc3987
 six
 dnspython
+munch

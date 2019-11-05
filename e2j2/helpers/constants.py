@@ -22,7 +22,31 @@ host = {'type': 'string', 'format': 'hostname'}
 port = {'type': 'number', 'minimum': 0, 'maximum': 65535}
 token = {'type': 'string', "minLength": 5}
 ip = {'type': 'string', 'oneOf': [{'format': 'ipv4', 'format': 'ipv6'}]}
+
 CONFIG_SCHEMAS = {
+    'configfile': {
+      'type': 'object',
+      'properties': {
+          'extension': {'type': 'string'},
+          'filelist': {'type': 'array', 'items': {'type': 'string'}},
+          'searchlist': {'type': 'array', 'items': {'type': 'string'}},
+          'env_whitelist': {'type': 'array', 'items': {'type': 'string'}},
+          'env_blacklist': {'type': 'array', 'items': {'type': 'string'}},
+          'recursive': {'type': 'boolean'},
+          'no_color': {'type': 'boolean'},
+          'twopass': {'type': 'boolean'},
+          'noop': {'type': 'boolean'},
+          'copy_file_permissions': {'type': 'boolean'},
+          'stacktrace': {'type': 'boolean'},
+          'block_start': {'type': 'string'},
+          'block_end': {'type': 'string'},
+          'variable_start': {'type': 'string'},
+          'variable_end': {'type': 'string'},
+          'comment_start': {'type': 'string'},
+          'comment_end': {'type': 'string'}
+      },
+      "additionalProperties":   False
+    },
     'consul:': {
         'type': 'object',
         'properties': {

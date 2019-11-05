@@ -1,8 +1,10 @@
 import unittest
-from mock import patch
+from mock import patch, MagicMock
 from callee import Contains
+from six import assertRaisesRegex
 from e2j2.helpers import templates
 from e2j2.helpers.exception import E2j2Exception
+from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 
 
 class TestTemplates(unittest.TestCase):
@@ -12,12 +14,12 @@ class TestTemplates(unittest.TestCase):
     def test_find(self):
         # recurse = True
         with patch('e2j2.helpers.templates.os.walk') as recurse_mock:
-            templates.find(searchlist='/etc', j2file_ext='.j2', recurse=True)
+            templates.find(searchlist=['/etc'], j2file_ext='.j2', recurse=True)
             recurse_mock.assert_called_with('/etc')
 
         # recurse = False
         with patch('e2j2.helpers.templates.os.listdir') as dirlist_mock:
-            templates.find(searchlist='/etc', j2file_ext='.j2', recurse=False)
+            templates.find(searchlist=['/etc'], j2file_ext='.j2', recurse=False)
             dirlist_mock.assert_called_with('/etc')
 
     def test_get_vars(self):
@@ -73,6 +75,69 @@ class TestTemplates(unittest.TestCase):
             jinja2_mock.return_value.from_string.assert_called_with('rendered template')
             jinja2_mock.return_value.from_string.return_value.render.assert_called_with({"FOO": "BAR"})
             self.assertEqual(response, 'rendered template')
+
+        class J2:
+            pass
+
+        class Template:
+            pass
+
+        j2 = J2()
+        template = Template()
+
+        # exception should contain line number
+        exceptions = [
+            UndefinedError(),
+            FilterArgumentError(),
+            TemplateSyntaxError(message='message', lineno=1),
+        ]
+        for exception in exceptions:
+            template.render = MagicMock(side_effect=exception)
+            j2.get_template = MagicMock(return_value=template)
+            with patch('e2j2.helpers.templates.jinja2.Environment', return_value=j2):
+                with assertRaisesRegex(self, E2j2Exception, 'at line'):
+                    _ = templates.render(
+                        j2file='/foo/file1.j2',
+                        twopass=False,
+                        block_start='{%',
+                        block_end='%}',
+                        variable_start='{{',
+                        variable_end='}}',
+                        comment_start='{#',
+                        comment_end='#}',
+                        j2vars={"FOO": "BAR"})
+
+        # template not found exception
+        template.render = MagicMock(side_effect=TemplateNotFound(name='/foo/file1.j2'))
+        j2.get_template = MagicMock(return_value=template)
+        with patch('e2j2.helpers.templates.jinja2.Environment', return_value=j2):
+            with assertRaisesRegex(self, E2j2Exception, 'Template file1.j2 not found'):
+                _ = templates.render(
+                    j2file='/foo/file1.j2',
+                    twopass=False,
+                    block_start='{%',
+                    block_end='%}',
+                    variable_start='{{',
+                    variable_end='}}',
+                    comment_start='{#',
+                    comment_end='#}',
+                    j2vars={"FOO": "BAR"})
+
+        # other exceptions
+        template.render = MagicMock(side_effect=ValueError('Error'))
+        j2.get_template = MagicMock(return_value=template)
+        with patch('e2j2.helpers.templates.jinja2.Environment', return_value=j2):
+            with assertRaisesRegex(self, E2j2Exception, 'Error'):
+                _ = templates.render(
+                    j2file='/foo/file1.j2',
+                    twopass=False,
+                    block_start='{%',
+                    block_end='%}',
+                    variable_start='{{',
+                    variable_end='}}',
+                    comment_start='{#',
+                    comment_end='#}',
+                    j2vars={"FOO": "BAR"})
 
     def test_parse_tag(self):
         with patch('e2j2.helpers.templates.json_tag.parse') as json_mock:

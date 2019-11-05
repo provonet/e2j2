@@ -311,5 +311,6 @@ class TestParsers(unittest.TestCase):
             with assertRaisesRegex(self, E2j2Exception, 'error'):
                 dns_tag.parse({}, 'unknown.foo.bar')
 
+
 if __name__ == '__main__':
     unittest.main()

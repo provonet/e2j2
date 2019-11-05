@@ -13,7 +13,8 @@ setup(name='e2j2',
           'dnspython',
           'six',
           'jsonschema',
-          'rfc3987'
+          'rfc3987',
+          'munch'
       ],
       tests_require=['mock', 'unittest2', 'requests-mock', 'callee'],
       url='http://github.com/provonet/e2j2',

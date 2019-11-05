@@ -3,10 +3,12 @@ import sys
 import jinja2
 import re
 import json
+import traceback
+from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 from jsonschema import validate, ValidationError, draft4_format_checker
 from deepmerge import always_merger
 from e2j2.helpers.exception import E2j2Exception
-from e2j2.helpers.constants import YELLOW, RESET_ALL, CONFIG_SCHEMAS
+from e2j2.helpers.constants import BRIGHT_RED, YELLOW, RESET_ALL, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 
 try:
@@ -21,11 +23,11 @@ def stdout(msg):
 
 def find(searchlist, j2file_ext, recurse=False):
     if recurse:
-        return [os.path.realpath(os.path.join(dirpath, j2file)) for searchlist_item in searchlist.split(',')
+        return [os.path.realpath(os.path.join(dirpath, j2file)) for searchlist_item in searchlist
                 for dirpath, dirnames, files in os.walk(searchlist_item)
                 for j2file in files if j2file.endswith(j2file_ext)]
     else:
-        return [os.path.realpath(os.path.join(searchlist_item, j2file)) for searchlist_item in searchlist.split(',')
+        return [os.path.realpath(os.path.join(searchlist_item, j2file)) for searchlist_item in searchlist
                 for j2file in os.listdir(searchlist_item) if j2file.endswith(j2file_ext)]
 
 
@@ -35,7 +37,7 @@ def get_vars(whitelist, blacklist):
     envcontext = {}
     for envvar in env_list:
         envvalue = os.environ[envvar]
-        defined_tag = ''.join([tag for tag in tags if envvalue.startswith(tag)])
+        defined_tag = ''.join([tag for tag in tags if ':' in envvalue and envvalue.startswith(tag)])
         try:
             envcontext[envvar] = parse_tag(defined_tag, envvalue) if defined_tag else envvalue
         except E2j2Exception as e:
@@ -72,7 +74,6 @@ def parse_tag(tag, value):
         except ValidationError:
             return '** ERROR: config validation failed **'
 
-    print(config)
     if tag == 'json:':
         return json_tag.parse(value)
     elif tag == 'jsonfile:':
@@ -107,9 +108,21 @@ def render(**kwargs):
         comment_start_string=kwargs['comment_start'],
         comment_end_string=kwargs['comment_end'])
 
-    first_pass = j2.get_template(filename).render(kwargs['j2vars'])
-    if kwargs['twopass']:
-        # second pass
-        return j2.from_string(first_pass).render(kwargs['j2vars'])
-    else:
-        return first_pass
+    try:
+        first_pass = j2.get_template(filename).render(kwargs['j2vars'])
+        if kwargs['twopass']:
+            # second pass
+            return j2.from_string(first_pass).render(kwargs['j2vars'])
+        else:
+            return first_pass
+    except (UndefinedError, FilterArgumentError, TemplateSyntaxError) as err:
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        stacktrace = traceback.format_exception(exc_type, exc_value, exc_tb)
+        match = re.search(r'\sline\s(\d+)', stacktrace[-2])
+        content = 'failed with error: {}'.format(err)
+        content += ' at line: {}'.format(match.group(1)) if match else ''
+        raise E2j2Exception(content)
+    except TemplateNotFound:
+        raise E2j2Exception('Template %s not found' % filename)
+    except Exception as err:
+        raise E2j2Exception(str(err))

@@ -3,11 +3,14 @@ import re
 import argparse
 import os
 import traceback
+import json
+from jsonschema import validate, draft4_format_checker
 from os.path import basename
 from stat import ST_MODE
 from e2j2.helpers import templates
 from e2j2.helpers.templates import stdout
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
+from e2j2.helpers.constants import CONFIG_SCHEMAS
 
 
 def arg_parse(program, description, version):
@@ -39,7 +42,6 @@ def arg_parse(program, description, version):
                             help='Enable two pass rendering')
     arg_parser.add_argument('--block_start',
                             type=str,
-                            default='{%',
                             help="Block marker start (default: '{%%')")
     arg_parser.add_argument('--block_end',
                             type=str,
@@ -75,7 +77,44 @@ def arg_parse(program, description, version):
                             action='store_true',
                             help='Include stacktrace in error file'
                             )
-    return arg_parser.parse_args()
+    arg_parser.add_argument('-c', '--config',
+                            type=str,
+                            help='config file path'
+                            )
+    args = arg_parser.parse_args()
+
+    return args
+
+
+def configure(args):
+    config = {}
+    if args.config:
+        with open(args.config, 'r') as fh:
+            config = json.load(fh)
+
+    config['extension'] = args.ext if args.ext else config.get('extension', None)
+    config['filelist'] = args.filelist.split(',') if args.filelist else config.get('filelist', None)
+    env_searchlist = os.environ.get('E2J2_SEARCHLIST', '.').split(',')
+    config['searchlist'] = args.searchlist.split(',') if args.searchlist else config.get('searchlist', env_searchlist)
+    config['recursive'] = args.recursive if args.recursive else config.get('recursive', False)
+    config['no_color'] = args.no_color if args.no_color else config.get('no_color', False)
+    config['twopass'] = args.no_color if args.twopass else config.get('twopass', False)
+    config['stacktrace'] = args.stacktrace if args.stacktrace else config.get('stacktrace', False)
+    config['copy_file_permissions'] = args.copy_file_permissions \
+        if args.copy_file_permissions else config.get('copy_file_permissions', False)
+    config['block_start'] = args.block_start if args.block_start else config.get('block_start', '{%')
+    config['block_end'] = args.block_end if args.block_end else config.get('block_end', '%}')
+    config['variable_start'] = args.variable_start if args.variable_start else config.get('variable_start', '{{')
+    config['variable_end'] = args.variable_end if args.variable_end else config.get('variable_end', '}}')
+    config['comment_start'] = args.comment_start if args.comment_start else config.get('comment_start', '{#')
+    config['comment_end'] = args.comment_end if args.comment_end else config.get('comment_end', '#}')
+    config['env_whitelist'] = args.env_whitelist.split(',') if args.env_whitelist else config.get('env_whitelist', [])
+    config['env_blacklist'] = args.env_blacklist.split(',') if args.env_blacklist else config.get('env_blacklist', [])
+    config['noop'] = args.noop
+
+    validate(instance=config, schema=CONFIG_SCHEMAS['configfile'], format_checker=draft4_format_checker)
+
+    return config
 
 
 def use_color(switch):
@@ -91,13 +130,9 @@ def use_color(switch):
     return bright_red, green, lightgreen, white, yellow, reset_all
 
 
-def get_search_list(search_list):
-    return search_list if search_list else os.environ.get('E2J2_SEARCHLIST', '.')
-
-
 def get_files(**kwargs):
     if kwargs['filelist']:
-        return kwargs['filelist'].split(',')
+        return kwargs['filelist']
     else:
         return templates.find(searchlist=kwargs['searchlist'],
                               j2file_ext=kwargs['extension'], recurse=kwargs['recurse'])
@@ -121,20 +156,31 @@ def write_file(filename, content):
 def e2j2():
     exit_code = 0
     args = arg_parse('e2j2', DESCRIPTION, VERSION)
+    try:
+        config = configure(args)
+    except Exception as err:
+        stdout('E2J2 configuration error: %s' % str(err))
 
-    search_list = get_search_list(args.searchlist)
-    recursive = args.recursive
-    extension = args.ext
+        if args.stacktrace:
+            print(traceback.format_exc())
+
+        exit_code = 1
+        return exit_code
+
+    search_list = config['searchlist']
+    recursive = config['recursive']
+    extension = config['extension']
 
     # initialize colors
-    bright_red, green, lightgreen, white, yellow, reset_all = use_color(not args.no_color)
+    bright_red, green, lightgreen, white, yellow, reset_all = use_color(not config['no_color'])
 
-    env_whitelist = args.env_whitelist.split(',') if args.env_whitelist else os.environ
-    env_blacklist = args.env_blacklist.split(',') if args.env_blacklist else []
+    env_whitelist = config['env_whitelist'] if config['env_whitelist'] else os.environ
+    env_blacklist = config['env_blacklist'] if config['env_blacklist'] else []
     j2vars = templates.get_vars(whitelist=env_whitelist, blacklist=env_blacklist)
     old_directory = ''
 
-    j2files = get_files(filelist=args.filelist,  searchlist=search_list, extension=args.ext, recurse=recursive)
+    j2files = get_files(
+        filelist=config['filelist'],  searchlist=search_list, extension=config['extension'], recurse=recursive)
 
     for j2file in j2files:
         try:
@@ -150,38 +196,31 @@ def e2j2():
                 content = templates.render(
                     j2file=j2file,
                     j2vars=j2vars,
-                    twopass=args.twopass,
-                    block_start=args.block_start,
-                    block_end=args.block_end,
-                    variable_start=args.variable_start,
-                    variable_end=args.variable_end,
-                    comment_start=args.comment_start,
-                    comment_end=args.comment_end)
+                    twopass=config['twopass'],
+                    block_start=config['block_start'],
+                    block_end=config['block_end'],
+                    variable_start=config['variable_start'],
+                    variable_end=config['variable_end'],
+                    comment_start=config['comment_start'],
+                    comment_end=config['comment_end'])
                 status = lightgreen + 'success' + reset_all
-            except Exception as e:
+            except Exception as err:
+                exit_code = 1
+                content = str(err)
                 filename += '.err'
-
-                exc_type, exc_value, exc_tb = sys.exc_info()
-                stacktrace = traceback.format_exception(exc_type, exc_value, exc_tb)
-                match = re.search(r'\sline\s(\d+)', stacktrace[-2])
-
-                content = 'failed with error: {}'.format(str(e))
-                content += ' at line: {}'.format(match.group(1)) if match else ''
                 status = bright_red + content + reset_all
 
-                if args.stacktrace:
+                if config['stacktrace']:
                     content += "\n\n%s" % traceback.format_exc()
-
-                exit_code = 1
 
             stdout('{}{:7} => writing: {}{:25}{} => '.format(status, green, white, basename(filename), green))
 
-            if args.noop:
+            if config['noop']:
                 stdout('{}skipped{}\n'.format(yellow, reset_all))
             else:
                 write_file(filename, content)
 
-                if args.copy_file_permissions:
+                if config['copy_file_permissions']:
                     copy_file_permissions(j2file, filename)
 
                 stdout('{}success{}\n'.format(lightgreen, reset_all))
