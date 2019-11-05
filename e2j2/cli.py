@@ -4,11 +4,13 @@ import argparse
 import os
 import traceback
 import json
+from threading import Thread
+from time import sleep
 from jsonschema import validate, draft4_format_checker
 from os.path import basename
 from stat import ST_MODE
 from e2j2.helpers import templates
-from e2j2.helpers.templates import stdout
+from e2j2.helpers.templates import stdout, get_vars
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
 from e2j2.helpers.constants import CONFIG_SCHEMAS
 
@@ -81,6 +83,10 @@ def arg_parse(program, description, version):
                             type=str,
                             help='config file path'
                             )
+    arg_parser.add_argument('--watchlist',
+                            type=str,
+                            help='watch listed environment variables for changes, and render template(s) on change'
+                            )
     args = arg_parser.parse_args()
 
     return args
@@ -110,6 +116,7 @@ def configure(args):
     config['comment_end'] = args.comment_end if args.comment_end else config.get('comment_end', '#}')
     config['env_whitelist'] = args.env_whitelist.split(',') if args.env_whitelist else config.get('env_whitelist', [])
     config['env_blacklist'] = args.env_blacklist.split(',') if args.env_blacklist else config.get('env_blacklist', [])
+    config['watchlist'] = args.watchlist.split(',') if args.watchlist else config.get('watchlist', [])
     config['noop'] = args.noop
 
     validate(instance=config, schema=CONFIG_SCHEMAS['configfile'], format_checker=draft4_format_checker)
@@ -153,20 +160,8 @@ def write_file(filename, content):
         fh.writelines(content)
 
 
-def e2j2():
+def run(config):
     exit_code = 0
-    args = arg_parse('e2j2', DESCRIPTION, VERSION)
-    try:
-        config = configure(args)
-    except Exception as err:
-        stdout('E2J2 configuration error: %s' % str(err))
-
-        if args.stacktrace:
-            print(traceback.format_exc())
-
-        exit_code = 1
-        return exit_code
-
     search_list = config['searchlist']
     recursive = config['recursive']
     extension = config['extension']
@@ -230,4 +225,41 @@ def e2j2():
             exit_code = 1
         finally:
             sys.stdout.flush()
+
+    return exit_code
+
+
+def watch(config):
+    old_env_data = {}
+    while True:
+        # FIXME implement error handling
+        sleep(1)
+        env_data = get_vars(config['watchlist'], config['env_blacklist'])
+        if old_env_data == env_data:
+            continue
+
+        run(config)
+        old_env_data = env_data.copy()
+
+
+def e2j2():
+    exit_code = 0
+    args = arg_parse('e2j2', DESCRIPTION, VERSION)
+    try:
+        config = configure(args)
+    except Exception as err:
+        stdout('E2J2 configuration error: %s' % str(err))
+
+        if args.stacktrace:
+            stdout(traceback.format_exc())
+
+        exit_code = 1
+        return exit_code
+
+    if config['watchlist']:
+        thread = Thread(target=watch, args=(config, ), daemon=True)
+        thread.start()
+        thread.join()
+    else:
+        exit_code = run(config)
     return exit_code

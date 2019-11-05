@@ -72,6 +72,7 @@ def parse_tag(tag, value):
         try:
             validate(instance=config, schema=CONFIG_SCHEMAS[tag], format_checker=draft4_format_checker)
         except ValidationError:
+            print(traceback.format_exc())
             return '** ERROR: config validation failed **'
 
     if tag == 'json:':

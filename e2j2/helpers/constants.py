@@ -21,7 +21,8 @@ scheme = {'type': 'string', 'enum': ['http', 'https']}
 host = {'type': 'string', 'format': 'hostname'}
 port = {'type': 'number', 'minimum': 0, 'maximum': 65535}
 token = {'type': 'string', "minLength": 5}
-ip = {'type': 'string', 'oneOf': [{'format': 'ipv4', 'format': 'ipv6'}]}
+# fixme ipv6 support
+ip = {'type': 'string', 'format': 'ipv4'}
 
 CONFIG_SCHEMAS = {
     'configfile': {
@@ -32,6 +33,7 @@ CONFIG_SCHEMAS = {
           'searchlist': {'type': 'array', 'items': {'type': 'string'}},
           'env_whitelist': {'type': 'array', 'items': {'type': 'string'}},
           'env_blacklist': {'type': 'array', 'items': {'type': 'string'}},
+          'watchlist': {'type': 'array', 'items': {'type': 'string'}},
           'recursive': {'type': 'boolean'},
           'no_color': {'type': 'boolean'},
           'twopass': {'type': 'boolean'},
@@ -73,7 +75,7 @@ CONFIG_SCHEMAS = {
     'dns:': {
         'type': 'object',
         'properties': {
-            'nameservers': {'type': 'array', 'contains': ip},
+            'nameservers': {'type': 'array', 'items': ip},
             'port': port,
             'rdtype': {'type': 'string', 'enum': ['A', 'AAAA', 'MX', 'SRV']}
         }

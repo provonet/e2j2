@@ -1,0 +1,7 @@
+{% if DNS_VAR is defined -%}
+{% for entry in DNS_VAR -%}
+consul_ip={{ entry.address }}
+{% endfor -%}
+{% else -%}
+consul_ip=unknown
+{% endif -%}
