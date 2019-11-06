@@ -1,5 +1,3 @@
-The following mail servers are used for the gmail.com domain:
- 
-{% for reply in DNS_VAR -%}
-{{ reply.exchange }}
+{% for reply in GOOGLE -%}
+Google ip(s): {% for entry in GOOGLE %}{{ entry.address }}{% endfor %}
 {% endfor -%}

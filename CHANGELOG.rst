@@ -1,5 +1,17 @@
 Changelog
 =========
+0.4.0 (unreleased)
+
+Added
+-----
+- add dns tag (currently includes support of record types A, AAAA, MX and SRV)
+- config file support
+- watch for changes on consul, vault and dns tags and render on change (Experimental)
+
+Fixed
+-----
+- show only line numbers on a limited set up exceptions
+
 0.3.0 (2019-10-25)
 Changed
 -------

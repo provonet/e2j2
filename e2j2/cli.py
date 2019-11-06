@@ -234,7 +234,7 @@ def watch(config):
     while True:
         # FIXME implement error handling
         sleep(1)
-        env_data = get_vars(config['watchlist'], config['env_blacklist'])
+        env_data = get_vars(config['watchlist'], [])
         if old_env_data == env_data:
             continue
 
