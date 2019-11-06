@@ -115,11 +115,11 @@ the jinja2 template and place it in the same folder:
      }
    }
 
-Environment variable examples:
-------------------------------
+Environment variable examples
+-----------------------------
 
-Plain environment variable:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Plain environment variable
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Example:
 
@@ -135,8 +135,8 @@ will render envvar-example.j2 to:
 
    This is a plain environment variable
 
-Tag file:
-~~~~~~~~~
+Tag file
+~~~~~~~~
 
 Example:
 
@@ -152,8 +152,8 @@ will render file-example.j2 to:
 
    This is a file example
 
-Tag json:
-~~~~~~~~~
+Tag json
+~~~~~~~~
 
 Example:
 
@@ -169,8 +169,8 @@ will render json-example.j2 to:
 
    This is a json-example
 
-Tag jsonfile:
-~~~~~~~~~~~~~
+Tag jsonfile
+~~~~~~~~~~~~
 
 Example:
 
@@ -186,8 +186,8 @@ will render jsonfile-example.j2 to:
 
    This is a jsonfile example with subkey
 
-Tag base64:
-~~~~~~~~~~~
+Tag base64
+~~~~~~~~~~
 
 Example:
 
@@ -203,8 +203,8 @@ will render base64-example.j2 to:
 
    This is a base64 example
 
-Tag consul:
-~~~~~~~~~~~
+Tag consul
+~~~~~~~~~~
 
 Configuration:
 
@@ -262,8 +262,8 @@ will render consul-example.j2 to:
 
    This is a consul example
 
-Tag list:
-~~~~~~~~~
+Tag list
+~~~~~~~~
 
 Example:
 
@@ -315,8 +315,8 @@ will render (by running: ``e2j2 -f twopass-example.j2 -2``) to:
    define( 'DB_HOST', 'localhost' );
 
 
-Tag vault:
-~~~~~~~~~~~
+Tag vault
+~~~~~~~~~
 
 Configuration:
 
