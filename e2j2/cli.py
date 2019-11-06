@@ -104,7 +104,7 @@ def configure(args):
     config['searchlist'] = args.searchlist.split(',') if args.searchlist else config.get('searchlist', env_searchlist)
     config['recursive'] = args.recursive if args.recursive else config.get('recursive', False)
     config['no_color'] = args.no_color if args.no_color else config.get('no_color', False)
-    config['twopass'] = args.no_color if args.twopass else config.get('twopass', False)
+    config['twopass'] = args.twopass if args.twopass else config.get('twopass', False)
     config['stacktrace'] = args.stacktrace if args.stacktrace else config.get('stacktrace', False)
     config['copy_file_permissions'] = args.copy_file_permissions \
         if args.copy_file_permissions else config.get('copy_file_permissions', False)
