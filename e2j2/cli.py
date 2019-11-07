@@ -238,7 +238,8 @@ def watch(config):
         if old_env_data == env_data:
             continue
 
-        run(config)
+        thread = Thread(target=run, args=(config, ), daemon=True)
+        thread.start()
         old_env_data = env_data.copy()
 
 
@@ -257,9 +258,7 @@ def e2j2():
         return exit_code
 
     if config['watchlist']:
-        thread = Thread(target=watch, args=(config, ), daemon=True)
-        thread.start()
-        thread.join()
+        watch(config)
     else:
         exit_code = run(config)
     return exit_code

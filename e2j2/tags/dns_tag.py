@@ -16,8 +16,6 @@ def parse(config, value):
 
             if rdtype in ['A', 'AAAA']:
                 return_value = {'address': reply.address}
-            elif rdtype == 'MX':
-                return_value = {'exchange': str(reply.exchange), 'preference': reply.preference}
             elif rdtype == 'SRV':
                 return_value = {'target': str(reply.target), 'port': reply.port, 'weight': reply.weight,
                                 'priority': reply.priority}

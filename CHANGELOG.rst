@@ -4,7 +4,7 @@ Changelog
 
 Added
 -----
-- add dns tag (currently includes support of record types A, AAAA, MX and SRV)
+- add dns tag (currently includes support of record types A, AAAA, and SRV)
 - config file support
 - watch for changes on consul, vault and dns tags and render on change (Experimental)
 

@@ -277,15 +277,6 @@ class TestParsers(unittest.TestCase):
         with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
             self.assertEqual(dns_tag.parse({'rdtype': 'AAAA'}, 'www.foo.bar'), [{'address': '::1'}])
 
-        # rdtype set to 'MX'
-        reply = Reply()
-        reply.exchange = 'mx1.foo.bar'
-        reply.preference = 10
-        resolver.query = MagicMock(return_value=[reply])
-        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
-            self.assertEqual(dns_tag.parse({'rdtype': 'MX'}, 'mx.foo.bar'),
-                             [{'exchange': 'mx1.foo.bar', 'preference': 10}])
-
         # rdtype set to 'SRV'
         reply = Reply()
         reply.target = 'srv1.foo.bar'
