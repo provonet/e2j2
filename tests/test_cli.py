@@ -190,11 +190,10 @@ class TestCli(unittest.TestCase):
 
         # watch
         args.watchlist = 'FOOBAR'
-        config = cli.configure(args)
         with patch('e2j2.cli.arg_parse', return_value=args):
-            with patch('e2j2.cli.Thread', return_value=MagicMock()) as thread_mock:
+            with patch('e2j2.cli.watch') as watch_mock:
                 cli.e2j2()
-                thread_mock.assert_called_with(target=cli.watch, args=(config, ), daemon=True)
+                watch_mock.assert_called_once()
 
 
 if __name__ == '__main__':

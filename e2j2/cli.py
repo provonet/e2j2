@@ -256,7 +256,6 @@ def e2j2():
 
         exit_code = 1
         return exit_code
-
     if config['watchlist']:
         watch(config)
     else:
