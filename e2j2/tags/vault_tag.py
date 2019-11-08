@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import RequestException
 from six.moves.urllib.parse import urlparse
 from e2j2.helpers.constants import VAULT_STATUSCODES
-from e2j2.helpers.exception import E2j2Exception
+from e2j2.helpers.exceptions import E2j2Exception
 
 try:
     FileNotFoundError
@@ -65,14 +65,14 @@ class Vault:
         return dict(response)['data']['data']
 
 
-def parse(config, value):
-    vault = Vault(config)
+def parse(tag_config, value):
+    vault = Vault(tag_config)
 
-    if 'backend' not in config or config['backend'] == 'raw':
+    if 'backend' not in tag_config or tag_config['backend'] == 'raw':
         return vault.get_raw(value)
-    if config['backend'] == 'kv1':
+    if tag_config['backend'] == 'kv1':
         return vault.get_kv1(value)
-    elif config['backend'] == 'kv2':
+    elif tag_config['backend'] == 'kv2':
         return vault.get_kv2(value)
     else:
         raise E2j2Exception('Unknown K/V backend')

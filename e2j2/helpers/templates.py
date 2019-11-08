@@ -7,9 +7,10 @@ import traceback
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 from jsonschema import validate, ValidationError, draft4_format_checker
 from deepmerge import always_merger
-from e2j2.helpers.exception import E2j2Exception
+from e2j2.helpers.exceptions import E2j2Exception
 from e2j2.helpers.constants import BRIGHT_RED, YELLOW, RESET_ALL, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
+from e2j2.helpers import cache
 
 try:
     from json.decoder import JSONDecodeError
@@ -18,7 +19,20 @@ except ImportError:
 
 
 def stdout(msg):
-    sys.stdout.write(msg)
+    display_every = cache.log_display_every
+    increment = 5
+    counter = cache.log_repeat_log_msg_counter
+
+    if cache.last_log_line != msg:
+        sys.stdout.write(msg)
+        cache.log_repeat_log_msg_counter = 1
+    elif counter // display_every == counter / display_every:
+        sys.stdout.write('({}x) '.format(display_every) + msg)
+        cache.log_display_every += increment
+        cache.log_repeat_log_msg_counter = 1
+
+    cache.log_repeat_log_msg_counter += 1
+    cache.last_log_line = msg
 
 
 def find(searchlist, j2file_ext, recurse=False):
@@ -47,30 +61,30 @@ def get_vars(whitelist, blacklist):
 
 
 def parse_tag(tag, value):
-    config = {}
+    tag_config = {}
     value = re.sub(r'^{}'.format(tag), '', value).strip()
     if tag in CONFIG_SCHEMAS:
         envvars = os.environ
         config_var = tag.upper()[:-1] + '_CONFIG'
         token_var = tag.upper()[:-1] + '_TOKEN'
         try:
-            config = json.loads(envvars.get(config_var, '{}'))
+            tag_config = json.loads(envvars.get(config_var, '{}'))
 
             if token_var in envvars:
-                config['token'] = os.environ[token_var]
+                tag_config['token'] = os.environ[token_var]
 
             pattern = re.compile(r'config=([^}]+)}:(.+)')
             match = pattern.match(value)
             if match:
                 tag_config = json.loads(match.group(1) + '}')
-                config = always_merger.merge(config, tag_config)
+                tag_config = always_merger.merge(tag_config, tag_config)
                 value = match.group(2)
 
         except JSONDecodeError:
             return '** ERROR: Decoding JSON **'
 
         try:
-            validate(instance=config, schema=CONFIG_SCHEMAS[tag], format_checker=draft4_format_checker)
+            validate(instance=tag_config, schema=CONFIG_SCHEMAS[tag], format_checker=draft4_format_checker)
         except ValidationError:
             print(traceback.format_exc())
             return '** ERROR: config validation failed **'
@@ -82,15 +96,15 @@ def parse_tag(tag, value):
     elif tag == 'base64:':
         return base64_tag.parse(value)
     elif tag == 'consul:':
-        return consul_tag.parse(config, value)
+        return consul_tag.parse(tag_config, value)
     elif tag == 'list:':
         return list_tag.parse(value)
     elif tag == 'file:':
         return file_tag.parse(value)
     elif tag == 'vault:':
-        return vault_tag.parse(config, value)
+        return vault_tag.parse(tag_config, value)
     elif tag == 'dns:':
-        return dns_tag.parse(config, value)
+        return dns_tag.parse(tag_config, value)
     else:
         return '** ERROR: tag: %s not implemented **' % tag
 

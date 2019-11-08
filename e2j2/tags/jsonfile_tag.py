@@ -1,5 +1,5 @@
 import json
-from e2j2.helpers.exception import E2j2Exception
+from e2j2.helpers.exceptions import E2j2Exception
 
 try:
     from json.decoder import JSONDecodeError

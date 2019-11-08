@@ -1,6 +1,6 @@
 import binascii
 from base64 import b64decode
-from e2j2.helpers.exception import E2j2Exception
+from e2j2.helpers.exceptions import E2j2Exception
 
 def parse(value):
     try:

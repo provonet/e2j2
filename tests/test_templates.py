@@ -3,7 +3,7 @@ from mock import patch, MagicMock
 from callee import Contains
 from six import assertRaisesRegex
 from e2j2.helpers import templates
-from e2j2.helpers.exception import E2j2Exception
+from e2j2.helpers.exceptions import E2j2Exception
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 
 
@@ -37,7 +37,6 @@ class TestTemplates(unittest.TestCase):
 
         # whitelist / blacklist
         self.assertEqual(templates.get_vars(whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
-
 
     def test_render(self):
         with patch('e2j2.helpers.templates.jinja2.Environment') as jinja2_mock:

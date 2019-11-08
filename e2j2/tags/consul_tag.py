@@ -5,7 +5,7 @@ from consul.base import ACLPermissionDenied
 from functools import reduce
 from deepmerge import Merger
 from six.moves.urllib.parse import urlparse
-from e2j2.helpers.exception import E2j2Exception
+from e2j2.helpers.exceptions import E2j2Exception
 
 try:
     from json.decoder import JSONDecodeError
@@ -36,9 +36,9 @@ class ConsulKV:
         return entries
 
 
-def parse(config, value):
+def parse(tag_config, value):
 
-    consul_kv = ConsulKV(config=config)
+    consul_kv = ConsulKV(config=tag_config)
     consul_merger = Merger([(list, ['append']), (dict, ['merge'])], ['override'], ['override'])
     consul_key = value.rstrip('/')
 

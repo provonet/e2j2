@@ -1,12 +1,13 @@
+import re
 from dns.resolver import Resolver, NoAnswer, NXDOMAIN, Timeout
-from e2j2.helpers.exception import E2j2Exception
+from e2j2.helpers.exceptions import E2j2Exception
 
 
-def parse(config, value):
+def parse(tag_config, value):
     resolver = Resolver()
-    resolver.nameservers = config['nameservers'] if 'nameservers' in config else resolver.nameservers
-    resolver.port = config['port'] if 'port' in config else resolver.port
-    rdtype = config['rdtype'] if 'rdtype' in config else 'A'
+    resolver.nameservers = tag_config['nameservers'] if 'nameservers' in tag_config else resolver.nameservers
+    resolver.port = tag_config['port'] if 'port' in tag_config else resolver.port
+    rdtype = tag_config['rdtype'] if 'rdtype' in tag_config else 'A'
 
     try:
         return_values = []
@@ -22,8 +23,11 @@ def parse(config, value):
 
             return_values.append(return_value)
 
-    except (NXDOMAIN, NoAnswer, Timeout) as err:
+    except (NXDOMAIN, NoAnswer) as err:
         raise E2j2Exception(str(err))
+    except Timeout as err:
+        # strip number of seconds
+        raise E2j2Exception('The DNS operation timed out')
     except Exception as err:
         raise E2j2Exception('dns_tag failed with: %s' % str(err))
 

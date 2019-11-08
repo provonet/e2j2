@@ -4,6 +4,7 @@ import argparse
 import os
 import traceback
 import json
+from e2j2.helpers import cache
 from threading import Thread
 from time import sleep
 from jsonschema import validate, draft4_format_checker
@@ -248,6 +249,7 @@ def e2j2():
     args = arg_parse('e2j2', DESCRIPTION, VERSION)
     try:
         config = configure(args)
+        cache.config = config
     except Exception as err:
         stdout('E2J2 configuration error: %s' % str(err))
 
