@@ -45,7 +45,7 @@ def find(searchlist, j2file_ext, recurse=False):
                 for j2file in os.listdir(searchlist_item) if j2file.endswith(j2file_ext)]
 
 
-def get_vars(whitelist, blacklist):
+def get_vars(whitelist, blacklist, no_cache=False):
     env_list = [entry for entry in whitelist if entry not in blacklist]
     tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:']
     envcontext = {}

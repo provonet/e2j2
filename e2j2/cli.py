@@ -231,7 +231,8 @@ def run(config):
 
 
 def watch(config):
-    old_env_data = {}
+    old_env_data = None
+
     while True:
         # FIXME implement error handling
         sleep(1)
@@ -239,9 +240,9 @@ def watch(config):
         if old_env_data == env_data:
             continue
 
+        old_env_data = env_data.copy()
         thread = Thread(target=run, args=(config, ), daemon=True)
         thread.start()
-        old_env_data = env_data.copy()
 
 
 def e2j2():

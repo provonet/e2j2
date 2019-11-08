@@ -1,4 +1,3 @@
-import re
 from dns.resolver import Resolver, NoAnswer, NXDOMAIN, Timeout
 from e2j2.helpers.exceptions import E2j2Exception
 
