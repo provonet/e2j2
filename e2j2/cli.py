@@ -92,7 +92,7 @@ def arg_parse(program, description, version):
                             )
     arg_parser.add_argument('-R', '--run',
                             type=str,
-                            help='run command after rendering template (command arg1 arg2 arg3')
+                            help='run command after rendering template (command arg1 arg2 arg3)')
     args = arg_parser.parse_args()
 
     return args

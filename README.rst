@@ -41,6 +41,7 @@ Switch                      Type                 Config key                     
 -S, --stacktrace                                 stacktrace                      boolean Include stacktrace in error file
 -C, --config                string                                                       Config file path
 --watchlist                 comma separated list watchlist                       array   Watch listed envvars for changes and render template(s) on change
+-R, --run                   string               run                             array   Run command after rendering templates
 =========================== ==================== =============================== ======= ==========================================================================
 
 Example

@@ -7,6 +7,7 @@ Added
 - add dns tag (currently includes support of record types A, AAAA, and SRV)
 - config file support
 - watch for changes on consul, vault and dns tags and render on change (Experimental)
+- add run flag, this flag can be used to execute shell commands after rendering templates (Experimental)
 
 Fixed
 -----
