@@ -4,6 +4,8 @@ import argparse
 import os
 import traceback
 import json
+import subprocess
+from subprocess import CalledProcessError
 from e2j2.helpers import cache
 from threading import Thread
 from time import sleep
@@ -88,6 +90,9 @@ def arg_parse(program, description, version):
                             type=str,
                             help='watch listed environment variables for changes, and render template(s) on change'
                             )
+    arg_parser.add_argument('-R', '--run',
+                            type=str,
+                            help='run command after rendering template (command arg1 arg2 arg3')
     args = arg_parser.parse_args()
 
     return args
@@ -118,6 +123,7 @@ def configure(args):
     config['env_whitelist'] = args.env_whitelist.split(',') if args.env_whitelist else config.get('env_whitelist', [])
     config['env_blacklist'] = args.env_blacklist.split(',') if args.env_blacklist else config.get('env_blacklist', [])
     config['watchlist'] = args.watchlist.split(',') if args.watchlist else config.get('watchlist', [])
+    config['run'] = args.run.split() if args.run else config.get('run', [])
     config['noop'] = args.noop
 
     validate(instance=config, schema=CONFIG_SCHEMAS['configfile'], format_checker=draft4_format_checker)
@@ -227,6 +233,20 @@ def run(config):
         finally:
             sys.stdout.flush()
 
+        if config['run']:
+            command = ' '.join(config['run'])
+            stdout('\n{0}Running:\n    command: {1}{2} {0} => {1}'.format(green, reset_all, command))
+
+            try:
+                subprocess.check_output(config['run'], stderr=subprocess.STDOUT)
+                stdout('{} done{}\n'.format(lightgreen, reset_all))
+            except CalledProcessError as error:
+                stdout('{} failed{}\n\n'.format(bright_red, reset_all))
+                stdout('{}Output:{}\n'.format(bright_red, reset_all))
+                stdout(error.stdout.decode() + '\n')
+                exit_code = 1
+        else:
+            stdout('{} skipped{}\n'.format(white, reset_all))
     return exit_code
 
 

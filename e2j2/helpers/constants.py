@@ -34,6 +34,7 @@ CONFIG_SCHEMAS = {
           'env_whitelist': {'type': 'array', 'items': {'type': 'string'}},
           'env_blacklist': {'type': 'array', 'items': {'type': 'string'}},
           'watchlist': {'type': 'array', 'items': {'type': 'string'}},
+          'run': {'type': 'array', 'items': {'type': 'string'}},
           'recursive': {'type': 'boolean'},
           'no_color': {'type': 'boolean'},
           'twopass': {'type': 'boolean'},
