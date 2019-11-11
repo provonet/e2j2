@@ -221,8 +221,8 @@ def run(config):
 
                 stdout('{}success{}\n'.format(lightgreen, reset_all))
 
-        except Exception as e:
-            stdout('{}failed{} ({})\n'.format(bright_red, reset_all, str(e)))
+        except Exception as err:
+            stdout('{}failed{} ({})\n'.format(bright_red, reset_all, str(err)))
             exit_code = 1
         finally:
             sys.stdout.flush()
@@ -232,11 +232,15 @@ def run(config):
 
 def watch(config):
     old_env_data = None
+    bright_red, green, lightgreen, white, yellow, reset_all = use_color(not config['no_color'])
 
     while True:
-        # FIXME implement error handling
         sleep(1)
-        env_data = get_vars(config['watchlist'], [])
+        try:
+            env_data = get_vars(config['watchlist'], [])
+        except KeyError as err:
+            stdout('{}ERROR Unknown key {} in watchlist{}\n'.format(bright_red, str(err), reset_all))
+            break
         if old_env_data == env_data:
             continue
 
