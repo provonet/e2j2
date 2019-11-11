@@ -237,16 +237,17 @@ def run(config):
             command = ' '.join(config['run'])
             stdout('\n{0}Running:\n    command: {1}{2} {0} => {1}'.format(green, reset_all, command))
 
-            try:
-                subprocess.check_output(config['run'], stderr=subprocess.STDOUT)
-                stdout('{} done{}\n'.format(lightgreen, reset_all))
-            except CalledProcessError as error:
-                stdout('{} failed{}\n\n'.format(bright_red, reset_all))
-                stdout('{}Output:{}\n'.format(bright_red, reset_all))
-                stdout(error.stdout.decode() + '\n')
-                exit_code = 1
-        else:
-            stdout('{} skipped{}\n'.format(white, reset_all))
+            if exit_code == 0:
+                try:
+                    subprocess.check_output(config['run'], stderr=subprocess.STDOUT)
+                    stdout('{} done{}\n'.format(lightgreen, reset_all))
+                except CalledProcessError as error:
+                    stdout('{} failed{}\n\n'.format(bright_red, reset_all))
+                    stdout('{}Output:{}\n'.format(bright_red, reset_all))
+                    stdout(error.stdout.decode() + '\n')
+                    exit_code = 1
+            else:
+                stdout('{} skipped{}\n'.format(yellow, reset_all))
     return exit_code
 
 

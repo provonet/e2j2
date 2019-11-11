@@ -26,6 +26,7 @@ class ArgumentParser:
         self.stacktrace = False
         self.config = None
         self.watchlist = None
+        self.run = None
         self.noop = False
 
 
