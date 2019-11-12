@@ -383,6 +383,61 @@ will render vault-kv1-example.j2 (by running: ``e2j2 -f vault-example.j2``) to:
    ** topsecret **
    This is a vault example
 
+Tag dns
+~~~~~~~~~
+
+Configuration:
+
+You can configure the dns tag by setting the DNS_CONFIG
+environment variable. The following config items are supported:
+
+============ ============================== =====================
+Item         Explanation                    Default
+============ ============================== =====================
+nameservers  overwrite nameservers          use system resolvers
+port         overwrite dns port             53
+type         record type (A, AAAA or SRV)   A
+============ ============================== =====================
+
+the supported record types will return a dict with the following keys:
+
+======= ===============================
+Type    Keys
+======= ===============================
+A       address
+AAAA    address
+SRV     target, port, weight, priority
+======= ===============================
+
+DNS example:
+
+Assuming a consul node running on localhost with the default dns port 8600.
+
+Setting the DNS_CONFIG variable:
+::
+
+   read -d '' DNS_CONFIG << EOF
+    {
+      "nameservers": ['127.0.0.1'],
+      "port": 8600,
+      "type": "SRV"
+    }
+   EOF
+
+Setting:
+
+::
+
+   export MYDNSVAR='dns:consul.service.consul'
+
+will render dns-example.j2 (by running: ``e2j2 -f dns-example.j2``) to:
+
+::
+
+    My consul node:
+    node1.node.dc1.consul. listening on port 8300
+
+
 .. |Build Status| image:: https://travis-ci.org/provonet/e2j2.svg?branch=master
    :target: https://travis-ci.org/provonet/e2j2
 .. |Coverage Status| image:: https://coveralls.io/repos/github/provonet/e2j2/badge.svg

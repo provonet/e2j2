@@ -6,7 +6,7 @@ def parse(tag_config, value):
     resolver = Resolver()
     resolver.nameservers = tag_config['nameservers'] if 'nameservers' in tag_config else resolver.nameservers
     resolver.port = tag_config['port'] if 'port' in tag_config else resolver.port
-    rdtype = tag_config['rdtype'] if 'rdtype' in tag_config else 'A'
+    rdtype = tag_config['type'] if 'type' in tag_config else 'A'
 
     try:
         return_values = []

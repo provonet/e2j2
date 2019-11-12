@@ -1,3 +1,4 @@
-{% for reply in GOOGLE -%}
-Google ip(s): {% for entry in GOOGLE %}{{ entry.address }}{% endfor %}
+My consul node:
+{% for entry in MYDNSVAR -%}
+{{ entry.target }} listening on port {{ entry.port }}
 {% endfor -%}

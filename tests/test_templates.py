@@ -190,8 +190,8 @@ class TestTemplates(unittest.TestCase):
                     {'url': 'https://localhost:8200', 'token': 'aabbccddee'}, 'secret/mysecret')
 
         with patch('e2j2.helpers.templates.dns_tag.parse') as dns_mock:
-            templates.parse_tag('dns:', 'config={"rdtype": "MX"}:mx.foo.bar')
-            dns_mock.assert_called_with({'rdtype': 'MX'}, 'mx.foo.bar')
+            templates.parse_tag('dns:', 'config={"type": "MX"}:mx.foo.bar')
+            dns_mock.assert_called_with({'type': 'MX'}, 'mx.foo.bar')
 
         # with config
         with patch('e2j2.helpers.templates.dns_tag.parse') as dns_mock:
@@ -202,13 +202,17 @@ class TestTemplates(unittest.TestCase):
         with patch('e2j2.helpers.templates.cache') as cache_mock:
             with patch('e2j2.helpers.templates.stdout') as stdout_mock:
                 cache_mock.config = {'stacktrace': True}
-                self.assertEqual(templates.parse_tag(
-                    'vault:', 'config={"invalid": "foobar"}:secret/mysecret'), '** ERROR: config validation failed **')
-                stdout_mock.assert_called_with(Contains('Traceback'))
+                try:
+                    templates.parse_tag('vault:', 'config={"invalid": "foobar"}:secret/mysecret')
+                except E2j2Exception as error:
+                    self.assertEqual(str(error), 'config validation failed')
+                    stdout_mock.assert_called_with(Contains('Traceback'))
 
         # invalid json in config
-        self.assertEqual(templates.parse_tag(
-            'vault:', 'config={"<invalid>"}::secret/mysecret'), '** ERROR: Decoding JSON **')
+        try:
+            templates.parse_tag('vault:', 'config={"<invalid>"}::secret/mysecret')
+        except E2j2Exception as error:
+            self.assertEqual(str(error), 'decoding JSON failed')
 
         # unknown tag
         self.assertEqual(templates.parse_tag('unknown:', 'foobar'), '** ERROR: tag: unknown: not implemented **')

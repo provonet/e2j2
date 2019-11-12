@@ -274,14 +274,14 @@ class TestParsers(unittest.TestCase):
         reply.address = '127.0.0.1'
         resolver.query = MagicMock(return_value=[reply])
         with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
-            self.assertEqual(dns_tag.parse({'rdtype': 'A'}, 'www.foo.bar'), [{'address': '127.0.0.1'}])
+            self.assertEqual(dns_tag.parse({'type': 'A'}, 'www.foo.bar'), [{'address': '127.0.0.1'}])
 
         # rdtype set to 'AAAA'
         reply = Reply()
         reply.address = '::1'
         resolver.query = MagicMock(return_value=[reply])
         with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
-            self.assertEqual(dns_tag.parse({'rdtype': 'AAAA'}, 'www.foo.bar'), [{'address': '::1'}])
+            self.assertEqual(dns_tag.parse({'type': 'AAAA'}, 'www.foo.bar'), [{'address': '::1'}])
 
         # rdtype set to 'SRV'
         reply = Reply()
@@ -291,7 +291,7 @@ class TestParsers(unittest.TestCase):
         reply.port = 123
         resolver.query = MagicMock(return_value=[reply])
         with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
-            self.assertEqual(dns_tag.parse({'rdtype': 'SRV'}, 'srv.foo.bar'),
+            self.assertEqual(dns_tag.parse({'type': 'SRV'}, 'srv.foo.bar'),
                              [{'target': 'srv1.foo.bar', 'priority': 1, 'weight': 1, 'port': 123}])
 
         # raise NXDOMAIN

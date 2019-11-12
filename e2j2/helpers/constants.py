@@ -78,7 +78,8 @@ CONFIG_SCHEMAS = {
         'properties': {
             'nameservers': {'type': 'array', 'items': ip},
             'port': port,
-            'rdtype': {'type': 'string', 'enum': ['A', 'AAAA', 'MX', 'SRV']}
-        }
+            'type': {'type': 'string', 'enum': ['A', 'AAAA', 'MX', 'SRV']}
+        },
+        "additionalProperties": False
     }
 }

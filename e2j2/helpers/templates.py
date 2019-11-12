@@ -76,7 +76,7 @@ def parse_tag(tag, value):
                 value = match.group(2)
 
         except JSONDecodeError:
-            return '** ERROR: Decoding JSON **'
+            raise E2j2Exception('decoding JSON failed')
 
         try:
             validate(instance=tag_config, schema=CONFIG_SCHEMAS[tag], format_checker=draft4_format_checker)
@@ -85,7 +85,7 @@ def parse_tag(tag, value):
             if config['stacktrace']:
                 stdout(traceback.format_exc())
 
-            return '** ERROR: config validation failed **'
+            raise E2j2Exception('config validation failed')
 
     if tag == 'json:':
         return json_tag.parse(value)
