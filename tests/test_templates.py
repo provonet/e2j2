@@ -198,8 +198,10 @@ class TestTemplates(unittest.TestCase):
             dns_mock.assert_called_with({}, 'www.foo.bar')
 
         # schema validation error
-        self.assertEqual(templates.parse_tag(
-            'vault:', 'config={"invalid": "foobar"}:secret/mysecret'), '** ERROR: config validation failed **')
+        with patch('e2j2.helpers.templates.cache') as cache_mock:
+            cache_mock.config = {'stacktrace': False}
+            self.assertEqual(templates.parse_tag(
+                'vault:', 'config={"invalid": "foobar"}:secret/mysecret'), '** ERROR: config validation failed **')
 
         # invalid json in config
         self.assertEqual(templates.parse_tag(
