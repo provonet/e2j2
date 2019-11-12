@@ -80,7 +80,7 @@ def arg_parse(program, description, version):
                             )
     arg_parser.add_argument('-S', '--stacktrace',
                             action='store_true',
-                            help='Include stacktrace in error file'
+                        help='Include stack trace in error file / show stack trace'
                             )
     arg_parser.add_argument('-c', '--config',
                             type=str,
@@ -256,13 +256,13 @@ def watch(config):
     bright_red, green, lightgreen, white, yellow, reset_all = use_color(not config['no_color'])
 
     while True:
-        sleep(1)
         try:
             env_data = get_vars(config['watchlist'], [])
         except KeyError as err:
-            stdout('{}ERROR Unknown key {} in watchlist{}\n'.format(bright_red, str(err), reset_all))
+            stdout('{}ERROR unknown key {} in watchlist{}\n'.format(bright_red, str(err), reset_all))
             break
         if old_env_data == env_data:
+            sleep(1)
             continue
 
         old_env_data = env_data.copy()
