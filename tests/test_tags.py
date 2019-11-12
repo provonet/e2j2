@@ -1,7 +1,7 @@
 import unittest
 import six
 import requests_mock
-from dns.resolver import Resolver, NXDOMAIN
+from dns.resolver import Resolver, NXDOMAIN, Timeout
 from six import assertRaisesRegex
 from requests.exceptions import RequestException
 from mock import patch, mock_open, MagicMock
@@ -293,6 +293,13 @@ class TestParsers(unittest.TestCase):
         resolver.query = MagicMock(side_effect=NXDOMAIN)
         with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
             with assertRaisesRegex(self, E2j2Exception, 'The DNS query name does not exist'):
+                dns_tag.parse({}, 'unknown.foo.bar')
+
+        # raise Timeout
+        reply = Reply()
+        resolver.query = MagicMock(side_effect=Timeout)
+        with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
+            with assertRaisesRegex(self, E2j2Exception, 'The DNS operation timed out'):
                 dns_tag.parse({}, 'unknown.foo.bar')
 
         # raise other exception

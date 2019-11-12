@@ -1,5 +1,5 @@
 import unittest
-from mock import patch, MagicMock
+from mock import patch, MagicMock, call
 from callee import Contains
 from six import assertRaisesRegex
 from e2j2.helpers import templates
@@ -210,6 +210,18 @@ class TestTemplates(unittest.TestCase):
         # unknown tag
         self.assertEqual(templates.parse_tag('unknown:', 'foobar'), '** ERROR: tag: unknown: not implemented **')
 
+    def test_stdout(self):
+        with patch('e2j2.helpers.templates.sys.stdout.write') as stdout_mock:
+            templates.stdout('foobar')
+            stdout_mock.assert_called_with('foobar')
+
+        with patch('e2j2.helpers.templates.sys.stdout.write') as stdout_mock:
+            with patch('e2j2.helpers.templates.cache') as cache_mock:
+                cache_mock.log_repeat_log_msg_counter = 1
+                cache_mock.log_display_every = 2
+                templates.stdout('foobar')
+                templates.stdout('foobar')
+                stdout_mock.assert_has_calls([call('foobar'), call('(2x) foobar')])
 
 if __name__ == '__main__':
     unittest.main()

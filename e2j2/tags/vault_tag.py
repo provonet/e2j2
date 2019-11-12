@@ -4,11 +4,6 @@ from six.moves.urllib.parse import urlparse
 from e2j2.helpers.constants import VAULT_STATUSCODES
 from e2j2.helpers.exceptions import E2j2Exception
 
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError
-
 
 class Vault:
     def __init__(self, config):

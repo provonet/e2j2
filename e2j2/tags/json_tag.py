@@ -1,11 +1,6 @@
 import json
 import re
-from e2j2.helpers.exceptions import E2j2Exception
-
-try:
-    from json.decoder import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
+from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
 
 
 def parse(json_string):

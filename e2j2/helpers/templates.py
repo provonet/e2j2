@@ -7,15 +7,10 @@ import traceback
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 from jsonschema import validate, ValidationError, draft4_format_checker
 from deepmerge import always_merger
-from e2j2.helpers.exceptions import E2j2Exception
-from e2j2.helpers.constants import BRIGHT_RED, YELLOW, RESET_ALL, CONFIG_SCHEMAS
+from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
+from e2j2.helpers.constants import YELLOW, RESET_ALL, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 from e2j2.helpers import cache
-
-try:
-    from json.decoder import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
 
 
 def stdout(msg):
@@ -45,7 +40,7 @@ def find(searchlist, j2file_ext, recurse=False):
                 for j2file in os.listdir(searchlist_item) if j2file.endswith(j2file_ext)]
 
 
-def get_vars(whitelist, blacklist, no_cache=False):
+def get_vars(whitelist, blacklist):
     env_list = [entry for entry in whitelist if entry not in blacklist]
     tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:']
     envcontext = {}

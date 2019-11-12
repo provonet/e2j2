@@ -7,11 +7,6 @@ from deepmerge import Merger
 from six.moves.urllib.parse import urlparse
 from e2j2.helpers.exceptions import E2j2Exception
 
-try:
-    from json.decoder import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
-
 
 class ConsulKV:
     def __init__(self, config):
