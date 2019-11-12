@@ -174,7 +174,8 @@ class TestCli(unittest.TestCase):
                             self.assertEqual(exit_code, 1)
                             stdout_mock.assert_called_with('failed ()\n')
 
-        # KeyError raised
+        # KeyError raised including stacktrace
+        args.stacktrace = True
         config = cli.configure(args)
         with patch('e2j2.cli.stdout'):
             with patch('e2j2.cli.get_files', return_value=args.filelist.split(',')):
@@ -185,6 +186,7 @@ class TestCli(unittest.TestCase):
                             exit_code = cli.run(config)
                             self.assertEqual(exit_code, 1)
                             write_mock.assert_called_with('/foo/file1.err', Contains('Error'))
+                            write_mock.assert_called_with('/foo/file1.err', Contains('Traceback'))
 
         # set permissions
         args.copy_file_permissions = True
@@ -239,13 +241,15 @@ class TestCli(unittest.TestCase):
 
     def test_e2j2(self):
         args = ArgumentParser()
+        args.stacktrace = True
 
-        # Handle exceptions in config
+        # Handle exceptions in config with stacktrace
         with patch('e2j2.cli.arg_parse', return_value=args):
             with patch('e2j2.cli.configure', side_effect=IOError('config.json not found')):
                 with patch('e2j2.cli.stdout') as stdout_mock:
                     error_code = cli.e2j2()
-                    stdout_mock.assert_called_with('E2J2 configuration error: config.json not found')
+                    stdout_mock.assert_any_call('E2J2 configuration error: config.json not found')
+                    stdout_mock.assert_any_call(Contains('Traceback'))
                     self.assertEqual(1, error_code)
 
         # test exit_codes from calling run()

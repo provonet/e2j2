@@ -1,4 +1,5 @@
 import unittest
+import traceback
 from mock import patch, MagicMock, call
 from callee import Contains
 from six import assertRaisesRegex, PY2
@@ -197,11 +198,13 @@ class TestTemplates(unittest.TestCase):
             templates.parse_tag('dns:', 'www.foo.bar')
             dns_mock.assert_called_with({}, 'www.foo.bar')
 
-        # schema validation error
+        # schema validation error including stacktrace
         with patch('e2j2.helpers.templates.cache') as cache_mock:
-            cache_mock.config = {'stacktrace': False}
-            self.assertEqual(templates.parse_tag(
-                'vault:', 'config={"invalid": "foobar"}:secret/mysecret'), '** ERROR: config validation failed **')
+            with patch('e2j2.helpers.templates.stdout') as stdout_mock:
+                cache_mock.config = {'stacktrace': True}
+                self.assertEqual(templates.parse_tag(
+                    'vault:', 'config={"invalid": "foobar"}:secret/mysecret'), '** ERROR: config validation failed **')
+                stdout_mock.assert_called_with(Contains('Traceback'))
 
         # invalid json in config
         self.assertEqual(templates.parse_tag(
