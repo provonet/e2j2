@@ -1,7 +1,7 @@
 import unittest
 from mock import patch, MagicMock, call
 from callee import Contains
-from six import assertRaisesRegex
+from six import assertRaisesRegex, PY2
 from e2j2.helpers import templates
 from e2j2.helpers.exceptions import E2j2Exception
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
@@ -210,6 +210,7 @@ class TestTemplates(unittest.TestCase):
         # unknown tag
         self.assertEqual(templates.parse_tag('unknown:', 'foobar'), '** ERROR: tag: unknown: not implemented **')
 
+    @unittest.skipIf(PY2, "not compatible with Python 2")
     def test_stdout(self):
         with patch('e2j2.helpers.templates.sys.stdout.write') as stdout_mock:
             templates.stdout('foobar')
@@ -222,6 +223,7 @@ class TestTemplates(unittest.TestCase):
                 templates.stdout('foobar')
                 templates.stdout('foobar')
                 stdout_mock.assert_has_calls([call('foobar'), call('(2x) foobar')])
+
 
 if __name__ == '__main__':
     unittest.main()
