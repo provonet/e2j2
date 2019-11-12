@@ -243,8 +243,10 @@ def run(config):
                     stdout('{} done{}\n'.format(lightgreen, reset_all))
                 except CalledProcessError as error:
                     stdout('{} failed{}\n\n'.format(bright_red, reset_all))
-                    stdout('{}Output:{}\n'.format(bright_red, reset_all))
-                    stdout(error.stdout.decode() + '\n')
+                    # FIXME only works on python > 3.4
+                    if hasattr(error, 'stdout'):
+                        stdout('{}Output:{}\n'.format(bright_red, reset_all))
+                        stdout(error.stdout.decode() + '\n')
                     exit_code = 1
             else:
                 stdout('{} skipped{}\n'.format(yellow, reset_all))
