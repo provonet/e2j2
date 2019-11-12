@@ -6,6 +6,7 @@ from subprocess import CalledProcessError
 from e2j2 import cli
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
 
+
 class ArgumentParser:
     def __init__(self):
         self.filelist = '/foo/file1.j2'
@@ -91,10 +92,14 @@ class TestCli(unittest.TestCase):
                     chmod_mock.assert_called_with('bar', 0o644)
 
     def test_configure(self):
-        # Handle IO error
         args = ArgumentParser()
         args.config = 'config.json'
+        open_mock = mock_open(read_data='{"searchlist": ["/foo"]}')
+        with patch('e2j2.cli.open', open_mock):
+            self.assertEqual(cli.configure(args)['searchlist'], ['/foo'])
+
         open_mock = mock_open()
+        # Handle IO error
         open_mock.side_effect = IOError('IOError')
         with patch('e2j2.cli.stdout') as stdout_mock:
             with patch('e2j2.cli.open', open_mock):

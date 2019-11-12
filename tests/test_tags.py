@@ -214,6 +214,9 @@ class TestParsers(unittest.TestCase):
             with assertRaisesRegex(self, E2j2Exception, 'Path not found'):
                 _ = vault.get_kv1('kv1/secret')
 
+        vault.get_raw = MagicMock(return_value='error')
+        self.assertEqual(vault.get_kv1('kv1/secret'), 'error')
+
         # k/v backend version 2
         vault = vault_tag.Vault(config={'url': 'https://localhost:8200', 'backend': 'kv2'})
         with requests_mock.mock() as req_mock:
@@ -226,6 +229,9 @@ class TestParsers(unittest.TestCase):
             req_mock.get('https://localhost:8200/v1/kv2/data/secret', json=raw_response_v2, status_code=404)
             with assertRaisesRegex(self, E2j2Exception, 'Path not found'):
                 _ = vault.get_kv2('kv2/secret')
+
+        vault.get_raw = MagicMock(return_value='error')
+        self.assertEqual(vault.get_kv2('kv2/secret'), 'error')
 
         # test parse no backend
         config = {'url': 'https://localhost:8200'}

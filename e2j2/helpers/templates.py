@@ -83,7 +83,7 @@ def parse_tag(tag, value):
         except ValidationError:
             config = cache.config
             if config['stacktrace']:
-                print(traceback.format_exc())
+                stdout(traceback.format_exc())
 
             return '** ERROR: config validation failed **'
 
