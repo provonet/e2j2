@@ -1,6 +1,13 @@
 Changelog
 =========
-0.4.0 (unreleased)
+0.4.1 (2019-11-13)
+
+Fixed
+-----
+- set default value for filelist flag to empty list
+
+0.4.0 (2019-11-12)
+------------------
 
 Added
 -----
@@ -14,6 +21,8 @@ Fixed
 - show only line numbers on a limited set up exceptions
 
 0.3.0 (2019-10-25)
+------------------
+
 Changed
 -------
 - show line numbers on rendering errors
