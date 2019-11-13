@@ -126,7 +126,7 @@ class TestCli(unittest.TestCase):
 
     def test_run(self):
         args = ArgumentParser()
-
+        # FIXME replace all args.filelist.split with lists see normal run
         # noop run
         args.noop = True
         config = cli.configure(args)
@@ -135,21 +135,23 @@ class TestCli(unittest.TestCase):
                 with patch('e2j2.helpers.templates.render', side_effect=['content1']):
                     with patch('e2j2.cli.stdout') as stdout_mock:
                         exit_code = cli.run(config)
-                        self.assertEqual(exit_code, 0)
+                        self.assertEqual(0, exit_code)
                         stdout_mock.assert_called_with('skipped\n')
 
         args.noop = False
 
         # normal run
+        args.filelist = []
         config = cli.configure(args)
         with patch('e2j2.cli.stdout'):
-            with patch('e2j2.cli.get_files', return_value=args.filelist.split(',')):
+            with patch('e2j2.cli.get_files', return_value=['/foo/file1.j2']):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.helpers.templates.render', side_effect=['file1 content']):
                         with patch('e2j2.cli.write_file') as write_mock:
                             exit_code = cli.run(config)
                             self.assertEqual(exit_code, 0)
                             write_mock.assert_called_with('/foo/file1', 'file1 content')
+        args.filelist = '/foo/file1.j2'
 
         # normal run with two files
         config = cli.configure(args)

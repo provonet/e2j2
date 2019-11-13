@@ -105,7 +105,7 @@ def configure(args):
             config = json.load(fh)
 
     config['extension'] = args.ext if args.ext else config.get('extension', None)
-    config['filelist'] = args.filelist.split(',') if args.filelist else config.get('filelist', None)
+    config['filelist'] = args.filelist.split(',') if args.filelist else config.get('filelist', [])
     env_searchlist = os.environ.get('E2J2_SEARCHLIST', '.').split(',')
     config['searchlist'] = args.searchlist.split(',') if args.searchlist else config.get('searchlist', env_searchlist)
     config['recursive'] = args.recursive if args.recursive else config.get('recursive', False)
