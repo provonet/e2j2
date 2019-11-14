@@ -117,7 +117,7 @@ class TestCli(unittest.TestCase):
                         try:
                             cli.watch(config)
                         except KeyboardInterrupt:
-                            thread_mock.assert_called_with(target=cli.run, args=(config, ), daemon=True)
+                            thread_mock.assert_called_with(target=cli.run, args=(config, ))
 
                 # key error raised
                 with patch('e2j2.cli.get_vars', side_effect=KeyError('FOO')):

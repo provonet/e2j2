@@ -268,7 +268,7 @@ def watch(config):
             continue
 
         old_env_data = env_data.copy()
-        thread = Thread(target=run, args=(config, ), daemon=True)
+        thread = Thread(target=run, args=(config, ))
         thread.start()
 
 
