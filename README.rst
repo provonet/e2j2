@@ -42,6 +42,7 @@ Switch                      Type                 Config key                     
 -C, --config                string                                                       Config file path
 --watchlist                 comma separated list watchlist                       array   Watch listed envvars for changes and render template(s) on change
 -R, --run                   string               run                             array   Run command after rendering templates
+--splay                     int                  splay                           integer Random delay between 1 and X seconds between watchlist polls
 =========================== ==================== =============================== ======= ==========================================================================
 
 Example

@@ -1,5 +1,12 @@
 Changelog
 =========
+0.4.3 (unreleased)
+------------------
+
+Added
+-----
+- add --splay flag, to configure delay of watchlist polls
+
 0.4.2 (2019-11-14)
 ------------------
 

@@ -1,4 +1,4 @@
-VERSION = '0.4.2'
+VERSION = '0.4.3'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
@@ -46,7 +46,8 @@ CONFIG_SCHEMAS = {
           'variable_start': {'type': 'string'},
           'variable_end': {'type': 'string'},
           'comment_start': {'type': 'string'},
-          'comment_end': {'type': 'string'}
+          'comment_end': {'type': 'string'},
+          'splay': {'type': 'number', 'minimum': 0, 'maximum': 900}
       },
       "additionalProperties":   False
     },

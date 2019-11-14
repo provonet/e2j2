@@ -5,6 +5,7 @@ import os
 import traceback
 import json
 import subprocess
+from random import uniform as random_uniform
 from subprocess import CalledProcessError
 from e2j2.helpers import cache
 from threading import Thread
@@ -90,6 +91,9 @@ def arg_parse(program, description, version):
                             type=str,
                             help='watch listed environment variables for changes, and render template(s) on change'
                             )
+    arg_parser.add_argument('--splay',
+                            type=int,
+                            help='Random delay of watchlist polls (between 0 and 900 seconds)')
     arg_parser.add_argument('-R', '--run',
                             type=str,
                             help='run command after rendering template (command arg1 arg2 arg3)')
@@ -123,6 +127,7 @@ def configure(args):
     config['env_whitelist'] = args.env_whitelist.split(',') if args.env_whitelist else config.get('env_whitelist', [])
     config['env_blacklist'] = args.env_blacklist.split(',') if args.env_blacklist else config.get('env_blacklist', [])
     config['watchlist'] = args.watchlist.split(',') if args.watchlist else config.get('watchlist', [])
+    config['splay'] = args.splay if args.watchlist else config.get('splay', 0)
     config['run'] = args.run.split() if args.run else config.get('run', [])
     config['noop'] = args.noop
 
@@ -264,8 +269,11 @@ def watch(config):
             stdout('{}ERROR unknown key {} in watchlist{}\n'.format(bright_red, str(err), reset_all))
             break
         if old_env_data == env_data:
-            sleep(1)
-            continue
+            try:
+                sleep(random_uniform(1, config['splay']) if config['splay'] else 1)
+                continue
+            except KeyboardInterrupt:
+                break
 
         old_env_data = env_data.copy()
         thread = Thread(target=run, args=(config, ))
@@ -284,6 +292,7 @@ def e2j2():
         if args.stacktrace:
             stdout(traceback.format_exc())
 
+        stdout('\n')
         exit_code = 1
         return exit_code
     if config['watchlist']:
