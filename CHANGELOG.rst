@@ -1,6 +1,14 @@
 Changelog
 =========
+0.4.2 (2019-11-14)
+------------------
+
+Fixed
+-----
+- fixed incompatibility issue with python 2.7 and watchlist option
+
 0.4.1 (2019-11-13)
+------------------
 
 Fixed
 -----
