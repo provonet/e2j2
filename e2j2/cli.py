@@ -93,6 +93,7 @@ def arg_parse(program, description, version):
                             )
     arg_parser.add_argument('--splay',
                             type=int,
+                            default=0,
                             help='Random delay of watchlist polls (between 0 and 900 seconds)')
     arg_parser.add_argument('-R', '--run',
                             type=str,
