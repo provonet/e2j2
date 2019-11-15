@@ -144,61 +144,61 @@ class TestTemplates(unittest.TestCase):
         config = {'stacktrace': True}
 
         with patch('e2j2.helpers.templates.json_tag.parse') as json_mock:
-            templates.parse_tag(config, 'MYENV', 'json:', '{}')
+            templates.parse_tag(config, 'json:', '{}')
             json_mock.assert_called_with('{}')
 
         with patch('e2j2.helpers.templates.jsonfile_tag.parse') as jsonfile_mock:
-            templates.parse_tag(config, 'MYENV', 'jsonfile:', 'file.json')
+            templates.parse_tag(config, 'jsonfile:', 'file.json')
             jsonfile_mock.assert_called_with('file.json')
 
         with patch('e2j2.helpers.templates.base64_tag.parse') as base64_mock:
-            templates.parse_tag(config, 'MYENV', 'base64:', 'Zm9vYmFy')
+            templates.parse_tag(config, 'base64:', 'Zm9vYmFy')
             base64_mock.assert_called_with('Zm9vYmFy')
 
         with patch('e2j2.helpers.templates.consul_tag.parse') as consul_mock:
-            templates.parse_tag(config, 'MYENV', 'consul:', 'consulkey')
+            templates.parse_tag(config, 'consul:', 'consulkey')
             consul_mock.assert_called_with({}, 'consulkey')
 
         with patch('e2j2.helpers.templates.list_tag.parse') as list_mock:
-            templates.parse_tag(config, 'MYENV', 'list:', 'foo,bar')
+            templates.parse_tag(config, 'list:', 'foo,bar')
             list_mock.assert_called_with('foo,bar')
 
         with patch('e2j2.helpers.templates.file_tag.parse') as file_mock:
-            templates.parse_tag(config, 'MYENV', 'file:', 'file.txt')
+            templates.parse_tag(config, 'file:', 'file.txt')
             file_mock.assert_called_with('file.txt')
 
         # no config
         with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag(config, 'MYENV', 'vault:', 'secret/mysecret')
-            vault_mock.assert_called_with('MYENV', {}, 'secret/mysecret')
+            templates.parse_tag(config, 'vault:', 'secret/mysecret')
+            vault_mock.assert_called_with({}, 'secret/mysecret')
 
         # with config
         with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag(config, 'MYENV', 'vault:', 'config={"url": "https://localhost:8200"}:secret/mysecret')
-            vault_mock.assert_called_with('MYENV', {"url": "https://localhost:8200"}, 'secret/mysecret')
+            templates.parse_tag(config, 'vault:', 'config={"url": "https://localhost:8200"}:secret/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
 
         # with envar config
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'VAULT_CONFIG': '{"url": "https://localhost:8200"}'}
             with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
-                templates.parse_tag(config, 'MYENV', 'vault:', 'secret/mysecret')
-                vault_mock.assert_called_with('MYENV', {"url": "https://localhost:8200"}, 'secret/mysecret')
+                templates.parse_tag(config, 'vault:', 'secret/mysecret')
+                vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
 
         # with envvar config and token envvar
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'VAULT_CONFIG': '{"url": "https://localhost:8200"}', 'VAULT_TOKEN': 'aabbccddee'}
             with patch('e2j2.helpers.templates.vault_tag.parse') as vault_mock:
-                templates.parse_tag(config, 'MYENV', 'vault:', 'secret/mysecret')
-                vault_mock.assert_called_with('MYENV', {'url': 'https://localhost:8200', 'token': 'aabbccddee'},
+                templates.parse_tag(config, 'vault:', 'secret/mysecret')
+                vault_mock.assert_called_with({'url': 'https://localhost:8200', 'token': 'aabbccddee'},
                                               'secret/mysecret')
 
         with patch('e2j2.helpers.templates.dns_tag.parse') as dns_mock:
-            templates.parse_tag(config, 'MYENV', 'dns:', 'config={"type": "MX"}:mx.foo.bar')
+            templates.parse_tag(config, 'dns:', 'config={"type": "MX"}:mx.foo.bar')
             dns_mock.assert_called_with({'type': 'MX'}, 'mx.foo.bar')
 
         # with config
         with patch('e2j2.helpers.templates.dns_tag.parse') as dns_mock:
-            templates.parse_tag(config, 'MYENV', 'dns:', 'www.foo.bar')
+            templates.parse_tag(config, 'dns:', 'www.foo.bar')
             dns_mock.assert_called_with({}, 'www.foo.bar')
 
         # schema validation error including stacktrace
@@ -206,19 +206,19 @@ class TestTemplates(unittest.TestCase):
             with patch('e2j2.helpers.templates.stdout') as stdout_mock:
                 cache_mock.config = {'stacktrace': True}
                 try:
-                    templates.parse_tag(config, 'MYENV', 'vault:', 'config={"invalid": "foobar"}:secret/mysecret')
+                    templates.parse_tag(config, 'vault:', 'config={"invalid": "foobar"}:secret/mysecret')
                 except E2j2Exception as error:
                     self.assertEqual(str(error), 'config validation failed')
                     stdout_mock.assert_called_with(Contains('Traceback'))
 
         # invalid json in config
         try:
-            templates.parse_tag(config, 'MYENV', 'vault:', 'config={"<invalid>"}::secret/mysecret')
+            templates.parse_tag(config, 'vault:', 'config={"<invalid>"}::secret/mysecret')
         except E2j2Exception as error:
             self.assertEqual(str(error), 'decoding JSON failed')
 
         # unknown tag
-        self.assertEqual(templates.parse_tag(config, 'MYENV', 'unknown:', 'foobar'),
+        self.assertEqual(templates.parse_tag(config, 'unknown:', 'foobar'),
                          '** ERROR: tag: unknown: not implemented **')
 
     @unittest.skipIf(PY2, "not compatible with Python 2")

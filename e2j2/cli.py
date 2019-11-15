@@ -275,7 +275,6 @@ def e2j2():
     args = arg_parse('e2j2', DESCRIPTION, VERSION)
     try:
         config = configure(args)
-        #cache.config = config
     except Exception as err:
         stdout('E2J2 configuration error: %s' % str(err))
 
