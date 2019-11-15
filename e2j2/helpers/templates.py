@@ -40,8 +40,7 @@ def find(searchlist, j2file_ext, recurse=False):
                 for j2file in os.listdir(searchlist_item) if j2file.endswith(j2file_ext)]
 
 
-def get_vars(whitelist, blacklist):
-    config = cache.config
+def get_vars(config, whitelist, blacklist):
     # initialize colors
     yellow, reset_all = ("", "") if config['no_color'] else (YELLOW, RESET_ALL)
 
@@ -52,14 +51,14 @@ def get_vars(whitelist, blacklist):
         envvalue = os.environ[envvar]
         defined_tag = ''.join([tag for tag in tags if ':' in envvalue and envvalue.startswith(tag)])
         try:
-            envcontext[envvar] = parse_tag(envvar, defined_tag, envvalue) if defined_tag else envvalue
+            envcontext[envvar] = parse_tag(config, envvar, defined_tag, envvalue) if defined_tag else envvalue
         except E2j2Exception as e:
             stdout(yellow + "** WARNING: parsing {} failed with error: {} **".format(envvar, str(e)) + reset_all + '\n')
 
     return envcontext
 
 
-def parse_tag(envvar, tag, value):
+def parse_tag(config, envvar, tag, value):
     tag_config = {}
     value = re.sub(r'^{}'.format(tag), '', value).strip()
     if tag in CONFIG_SCHEMAS:
@@ -85,7 +84,6 @@ def parse_tag(envvar, tag, value):
         try:
             validate(instance=tag_config, schema=CONFIG_SCHEMAS[tag], format_checker=draft4_format_checker)
         except ValidationError:
-            config = cache.config
             if config['stacktrace']:
                 stdout(traceback.format_exc())
 

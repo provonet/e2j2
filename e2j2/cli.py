@@ -172,7 +172,7 @@ def run(config):
 
     env_whitelist = config['env_whitelist'] if config['env_whitelist'] else os.environ
     env_blacklist = config['env_blacklist'] if config['env_blacklist'] else []
-    j2vars = templates.get_vars(whitelist=env_whitelist, blacklist=env_blacklist)
+    j2vars = templates.get_vars(config, whitelist=env_whitelist, blacklist=env_blacklist)
     old_directory = ''
 
     j2files = get_files(
@@ -275,7 +275,7 @@ def e2j2():
     args = arg_parse('e2j2', DESCRIPTION, VERSION)
     try:
         config = configure(args)
-        cache.config = config
+        #cache.config = config
     except Exception as err:
         stdout('E2J2 configuration error: %s' % str(err))
 
