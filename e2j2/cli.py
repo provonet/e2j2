@@ -40,42 +40,42 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('-r', '--recursive',
                             action='store_true',
                             help='Traverse recursively through the search list')
-    arg_parser.add_argument('--no-color',
+    arg_parser.add_argument('--no-color', '--nocolor', '--no_color',
                             action='store_true',
                             help='Disable the use of ANSI color escapes')
     arg_parser.add_argument('-2', '--twopass',
                             action='store_true',
                             help='Enable two pass rendering')
-    arg_parser.add_argument('--block_start',
+    arg_parser.add_argument('--block_start', '--block-start',
                             type=str,
                             help="Block marker start (default: '{%%')")
-    arg_parser.add_argument('--block_end',
+    arg_parser.add_argument('--block_end', '--block-end',
                             type=str,
                             default='%}',
                             help="Block marker end (default: '%%}')")
-    arg_parser.add_argument('--variable_start',
+    arg_parser.add_argument('--variable_start', '--variable-start',
                             type=str,
                             default='{{',
                             help="Variable marker start (default: '{{')")
-    arg_parser.add_argument('--variable_end',
+    arg_parser.add_argument('--variable_end', '--variable-end',
                             type=str,
                             default='}}',
                             help="Variable marker start (default: '}}')")
-    arg_parser.add_argument('--comment_start',
+    arg_parser.add_argument('--comment_start', '--comment-start',
                             type=str,
                             default='{#',
                             help="Comment marker start (default: '{#')")
-    arg_parser.add_argument('--comment_end',
+    arg_parser.add_argument('--comment_end', '--comment-end',
                             type=str,
                             default='#}',
                             help="Comment marker end (default: '#}')")
-    arg_parser.add_argument('-w', '--env_whitelist',
+    arg_parser.add_argument('-w', '--env_whitelist', '--env-whitelist',
                             type=str,
                             help="Include listed environment variables (default all)")
-    arg_parser.add_argument('-b', '--env_blacklist',
+    arg_parser.add_argument('-b', '--env_blacklist', '--env-blacklist',
                             type=str,
                             help="Exclude listed environment variables (default none)")
-    arg_parser.add_argument('-P', '--copy_file_permissions',
+    arg_parser.add_argument('-P', '--copy_file_permissions', '--copy-file-permissions',
                             action='store_true',
                             help='copy file permissions from template to rendered file'
                             )
@@ -137,19 +137,6 @@ def configure(args):
     return config
 
 
-def use_color(switch):
-    if switch:
-        bright_red = BRIGHT_RED
-        green = GREEN
-        lightgreen = LIGHTGREEN
-        white = WHITE
-        yellow = YELLOW
-        reset_all = RESET_ALL
-    else:
-        bright_red, green, lightgreen, white, yellow, reset_all = ("",) * 6
-    return bright_red, green, lightgreen, white, yellow, reset_all
-
-
 def get_files(**kwargs):
     if kwargs['filelist']:
         return kwargs['filelist']
@@ -180,7 +167,8 @@ def run(config):
     extension = config['extension']
 
     # initialize colors
-    bright_red, green, lightgreen, white, yellow, reset_all = use_color(not config['no_color'])
+    bright_red, green, lightgreen, white, yellow, reset_all = ("",)*6 if config['no_color'] else \
+        (BRIGHT_RED, GREEN, LIGHTGREEN, WHITE, YELLOW, RESET_ALL)
 
     env_whitelist = config['env_whitelist'] if config['env_whitelist'] else os.environ
     env_blacklist = config['env_blacklist'] if config['env_blacklist'] else []
@@ -239,29 +227,30 @@ def run(config):
         finally:
             sys.stdout.flush()
 
-        if config['run']:
-            command = ' '.join(config['run'])
-            stdout('\n{0}Running:\n    command: {1}{2} {0} => {1}'.format(green, reset_all, command))
+    if config['run']:
+        command = ' '.join(config['run'])
+        stdout('\n{0}Running:\n    command: {1}{2} {0} => {1}'.format(green, reset_all, command))
 
-            if exit_code == 0:
-                try:
-                    subprocess.check_output(config['run'], stderr=subprocess.STDOUT)
-                    stdout('{} done{}\n'.format(lightgreen, reset_all))
-                except CalledProcessError as error:
-                    stdout('{} failed{}\n\n'.format(bright_red, reset_all))
-                    # FIXME only works on python > 3.4
-                    if hasattr(error, 'stdout'):
-                        stdout('{}Output:{}\n'.format(bright_red, reset_all))
-                        stdout(error.stdout.decode() + '\n')
-                    exit_code = 1
-            else:
-                stdout('{} skipped{}\n'.format(yellow, reset_all))
+        if exit_code == 0:
+            try:
+                subprocess.check_output(config['run'], stderr=subprocess.STDOUT)
+                stdout('{} done{}\n'.format(lightgreen, reset_all))
+            except CalledProcessError as error:
+                stdout('{} failed{}\n\n'.format(bright_red, reset_all))
+                # FIXME only works on python > 3.4
+                if hasattr(error, 'stdout'):
+                    stdout('{}Output:{}\n'.format(bright_red, reset_all))
+                    stdout(error.stdout.decode() + '\n')
+                exit_code = 1
+        else:
+            stdout('{} skipped{}\n'.format(yellow, reset_all))
+
     return exit_code
 
 
 def watch(config):
     old_env_data = None
-    bright_red, green, lightgreen, white, yellow, reset_all = use_color(not config['no_color'])
+    bright_red, reset_all = ("", "") if config['no_color'] else (BRIGHT_RED, RESET_ALL)
 
     while True:
         try:

@@ -1,11 +1,18 @@
 Changelog
 =========
-0.4.3 (unreleased)
+0.4.3 (2019-11-15)
 ------------------
 
 Added
 -----
 - add --splay flag, to configure delay of watchlist polls
+- alias flags for no color, white/black list and jinja2 markers
+
+Fixed
+-----
+- stacktrace on ctrl-c
+- warning message in yellow with --no-color flag
+- multiple script runs (one for each template), should be just one
 
 0.4.2 (2019-11-14)
 ------------------

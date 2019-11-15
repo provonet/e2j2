@@ -8,7 +8,7 @@ from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentEr
 from jsonschema import validate, ValidationError, draft4_format_checker
 from deepmerge import always_merger
 from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
-from e2j2.helpers.constants import YELLOW, RESET_ALL, CONFIG_SCHEMAS
+from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 from e2j2.helpers import cache
 
@@ -41,6 +41,10 @@ def find(searchlist, j2file_ext, recurse=False):
 
 
 def get_vars(whitelist, blacklist):
+    config = cache.config
+    # initialize colors
+    yellow, reset_all = ("", "") if config['no_color'] else (YELLOW, RESET_ALL)
+
     env_list = [entry for entry in whitelist if entry not in blacklist]
     tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:']
     envcontext = {}
@@ -50,7 +54,7 @@ def get_vars(whitelist, blacklist):
         try:
             envcontext[envvar] = parse_tag(envvar, defined_tag, envvalue) if defined_tag else envvalue
         except E2j2Exception as e:
-            stdout(YELLOW + "** WARNING: parsing {} failed with error: {} **".format(envvar, str(e)) + RESET_ALL + '\n')
+            stdout(yellow + "** WARNING: parsing {} failed with error: {} **".format(envvar, str(e)) + reset_all + '\n')
 
     return envcontext
 

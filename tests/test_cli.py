@@ -4,7 +4,6 @@ from mock import patch, mock_open
 from callee import Contains
 from subprocess import CalledProcessError
 from e2j2 import cli
-from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW
 
 
 class ArgumentParser:
@@ -45,12 +44,6 @@ class TestCli(unittest.TestCase):
             self.assertFalse(args.recursive)
             self.assertFalse(args.noop)
             self.assertFalse(args.twopass)
-
-    def test_use_color(self):
-        # use_color == True
-        #  bright_red, green, lightgreen, white, yellow, reset_all = palette(not args.no_color)
-        self.assertEqual(cli.use_color(True), (BRIGHT_RED, GREEN, LIGHTGREEN, WHITE, YELLOW, RESET_ALL))
-        self.assertEqual(cli.use_color(False), ("",) * 6)
 
     def test_get_files(self):
         # with file_list
