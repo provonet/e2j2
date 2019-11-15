@@ -47,7 +47,8 @@ CONFIG_SCHEMAS = {
           'variable_end': {'type': 'string'},
           'comment_start': {'type': 'string'},
           'comment_end': {'type': 'string'},
-          'splay': {'type': 'number', 'minimum': 0, 'maximum': 900}
+          'splay': {'type': 'number', 'minimum': 0, 'maximum': 900},
+          'cache': {'type': 'object'}
       },
       "additionalProperties":   False
     },
