@@ -236,25 +236,25 @@ class TestParsers(unittest.TestCase):
         # test parse no backend
         config = {'url': 'https://localhost:8200'}
         with patch('e2j2.tags.vault_tag.Vault.get_raw') as vault_mock:
-            _ = vault_tag.parse(config, 'kv1/secret')
+            _ = vault_tag.parse('FOO', config, 'kv1/secret')
             vault_mock.assert_called_with('kv1/secret')
 
         # test parse k/v backend version 1
         config = {'url': 'https://localhost:8200', 'backend': 'kv1'}
         with patch('e2j2.tags.vault_tag.Vault.get_kv1') as vault_mock:
-            _ = vault_tag.parse(config, 'kv1/secret')
+            _ = vault_tag.parse('FOO', config, 'kv1/secret')
             vault_mock.assert_called_with('kv1/secret')
 
         # test parse  k/v backend version 2
         config = {'url': 'https://localhost:8200', 'backend': 'kv2'}
         with patch('e2j2.tags.vault_tag.Vault.get_kv2') as vault_mock:
-            _ = vault_tag.parse(config, 'kv2/secret')
+            _ = vault_tag.parse('FOO', config, 'kv2/secret')
             vault_mock.assert_called_with('kv2/secret')
 
         # test parse invalid backend
         config = {'url': 'https://localhost:8200', 'backend': 'invalid'}
         with assertRaisesRegex(self, E2j2Exception, 'Unknown K/V backend'):
-            _ = vault_tag.parse(config, 'kv2/secret')
+            _ = vault_tag.parse('FOO', config, 'kv2/secret')
 
     def test_dns(self):
         resolver = Resolver()

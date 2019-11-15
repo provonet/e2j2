@@ -60,7 +60,7 @@ class Vault:
         return dict(response)['data']['data']
 
 
-def parse(tag_config, value):
+def parse(envvar, tag_config, value):
     vault = Vault(tag_config)
 
     if 'backend' not in tag_config or tag_config['backend'] == 'raw':

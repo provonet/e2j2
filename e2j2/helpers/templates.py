@@ -48,14 +48,14 @@ def get_vars(whitelist, blacklist):
         envvalue = os.environ[envvar]
         defined_tag = ''.join([tag for tag in tags if ':' in envvalue and envvalue.startswith(tag)])
         try:
-            envcontext[envvar] = parse_tag(defined_tag, envvalue) if defined_tag else envvalue
+            envcontext[envvar] = parse_tag(envvar, defined_tag, envvalue) if defined_tag else envvalue
         except E2j2Exception as e:
             stdout(YELLOW + "** WARNING: parsing {} failed with error: {} **".format(envvar, str(e)) + RESET_ALL + '\n')
 
     return envcontext
 
 
-def parse_tag(tag, value):
+def parse_tag(envvar, tag, value):
     tag_config = {}
     value = re.sub(r'^{}'.format(tag), '', value).strip()
     if tag in CONFIG_SCHEMAS:
@@ -100,7 +100,7 @@ def parse_tag(tag, value):
     elif tag == 'file:':
         return file_tag.parse(value)
     elif tag == 'vault:':
-        return vault_tag.parse(tag_config, value)
+        return vault_tag.parse(envvar, tag_config, value)
     elif tag == 'dns:':
         return dns_tag.parse(tag_config, value)
     else:
