@@ -14,17 +14,17 @@ from e2j2.helpers import cache
 
 
 def stdout(msg):
-    display_every = cache.log_display_every
-    increment = 5
+    print_at = cache.print_at
+    increment = cache.increment
     counter = cache.log_repeat_log_msg_counter
 
     if cache.last_log_line != msg:
         sys.stdout.write(msg)
-        cache.log_repeat_log_msg_counter = 1
-    elif counter // display_every == counter / display_every:
-        sys.stdout.write('({}x) '.format(display_every) + msg)
-        cache.log_display_every += increment
-        cache.log_repeat_log_msg_counter = 1
+        cache.log_repeat_log_msg_counter = 0
+    elif counter == print_at:
+        sys.stdout.write('({}x) '.format(print_at) + msg)
+        cache.print_at += increment
+        cache.log_repeat_log_msg_counter = 0
 
     cache.log_repeat_log_msg_counter += 1
     cache.last_log_line = msg
