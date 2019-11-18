@@ -8,6 +8,7 @@ Fixed
 -----
 - config var missing in get_var call
 - fix message repeat filter in stdout function
+- support ipv6 address in nameserver field of dns tag
 
 
 0.4.3 (2019-11-15)
