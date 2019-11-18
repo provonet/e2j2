@@ -254,7 +254,7 @@ def watch(config):
 
     while True:
         try:
-            env_data = get_vars(config['watchlist'], [])
+            env_data = get_vars(config, config['watchlist'], [])
         except KeyError as err:
             stdout('{}ERROR unknown key {} in watchlist{}\n'.format(bright_red, str(err), reset_all))
             break
