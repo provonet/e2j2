@@ -42,7 +42,7 @@ def find(searchlist, j2file_ext, recurse=False):
 
 def get_vars(config, whitelist, blacklist):
     # initialize colors
-    yellow, reset_all = ("", "") if config.no_color else (YELLOW, RESET_ALL)
+    yellow, reset_all = ("", "") if config['no_color'] else (YELLOW, RESET_ALL)
 
     env_list = [entry for entry in whitelist if entry not in blacklist]
     tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:']

@@ -7,6 +7,7 @@ import json
 import subprocess
 from random import uniform as random_uniform
 from subprocess import CalledProcessError
+from e2j2.helpers import cache
 from threading import Thread
 from time import sleep
 from jsonschema import validate, draft4_format_checker
@@ -16,42 +17,6 @@ from e2j2.helpers import templates
 from e2j2.helpers.templates import stdout, get_vars
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
 from e2j2.helpers.constants import CONFIG_SCHEMAS
-
-
-class Config(object):
-    def __init__(self, args):
-        self.extension = args.ext if args.ext else 'j2'
-        self.filelist = args.filelist.split(',') if args.filelist else []
-        env_searchlist = os.environ.get('E2J2_SEARCHLIST', '.').split(',')
-        self.searchlist = args.searchlist.split(',') if args.searchlist else env_searchlist
-        self.recursive = args.recursive if args.recursive else False
-        self.no_color = args.no_color if args.no_color else False
-        self.twopass = args.twopass if args.twopass else False
-        self.stacktrace = args.stacktrace if args.stacktrace else False
-        self.copy_file_permissions = args.copy_file_permissions if args.copy_file_permissions else False
-        self.block_start = args.block_start if args.block_start else '{%'
-        self.block_end = args.block_end if args.block_end else '%}'
-        self.variable_start = args.variable_start if args.variable_start else '{{'
-        self.variable_end = args.variable_end if args.variable_end else '}}'
-        self.comment_start = args.comment_start if args.comment_start else '{#'
-        self.comment_end = args.comment_end if args.comment_end else '#}'
-        self.env_whitelist = args.env_whitelist.split(',') if args.env_whitelist else []
-        self.env_blacklist = args.env_blacklist.split(',') if args.env_blacklist else []
-        self.watchlist = args.watchlist.split(',') if args.watchlist else []
-        self.splay = args.splay if args.watchlist else 0
-        self.run = args.run.split() if args.run else []
-        self.noop = args.noop
-        self.cache = {}
-
-    def for_file(self, filename):
-        with open(filename, 'r') as fh:
-            config = json.load(fh)
-
-        for key in config:
-            setattr(self, key, config[key])
-
-    def validate(self):
-        validate(instance=self.__dict__, schema=CONFIG_SCHEMAS['configfile'], format_checker=draft4_format_checker)
 
 
 def arg_parse(program, description, version):
@@ -138,7 +103,38 @@ def arg_parse(program, description, version):
     return args
 
 
+def configure(args):
+    config = {}
+    if args.config:
+        with open(args.config, 'r') as fh:
+            config = json.load(fh)
 
+    config['extension'] = args.ext if args.ext else config.get('extension', '.j2')
+    config['filelist'] = args.filelist.split(',') if args.filelist else config.get('filelist', [])
+    env_searchlist = os.environ.get('E2J2_SEARCHLIST', '.').split(',')
+    config['searchlist'] = args.searchlist.split(',') if args.searchlist else config.get('searchlist', env_searchlist)
+    config['recursive'] = args.recursive if args.recursive else config.get('recursive', False)
+    config['no_color'] = args.no_color if args.no_color else config.get('no_color', False)
+    config['twopass'] = args.twopass if args.twopass else config.get('twopass', False)
+    config['stacktrace'] = args.stacktrace if args.stacktrace else config.get('stacktrace', False)
+    config['copy_file_permissions'] = args.copy_file_permissions \
+        if args.copy_file_permissions else config.get('copy_file_permissions', False)
+    config['block_start'] = args.block_start if args.block_start else config.get('block_start', '{%')
+    config['block_end'] = args.block_end if args.block_end else config.get('block_end', '%}')
+    config['variable_start'] = args.variable_start if args.variable_start else config.get('variable_start', '{{')
+    config['variable_end'] = args.variable_end if args.variable_end else config.get('variable_end', '}}')
+    config['comment_start'] = args.comment_start if args.comment_start else config.get('comment_start', '{#')
+    config['comment_end'] = args.comment_end if args.comment_end else config.get('comment_end', '#}')
+    config['env_whitelist'] = args.env_whitelist.split(',') if args.env_whitelist else config.get('env_whitelist', [])
+    config['env_blacklist'] = args.env_blacklist.split(',') if args.env_blacklist else config.get('env_blacklist', [])
+    config['watchlist'] = args.watchlist.split(',') if args.watchlist else config.get('watchlist', [])
+    config['splay'] = args.splay if args.watchlist else config.get('splay', 0)
+    config['run'] = args.run.split() if args.run else config.get('run', [])
+    config['noop'] = args.noop
+
+    validate(instance=config, schema=CONFIG_SCHEMAS['configfile'], format_checker=draft4_format_checker)
+
+    return config
 
 
 def get_files(**kwargs):
@@ -166,21 +162,21 @@ def write_file(filename, content):
 
 def run(config):
     exit_code = 0
-    search_list = config.searchlist
-    recursive = config.recursive
-    extension = config.extension
+    search_list = config['searchlist']
+    recursive = config['recursive']
+    extension = config['extension']
 
     # initialize colors
-    bright_red, green, lightgreen, white, yellow, reset_all = ("",)*6 if config.no_color else \
+    bright_red, green, lightgreen, white, yellow, reset_all = ("",)*6 if config['no_color'] else \
         (BRIGHT_RED, GREEN, LIGHTGREEN, WHITE, YELLOW, RESET_ALL)
 
-    env_whitelist = config.env_whitelist if config.env_whitelist else os.environ
-    env_blacklist = config.env_blacklist if config.env_blacklist else []
+    env_whitelist = config['env_whitelist'] if config['env_whitelist'] else os.environ
+    env_blacklist = config['env_blacklist'] if config['env_blacklist'] else []
     j2vars = templates.get_vars(config, whitelist=env_whitelist, blacklist=env_blacklist)
     old_directory = ''
 
     j2files = get_files(
-        filelist=config.filelist,  searchlist=search_list, extension=config.extension, recurse=recursive)
+        filelist=config['filelist'],  searchlist=search_list, extension=config['extension'], recurse=recursive)
 
     for j2file in j2files:
         try:
@@ -196,13 +192,13 @@ def run(config):
                 content = templates.render(
                     j2file=j2file,
                     j2vars=j2vars,
-                    twopass=config.twopass,
-                    block_start=config.block_start,
-                    block_end=config.block_end,
-                    variable_start=config.variable_start,
-                    variable_end=config.variable_end,
-                    comment_start=config.comment_start,
-                    comment_end=config.comment_end)
+                    twopass=config['twopass'],
+                    block_start=config['block_start'],
+                    block_end=config['block_end'],
+                    variable_start=config['variable_start'],
+                    variable_end=config['variable_end'],
+                    comment_start=config['comment_start'],
+                    comment_end=config['comment_end'])
                 status = lightgreen + 'success' + reset_all
             except Exception as err:
                 exit_code = 1
@@ -231,7 +227,7 @@ def run(config):
         finally:
             sys.stdout.flush()
 
-    if config.run:
+    if config['run']:
         command = ' '.join(config['run'])
         stdout('\n{0}Running:\n    command: {1}{2} {0} => {1}'.format(green, reset_all, command))
 
@@ -254,11 +250,11 @@ def run(config):
 
 def watch(config):
     old_env_data = None
-    bright_red, reset_all = ("", "") if config.no_color else (BRIGHT_RED, RESET_ALL)
+    bright_red, reset_all = ("", "") if config['no_color'] else (BRIGHT_RED, RESET_ALL)
 
     while True:
         try:
-            env_data = get_vars(config, config['watchlist'], [])
+            env_data = get_vars(config['watchlist'], [])
         except KeyError as err:
             stdout('{}ERROR unknown key {} in watchlist{}\n'.format(bright_red, str(err), reset_all))
             break
@@ -278,7 +274,7 @@ def e2j2():
     exit_code = 0
     args = arg_parse('e2j2', DESCRIPTION, VERSION)
     try:
-        config = Config(args)
+        config = configure(args)
     except Exception as err:
         stdout('E2J2 configuration error: %s' % str(err))
 
@@ -288,7 +284,7 @@ def e2j2():
         stdout('\n')
         exit_code = 1
         return exit_code
-    if config.watchlist:
+    if config['watchlist']:
         watch(config)
     else:
         exit_code = run(config)

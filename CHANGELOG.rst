@@ -1,12 +1,5 @@
 Changelog
 =========
-0.4.4 (unreleased)
-------------------
-
-Fixed
------
-- fix for missing variable in get_vars call in watch function
-
 0.4.3 (2019-11-15)
 ------------------
 
