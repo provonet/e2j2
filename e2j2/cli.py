@@ -7,7 +7,6 @@ import json
 import subprocess
 from random import uniform as random_uniform
 from subprocess import CalledProcessError
-from e2j2.helpers import cache
 from threading import Thread
 from time import sleep
 from jsonschema import validate, draft4_format_checker
