@@ -1,4 +1,4 @@
-VERSION = '0.4.3'
+VERSION = '0.4.4'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
@@ -21,8 +21,6 @@ scheme = {'type': 'string', 'enum': ['http', 'https']}
 host = {'type': 'string', 'format': 'hostname'}
 port = {'type': 'number', 'minimum': 0, 'maximum': 65535}
 token = {'type': 'string', "minLength": 5}
-# fixme ipv6 support
-ip = {'type': 'string', 'format': 'ipv4'}
 
 CONFIG_SCHEMAS = {
     'configfile': {
@@ -77,7 +75,8 @@ CONFIG_SCHEMAS = {
     'dns:': {
         'type': 'object',
         'properties': {
-            'nameservers': {'type': 'array', 'items': ip},
+            'nameservers': {'type': 'array', 'items': {'type': 'string',
+                                                       'oneOf': [{'format': 'ipv4'}, {'format': 'ipv6'}]}},
             'port': port,
             'type': {'type': 'string', 'enum': ['A', 'AAAA', 'MX', 'SRV']}
         },

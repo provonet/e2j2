@@ -4,6 +4,10 @@ Changelog
 0.4.4 (2019-11-18)
 ------------------
 
+Fixed
+-----
+- config var missing in get_var call
+- fix message repeat filter in stdout function
 
 
 0.4.3 (2019-11-15)
