@@ -1,5 +1,11 @@
 Changelog
 =========
+0.4.5 (unreleased)
+------------------
+
+Changed
+-------
+- add test run to watch, only apply changes if test is successful
 
 0.4.4 (2019-11-18)
 ------------------

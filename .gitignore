@@ -19,4 +19,5 @@ examples/vault-example
 examples/dns-example
 examples/watch
 .venv
+venv
 .coverage

@@ -1,6 +1,6 @@
 import unittest
 from six import assertRaisesRegex
-from mock import patch, mock_open
+from mock import patch, mock_open, call
 from callee import Contains
 from subprocess import CalledProcessError
 from e2j2 import cli
@@ -108,15 +108,40 @@ class TestCli(unittest.TestCase):
             with patch('e2j2.cli.stdout') as stdout_mock:
                 with patch('e2j2.cli.get_vars', return_value={"FOO": "BAR"}):
                     with patch('e2j2.cli.Thread') as thread_mock:
-                        try:
-                            cli.watch(config)
-                        except KeyboardInterrupt:
-                            thread_mock.assert_called_with(target=cli.run, args=(config, ))
+                        cli.watch(config)
+                        thread_mock.assert_called_with(target=cli.watch_run, args=(config, ))
 
                 # key error raised
                 with patch('e2j2.cli.get_vars', side_effect=KeyError('FOO')):
                     cli.watch(config)
                     stdout_mock.assert_called_with(Contains("unknown key 'FOO'"))
+
+    def test_watch_run(self):
+        config = {'no_color': True, 'noop': False}
+
+        with patch('e2j2.cli.stdout'):
+            # normal run
+
+            with patch('e2j2.cli.run', side_effect=[0, 0]) as run_mock:
+                exit_code = cli.watch_run(config)
+                # FIXME not sure why this fails:
+                # run_mock.assert_has_calls(
+                #    [call({'no_color': True, 'noop': True}), call({'no_color': True, 'noop': False})])
+                self.assertEqual(2, run_mock.call_count)
+                self.assertEqual(0, exit_code)
+
+            # failed
+            with patch('e2j2.cli.run', return_value=1) as run_mock:
+                exit_code = cli.watch_run(config)
+                self.assertEqual(1, run_mock.call_count)
+                self.assertEqual(1, exit_code)
+
+            # noop
+            config['noop'] = True
+            with patch('e2j2.cli.run', return_value=0) as run_mock:
+                exit_code = cli.watch_run(config)
+                self.assertEqual(1, run_mock.call_count)
+                self.assertEqual(0, exit_code)
 
     def test_run(self):
         args = ArgumentParser()

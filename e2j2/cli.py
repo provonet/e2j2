@@ -35,7 +35,7 @@ def arg_parse(program, description, version):
                             help='Comma separated list of directories to search for jinja2 templates')
     arg_parser.add_argument('-N', '--noop',
                             action='store_true',
-                            help="Only render the template, don't write to disk")
+                            help="Only render the templates, don't write to disk")
     arg_parser.add_argument('-r', '--recursive',
                             action='store_true',
                             help='Traverse recursively through the search list')
@@ -226,6 +226,9 @@ def run(config):
         finally:
             sys.stdout.flush()
 
+    if config['noop']:
+        return exit_code
+
     if config['run']:
         command = ' '.join(config['run'])
         stdout('\n{0}Running:\n    command: {1}{2} {0} => {1}'.format(green, reset_all, command))
@@ -247,9 +250,29 @@ def run(config):
     return exit_code
 
 
+def watch_run(config):
+    bright_red, reset_all = ('', '') if config['no_color'] else (BRIGHT_RED, RESET_ALL)
+    noop = config['noop']
+    config['noop'] = True
+    stdout('Changes detected, testing templates:\n')
+    exit_code = run(config)
+
+    if exit_code == 1:
+        stdout('{}Test run failed, no changes applied{}'.format(bright_red, reset_all))
+        return exit_code
+
+    if noop:
+        return exit_code
+
+    stdout('\nApplying changes:\n')
+    config['noop'] = False
+    exit_code = run(config)
+    return exit_code
+
+
 def watch(config):
     old_env_data = None
-    bright_red, reset_all = ("", "") if config['no_color'] else (BRIGHT_RED, RESET_ALL)
+    bright_red, reset_all = ('', '') if config['no_color'] else (BRIGHT_RED, RESET_ALL)
 
     while True:
         try:
@@ -265,7 +288,7 @@ def watch(config):
                 break
 
         old_env_data = env_data.copy()
-        thread = Thread(target=run, args=(config, ))
+        thread = Thread(target=watch_run, args=(config,))
         thread.start()
 
 

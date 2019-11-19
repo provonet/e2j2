@@ -1,4 +1,4 @@
-VERSION = '0.4.4'
+VERSION = '0.4.5'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
@@ -37,6 +37,7 @@ CONFIG_SCHEMAS = {
           'no_color': {'type': 'boolean'},
           'twopass': {'type': 'boolean'},
           'noop': {'type': 'boolean'},
+          'test_first': {'type': 'boolean'},
           'copy_file_permissions': {'type': 'boolean'},
           'stacktrace': {'type': 'boolean'},
           'block_start': {'type': 'string'},
