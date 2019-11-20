@@ -1,6 +1,13 @@
 Changelog
 =========
-0.4.5 (unreleased)
+0.4.6 (unreleased)
+------------------
+
+Changed
+-------
+- disable run on initial template run
+
+0.4.5 (2019-11-19)
 ------------------
 
 Changed

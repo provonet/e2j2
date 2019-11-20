@@ -272,6 +272,8 @@ def watch_run(config):
 
 def watch(config):
     old_env_data = None
+    initial_run = True
+    old_run = None
     bright_red, reset_all = ('', '') if config['no_color'] else (BRIGHT_RED, RESET_ALL)
 
     while True:
@@ -287,9 +289,16 @@ def watch(config):
             except KeyboardInterrupt:
                 break
 
+        if initial_run:
+            old_run = config['run']
+            config['run'] = []
+        else:
+            config['run'] = old_run
+
         old_env_data = env_data.copy()
         thread = Thread(target=watch_run, args=(config,))
         thread.start()
+        initial_run = False
 
 
 def e2j2():

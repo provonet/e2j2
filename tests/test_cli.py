@@ -102,7 +102,7 @@ class TestCli(unittest.TestCase):
                     stdout_mock.assert_called_with('E2J2 configuration error: IOError')
 
     def test_watch(self):
-        config = {'watchlist': ['foo'], 'no_color': True, 'splay': 0}
+        config = {'watchlist': ['foo'], 'no_color': True, 'splay': 0, 'run': []}
         # with change
         with patch('e2j2.cli.sleep', side_effect=KeyboardInterrupt):
             with patch('e2j2.cli.stdout') as stdout_mock:
