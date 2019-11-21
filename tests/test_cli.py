@@ -4,13 +4,14 @@ from mock import patch, mock_open, call
 from callee import Contains
 from subprocess import CalledProcessError
 from e2j2 import cli
+from e2j2.helpers.exceptions import E2j2Exception
 
 
 class ArgumentParser:
     def __init__(self):
         self.filelist = []
         self.searchlist = None
-        self.recursive = True
+        self.recursive = False
         self.ext = '.j2'
         self.no_color = True
         self.twopass = False
@@ -38,14 +39,51 @@ class TestCli(unittest.TestCase):
         pass
 
     def test_arg_parse(self):
-        # no arguments
-        with patch('sys.argv'):
+        argument_parser = ArgumentParser()
+        with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
             args = cli.arg_parse('e2j2', '', 'x.x.x')
-
-            self.assertFalse(args.no_color)
+            self.assertEqual(args.searchlist, None)
             self.assertFalse(args.recursive)
-            self.assertFalse(args.noop)
-            self.assertFalse(args.twopass)
+
+        # test conflicting params
+        argument_parser = ArgumentParser()
+        argument_parser.searchlist = []
+        argument_parser.recursive = True
+        with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
+            with patch('sys.stderr'):
+                with assertRaisesRegex(self, SystemExit, '2'):
+                    _ = cli.arg_parse('e2j2', '', 'x.x.x')
+        argument_parser.recursive = False
+
+        argument_parser = ArgumentParser()
+        argument_parser.splay = True
+        argument_parser.watchlist = []
+        with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
+            with patch('sys.stderr') as stderr_mock:
+                with assertRaisesRegex(self, SystemExit, '2'):
+                    _ = cli.arg_parse('e2j2', '', 'x.x.x')
+                    stderr_mock.assert_called_with()
+        argument_parser.splay = False
+
+        argument_parser = ArgumentParser()
+        argument_parser.initial_run = True
+        argument_parser.watchlist = []
+        argument_parser.run = []
+        with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
+            with patch('sys.stderr') as stderr_mock:
+                with assertRaisesRegex(self, SystemExit, '2'):
+                    _ = cli.arg_parse('e2j2', '', 'x.x.x')
+                    stderr_mock.assert_called_with()
+
+        argument_parser = ArgumentParser()
+        argument_parser.initial_run = True
+        argument_parser.watchlist = ['FOO']
+        argument_parser.run = []
+        with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
+            with patch('sys.stderr') as stderr_mock:
+                with assertRaisesRegex(self, SystemExit, '2'):
+                    _ = cli.arg_parse('e2j2', '', 'x.x.x')
+                    stderr_mock.assert_called_with()
 
     def test_get_files(self):
         # with file_list
@@ -102,6 +140,13 @@ class TestCli(unittest.TestCase):
                 with assertRaisesRegex(self, IOError, 'IOError'):
                     _ = cli.configure(args)
                     stdout_mock.assert_called_with('E2J2 configuration error: IOError')
+
+        args.initial_run = True
+        args.watchlist = None
+        args.run = None
+        args.config = None
+        with assertRaisesRegex(self, E2j2Exception, 'required: watchlist, run'):
+            _ = cli.configure(args)
 
     def test_watch(self):
         config = {'watchlist': ['foo'], 'no_color': True, 'splay': 0, 'run': [], 'initial_run': False}

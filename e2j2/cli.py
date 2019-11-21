@@ -145,14 +145,7 @@ def configure(args):
     config['run'] = args.run.split() if args.run else config.get('run', [])
     config['noop'] = args.noop
 
-    if config['recursive'] and not config['searchlist']:
-        raise E2j2Exception('the following config arguments are required: searchlist')
-
-    if config['splay'] and not config['watchlist']:
-        raise E2j2Exception('the following config arguments are required: watchlist')
-
     if config['initial_run'] and (not config['watchlist'] or not config['run']):
-        print(config)
         raise E2j2Exception('the following arguments are required: watchlist, run')
 
     validate(instance=config, schema=CONFIG_SCHEMAS['configfile'], format_checker=draft4_format_checker)
