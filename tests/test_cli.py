@@ -29,6 +29,8 @@ class ArgumentParser:
         self.run = None
         self.noop = False
         self.splay = 0
+        self.initial_run = False
+        self.skip_render_on_undef = False
 
 
 class TestCli(unittest.TestCase):
@@ -102,7 +104,7 @@ class TestCli(unittest.TestCase):
                     stdout_mock.assert_called_with('E2J2 configuration error: IOError')
 
     def test_watch(self):
-        config = {'watchlist': ['foo'], 'no_color': True, 'splay': 0, 'run': []}
+        config = {'watchlist': ['foo'], 'no_color': True, 'splay': 0, 'run': [], 'initial_run': False}
         # with change
         with patch('e2j2.cli.sleep', side_effect=KeyboardInterrupt):
             with patch('e2j2.cli.stdout') as stdout_mock:

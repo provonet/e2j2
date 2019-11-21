@@ -2,6 +2,7 @@ Changelog
 =========
 0.4.6 (unreleased)
 ------------------
+- add flag to run command after initial template run
 
 Changed
 -------

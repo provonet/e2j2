@@ -16,6 +16,7 @@ from e2j2.helpers import templates
 from e2j2.helpers.templates import stdout, get_vars
 from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
 from e2j2.helpers.constants import CONFIG_SCHEMAS
+from e2j2.helpers.exceptions import E2j2Exception
 
 
 def arg_parse(program, description, version):
@@ -97,7 +98,19 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('-R', '--run',
                             type=str,
                             help='run command after rendering template (command arg1 arg2 arg3)')
+    arg_parser.add_argument('--initial_run', '--initial-run',
+                            action='store_true',
+                            help='Initial run after e2j2 (re)start')
     args = arg_parser.parse_args()
+
+    if args.recursive and not args.searchlist:
+        arg_parser.error('the following arguments are required: searchlist')
+
+    if args.splay and not args.watchlist:
+        arg_parser.error('the following arguments are required: watchlist')
+
+    if args.initial_run and (not args.watchlist or not args.run):
+        arg_parser.error('the following arguments are required: watchlist, run')
 
     return args
 
@@ -116,6 +129,7 @@ def configure(args):
     config['no_color'] = args.no_color if args.no_color else config.get('no_color', False)
     config['twopass'] = args.twopass if args.twopass else config.get('twopass', False)
     config['stacktrace'] = args.stacktrace if args.stacktrace else config.get('stacktrace', False)
+    config['initial_run'] = args.initial_run if args.initial_run else config.get('initial_run', False)
     config['copy_file_permissions'] = args.copy_file_permissions \
         if args.copy_file_permissions else config.get('copy_file_permissions', False)
     config['block_start'] = args.block_start if args.block_start else config.get('block_start', '{%')
@@ -130,6 +144,16 @@ def configure(args):
     config['splay'] = args.splay if args.watchlist else config.get('splay', 0)
     config['run'] = args.run.split() if args.run else config.get('run', [])
     config['noop'] = args.noop
+
+    if config['recursive'] and not config['searchlist']:
+        raise E2j2Exception('the following config arguments are required: searchlist')
+
+    if config['splay'] and not config['watchlist']:
+        raise E2j2Exception('the following config arguments are required: watchlist')
+
+    if config['initial_run'] and (not config['watchlist'] or not config['run']):
+        print(config)
+        raise E2j2Exception('the following arguments are required: watchlist, run')
 
     validate(instance=config, schema=CONFIG_SCHEMAS['configfile'], format_checker=draft4_format_checker)
 
@@ -273,7 +297,8 @@ def watch_run(config):
 def watch(config):
     old_env_data = None
     initial_run = True
-    old_run = None
+    cfg = config.copy()
+    cfg['run'] = []
     bright_red, reset_all = ('', '') if config['no_color'] else (BRIGHT_RED, RESET_ALL)
 
     while True:
@@ -289,15 +314,13 @@ def watch(config):
             except KeyboardInterrupt:
                 break
 
-        if initial_run:
-            old_run = config['run']
-            config['run'] = []
+        if not config['initial_run'] and initial_run:
+            thread = Thread(target=watch_run, args=(cfg,))
         else:
-            config['run'] = old_run
+            thread = Thread(target=watch_run, args=(config,))
+        thread.start()
 
         old_env_data = env_data.copy()
-        thread = Thread(target=watch_run, args=(config,))
-        thread.start()
         initial_run = False
 
 
