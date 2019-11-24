@@ -11,6 +11,7 @@ from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
 from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 from e2j2.helpers import cache
+from six import iteritems
 
 
 def stdout(msg):
@@ -51,7 +52,15 @@ def get_vars(config, whitelist, blacklist):
         envvalue = os.environ[envvar]
         defined_tag = ''.join([tag for tag in tags if ':' in envvalue and envvalue.startswith(tag)])
         try:
-            envcontext[envvar] = parse_tag(config, defined_tag, envvalue) if defined_tag else envvalue
+            if not defined_tag:
+                envcontext[envvar] = envvalue
+            else:
+                tag_config, tag_value = parse_tag(config, defined_tag, envvalue)
+                envcontext[envvar] = tag_value
+                if 'flatten' in tag_config and tag_config['flatten'] and isinstance(tag_value, dict):
+                    for key, value in iteritems(tag_value):
+                        envcontext[key] = value
+
         except E2j2Exception as e:
             stdout(yellow + "** WARNING: parsing {} failed with error: {} **".format(envvar, str(e)) + reset_all + '\n')
 
@@ -90,23 +99,25 @@ def parse_tag(config, tag, value):
             raise E2j2Exception('config validation failed')
 
     if tag == 'json:':
-        return json_tag.parse(value)
+        tag_value = json_tag.parse(value)
     elif tag == 'jsonfile:':
-        return jsonfile_tag.parse(value)
+        tag_value = jsonfile_tag.parse(value)
     elif tag == 'base64:':
-        return base64_tag.parse(value)
+        tag_value = base64_tag.parse(value)
     elif tag == 'consul:':
-        return consul_tag.parse(tag_config, value)
+        tag_value = consul_tag.parse(tag_config, value)
     elif tag == 'list:':
-        return list_tag.parse(value)
+        tag_value = list_tag.parse(value)
     elif tag == 'file:':
-        return file_tag.parse(value)
+        tag_value = file_tag.parse(value)
     elif tag == 'vault:':
-        return vault_tag.parse(tag_config, value)
+        tag_value = vault_tag.parse(tag_config, value)
     elif tag == 'dns:':
-        return dns_tag.parse(tag_config, value)
+        tag_value = dns_tag.parse(tag_config, value)
     else:
-        return '** ERROR: tag: %s not implemented **' % tag
+        return None, '** ERROR: tag: %s not implemented **' % tag
+
+    return tag_config, tag_value
 
 
 def render(**kwargs):

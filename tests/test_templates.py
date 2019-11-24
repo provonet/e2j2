@@ -219,7 +219,7 @@ class TestTemplates(unittest.TestCase):
 
         # unknown tag
         self.assertEqual(templates.parse_tag(config, 'unknown:', 'foobar'),
-                         '** ERROR: tag: unknown: not implemented **')
+                         (None, '** ERROR: tag: unknown: not implemented **'))
 
     @unittest.skipIf(PY2, "not compatible with Python 2")
     def test_stdout(self):

@@ -21,6 +21,7 @@ scheme = {'type': 'string', 'enum': ['http', 'https']}
 host = {'type': 'string', 'format': 'hostname'}
 port = {'type': 'number', 'minimum': 0, 'maximum': 65535}
 token = {'type': 'string', "minLength": 5}
+boolean = {'type': 'boolean'}
 
 CONFIG_SCHEMAS = {
     'configfile': {
@@ -51,6 +52,18 @@ CONFIG_SCHEMAS = {
       },
       "additionalProperties":   False
     },
+    'json:': {
+      'type': 'object',
+      'properties': {
+            'flatten': boolean
+      }
+    },
+    'jsonfile:': {
+        'type': 'object',
+        'properties': {
+            'flatten': boolean
+        }
+    },
     'consul:': {
         'type': 'object',
         'properties': {
@@ -59,6 +72,7 @@ CONFIG_SCHEMAS = {
             'host': host,
             'port': port,
             'token': token,
+            'flatten': boolean
         },
         "additionalProperties":   False
     },
@@ -71,6 +85,7 @@ CONFIG_SCHEMAS = {
             'port': port,
             'token': token,
             'backend': {'type': 'string', 'enum': ['raw', 'kv1', 'kv2']},
+            'flatten': boolean
         },
         "additionalProperties":   False
     },
@@ -80,7 +95,8 @@ CONFIG_SCHEMAS = {
             'nameservers': {'type': 'array', 'items': {'type': 'string',
                                                        'oneOf': [{'format': 'ipv4'}, {'format': 'ipv6'}]}},
             'port': port,
-            'type': {'type': 'string', 'enum': ['A', 'AAAA', 'MX', 'SRV']}
+            'type': {'type': 'string', 'enum': ['A', 'AAAA', 'MX', 'SRV']},
+            'flatten': boolean
         },
         "additionalProperties": False
     }
