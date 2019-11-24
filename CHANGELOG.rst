@@ -1,12 +1,12 @@
 Changelog
 =========
-0.4.6 (unreleased)
+0.4.6 (2019-11-24)
 ------------------
 
 Added
 -----
 - add flag to run command after initial template run
-- add config option to json, jsonlint, consul dns, and vault tag to flatten the returned json object
+- add config option to json, jsonfile, consul, dns, and vault tag to flatten the returned json object
 
 Changed
 -------
