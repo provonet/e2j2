@@ -103,7 +103,7 @@ def arg_parse(program, description, version):
                             help='Initial run after e2j2 (re)start')
     args = arg_parser.parse_args()
 
-    if args.recursive and not args.searchlist:
+    if args.recursive and not args.searchlist and not 'E2J2_SEARCHLIST' in os.environ:
         arg_parser.error('the following arguments are required: searchlist')
 
     if args.splay and not args.watchlist:
