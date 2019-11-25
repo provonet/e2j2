@@ -1,5 +1,13 @@
 Changelog
 =========
+
+0.4.7 (2019-11-25)
+------------------
+
+Fixed
+-----
+- searchlist is required even if E2J2_SEARCHLIST is set
+
 0.4.6 (2019-11-24)
 ------------------
 
