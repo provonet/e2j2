@@ -74,6 +74,7 @@ def parse_tag(config, tag, value):
         envvars = os.environ
         config_var = tag.upper()[:-1] + '_CONFIG'
         token_var = tag.upper()[:-1] + '_TOKEN'
+        # FIXME be more specific on raising error (config or data)
         try:
             tag_config = json.loads(envvars.get(config_var, '{}'))
 
