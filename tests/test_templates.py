@@ -15,7 +15,7 @@ class TestTemplates(unittest.TestCase):
         # recurse = True
         with patch('e2j2.helpers.templates.os.walk') as recurse_mock:
             templates.find(searchlist=['/etc'], j2file_ext='.j2', recurse=True)
-            recurse_mock.assert_called_with('/etc')
+            recurse_mock.assert_called_with('/etc', followlinks=True)
 
         # recurse = False
         with patch('e2j2.helpers.templates.os.listdir') as dirlist_mock:
