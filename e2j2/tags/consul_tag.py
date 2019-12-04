@@ -5,7 +5,7 @@ from consul.base import ACLPermissionDenied
 from functools import reduce
 from deepmerge import Merger
 from six.moves.urllib.parse import urlparse
-from e2j2.helpers.exceptions import E2j2Exception
+from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
 
 
 class ConsulKV:
@@ -41,18 +41,25 @@ def parse(tag_config, value):
         kv_entries = consul_kv.get(recurse=True, key=consul_key)
     except ACLPermissionDenied:
         raise E2j2Exception('access denied connecting to: {}://{}:{} **'.format(consul_kv.scheme, consul_kv.host, consul_kv.port))
+    except AssertionError as err:
+        raise E2j2Exception(err)
 
     if not kv_entries:
         # Mark as failed if we can't find the consul key
         raise E2j2Exception('key not found')
     consul_dict = {}
-    for entry in kv_entries:
-        subkeys = entry['Key'].split('/')
-        value = entry['Value'].decode('utf-8') if hasattr(entry['Value'], 'decode') else entry['Value']
-        value = '' if value is None else value
-        if '/' in entry['Key']:
-            key = '{"' + entry['Key'].replace('/', '":{"') + '": "' + value + '"}'.ljust(len(subkeys)+1, '}')
-            consul_dict = consul_merger.merge(consul_dict, json.loads(key))
-        else:
-            consul_dict[entry['Key']] = value
-    return reduce(operator.getitem, consul_key.split('/'), consul_dict)
+    try:
+        for entry in kv_entries:
+            subkeys = entry['Key'].split('/')
+            value = entry['Value'].decode('utf-8') if hasattr(entry['Value'], 'decode') else entry['Value']
+            value = '' if value is None else value
+            value = value.replace('"', '\\"')  # escape double quotes
+            value = value.replace('\n', '\\n')  # escape newlines
+            if '/' in entry['Key']:
+                key = '{"' + entry['Key'].replace('/', '":{"') + '": "' + value + '"}'.ljust(len(subkeys)+1, '}')
+                consul_dict = consul_merger.merge(consul_dict, json.loads(key))
+            else:
+                consul_dict[entry['Key']] = value
+        return reduce(operator.getitem, consul_key.split('/'), consul_dict)
+    except JSONDecodeError as err:
+        raise E2j2Exception(err)

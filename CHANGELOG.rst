@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.4.8 (2019-12-04)
+------------------
+
+Added
+-----
+- support jinja2 filters provided by the jinja2-ansible-filters library if installed
+
+Fixed
+-----
+- fix handling consul keys containing newlines and double quote characters 
+ 
 0.4.7 (2019-11-25)
 ------------------
 
