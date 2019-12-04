@@ -34,7 +34,7 @@ def stdout(msg):
 def find(searchlist, j2file_ext, recurse=False):
     if recurse:
         return [os.path.realpath(os.path.join(dirpath, j2file)) for searchlist_item in searchlist
-                for dirpath, dirnames, files in os.walk(searchlist_item)
+                for dirpath, dirnames, files in os.walk(searchlist_item, followlinks=True)
                 for j2file in files if j2file.endswith(j2file_ext)]
     else:
         return [os.path.realpath(os.path.join(searchlist_item, j2file)) for searchlist_item in searchlist
