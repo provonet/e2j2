@@ -45,6 +45,10 @@ Switch                      Type                 Config key                     
 --splay                     int                  splay                           integer Random delay between 1 and X seconds between watchlist polls
 =========================== ==================== =============================== ======= ==========================================================================
 
+Jinja2 filter support
+---------------------
+By default only the jinja2 `builtin filters <https://jinja.palletsprojects.com/en/2.10.x/templates/#list-of-builtin-filters>`_ are supported this can be extended by installing the `jinja2-ansible-filters <https://pypi.org/project/jinja2-ansible-filters/>`_ module.
+
 Example
 -------
 
