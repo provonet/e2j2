@@ -1,5 +1,11 @@
 Changelog
 =========
+0.4.9 (unreleased)
+------------------
+
+Changed
+-------
+- follow symlinks when recursive flag is set
 
 0.4.8 (2019-12-04)
 ------------------
