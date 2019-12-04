@@ -13,6 +13,12 @@ from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, 
 from e2j2.helpers import cache
 from six import iteritems
 
+try:
+    from jinja2_ansible_filters import AnsibleCoreFiltersExtension
+    j2_extensions = [AnsibleCoreFiltersExtension]
+except ImportError:
+    j2_extensions = []
+
 
 def stdout(msg):
     print_at = cache.print_at
@@ -123,7 +129,6 @@ def parse_tag(config, tag, value):
 
 def render(**kwargs):
     path, filename = os.path.split(kwargs['j2file'])
-
     j2 = jinja2.Environment(
         loader=jinja2.FileSystemLoader([path or './', '/']),
         undefined=jinja2.StrictUndefined,
@@ -134,7 +139,7 @@ def render(**kwargs):
         variable_end_string=kwargs['variable_end'],
         comment_start_string=kwargs['comment_start'],
         comment_end_string=kwargs['comment_end'],
-        extensions=['jinja2_ansible_filters.AnsibleCoreFiltersExtension'])
+        extensions=j2_extensions)
 
     try:
         first_pass = j2.get_template(filename).render(kwargs['j2vars'])

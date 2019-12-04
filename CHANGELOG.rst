@@ -6,7 +6,7 @@ Changelog
 
 Added
 -----
-- support jinja2 filters provided by the jinja2-ansible-filters library
+- support jinja2 filters provided by the jinja2-ansible-filters library if installed
 
 Fixed
 -----
