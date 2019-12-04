@@ -133,7 +133,8 @@ def render(**kwargs):
         variable_start_string=kwargs['variable_start'],
         variable_end_string=kwargs['variable_end'],
         comment_start_string=kwargs['comment_start'],
-        comment_end_string=kwargs['comment_end'])
+        comment_end_string=kwargs['comment_end'],
+        extensions=['jinja2_ansible_filters.AnsibleCoreFiltersExtension'])
 
     try:
         first_pass = j2.get_template(filename).render(kwargs['j2vars'])

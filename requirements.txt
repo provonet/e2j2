@@ -1,5 +1,6 @@
 # pyinit: python3
 jinja2>=2.10.1
+jinja2-ansible-filters
 python-consul>=0.7.0
 deepmerge>=0.0.4
 jsonschema
