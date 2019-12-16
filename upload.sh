@@ -1,4 +1,6 @@
 #!/bin/bash
+rm -rf build/*
+rm -rf dist/*
 VERSION=$(grep VERSION e2j2/helpers/constants.py | cut -d "'" -f 2)
 python setup.py sdist bdist_wheel
 gpg --detach-sign -a dist/e2j2-${VERSION}.tar.gz
