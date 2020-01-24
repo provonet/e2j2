@@ -242,13 +242,17 @@ The ACL token can be configured by either the above configuration or by setting 
 
 As an alternative for the global configuration it is also possible to configure / adjust the global configuration for each consul tag, by simply include the configuration when using the consul tag.
 
-Tag config example:
+CONSUL_TOKEN and config key token can either contain the actual token or point to a file containing the token, use the **file:** tag to point to a file.
+
+Tag config examples:
 
 ::
 
     export MYCONSULVAR='consul:config={"url": "https://consul2.foobar.tld", "token": "012345678-0123-abcd-1234-0123456789ab"}:consulvar"
 
+::
 
+    export MYCONSULVAR='consul:config={"url": "https://consul2.foobar.tld", "token": "file:/path/to/token"}:consulvar"
 
 Consul example:
 
@@ -366,11 +370,17 @@ The Authentication token can be configured by either the above configuration or 
 
 As an alternative for the global configuration it is also possible to configure / adjust the global configuration for each vault tag, by simply include the configuration when using the vault tag.
 
+VAULT_TOKEN and config key token can either contain the actual token or point to a file containing the token, use the **file:** tag to point to a file.
+
 Tag config example:
 
 ::
 
-    export MYVAULTVAR='vault:config={"backend": "kv1"}:kv/my-secret"
+    export MYVAULTVAR='vault:config={"backend": "kv2", "token": "s.xxxxxxxxx"}:kv/my-secret"
+
+::
+
+    export MYVAULTVAR='vault:config={"backend": "kv2", "token": "file:/path/to/token"}:kv/my-secret"
 
 Vault example:
 

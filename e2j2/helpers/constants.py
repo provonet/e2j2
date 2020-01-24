@@ -1,4 +1,4 @@
-VERSION = '0.4.9'
+VERSION = '0.4.10'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
