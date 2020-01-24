@@ -6,7 +6,6 @@ import json
 import traceback
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 from jsonschema import validate, ValidationError, draft4_format_checker
-from deepmerge import always_merger
 from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
 from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
@@ -84,15 +83,18 @@ def parse_tag(config, tag, value):
         try:
             tag_config = json.loads(envvars.get(config_var, '{}'))
 
-            if token_var in envvars:
-                tag_config['token'] = os.environ[token_var]
-
             pattern = re.compile(r'config=([^}]+)}:(.+)')
             match = pattern.match(value)
             if match:
                 tag_config = json.loads(match.group(1) + '}')
-                tag_config = always_merger.merge(tag_config, tag_config)
                 value = match.group(2)
+
+            if token_var in envvars:
+                tag_config['token'] = tag_config['token'] if 'token' in tag_config else os.environ[token_var]
+
+            if 'token' in tag_config and tag_config['token'].startswith('file:'):
+                token_value = re.sub(r'^file:', '', tag_config['token'])
+                tag_config['token'] = file_tag.parse(token_value).strip()
 
         except JSONDecodeError:
             raise E2j2Exception('decoding JSON failed')

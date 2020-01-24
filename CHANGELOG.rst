@@ -1,5 +1,13 @@
 Changelog
 =========
+
+0.4.10 (2020-01-14)
+-------------------
+
+Changed
+-------
+consul and vault tokens can now point to a file (use the file: tag to point to a file)
+
 0.4.9 (2019-12-16)
 ------------------
 
