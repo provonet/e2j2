@@ -90,7 +90,7 @@ def parse_tag(config, tag, value):
                 value = match.group(2)
 
             if token_var in envvars:
-                tag_config['token'] = tag_config['token'] if 'token' in tag_config else os.environ[token_var]
+                tag_config['token'] = tag_config['token'] if 'token' in tag_config else envvars[token_var]
 
             if 'token' in tag_config and tag_config['token'].startswith('file:'):
                 token_value = re.sub(r'^file:', '', tag_config['token'])
