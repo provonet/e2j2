@@ -18,6 +18,6 @@ examples/twopass-example
 examples/vault-example
 examples/dns-example
 examples/watch
-.venv
-venv
 .coverage
+.envrc
+.direnv
