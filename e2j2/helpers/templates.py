@@ -22,7 +22,7 @@ except ImportError:
 
 def recursive_iter(obj, keys=()):
     if isinstance(obj, dict):
-        for k, v in obj.items():
+        for k, v in iteritems(obj):
             yield from recursive_iter(v, keys + (k,))
     elif any(isinstance(obj, t) for t in (list, tuple)):
         for idx, item in enumerate(obj):
