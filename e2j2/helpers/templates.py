@@ -4,10 +4,11 @@ import jinja2
 import re
 import json
 import traceback
+from dpath import util as dpath_util
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 from jsonschema import validate, ValidationError, draft4_format_checker
 from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
-from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS
+from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NESTED_TAGS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 from e2j2.helpers import cache
 from six import iteritems
@@ -17,6 +18,23 @@ try:
     j2_extensions = [AnsibleCoreFiltersExtension]
 except ImportError:
     j2_extensions = []
+
+
+def recursive_iter(obj, keys=()):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            yield from recursive_iter(v, keys + (k,))
+    elif any(isinstance(obj, t) for t in (list, tuple)):
+        for idx, item in enumerate(obj):
+            yield from recursive_iter(item, keys + (idx,))
+    else:
+        yield keys, obj
+
+
+def nested_set(dic, keys, value):
+    for key in keys[:-1]:
+        dic = dic.setdefault(key, {})
+    dic[keys[-1]] = value
 
 
 def stdout(msg):
@@ -47,29 +65,33 @@ def find(searchlist, j2file_ext, recurse=False):
 
 
 def get_vars(config, whitelist, blacklist):
+    env_list = [entry for entry in whitelist if entry not in blacklist]
+    envvars = os.environ
+    return resolv_vars(config, env_list, envvars)
+
+
+def resolv_vars(config, var_list, vars):
     # initialize colors
     yellow, reset_all = ("", "") if config['no_color'] else (YELLOW, RESET_ALL)
 
-    env_list = [entry for entry in whitelist if entry not in blacklist]
-    tags = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:']
-    envcontext = {}
-    for envvar in env_list:
-        envvalue = os.environ[envvar]
-        defined_tag = ''.join([tag for tag in tags if ':' in envvalue and envvalue.startswith(tag)])
+    varcontext = {}
+    for var in var_list:
+        var_value = vars[var]
+        defined_tag = ''.join([tag for tag in TAGS if ':' in var_value and var_value.startswith(tag)])
         try:
             if not defined_tag:
-                envcontext[envvar] = envvalue
+                varcontext[var] = var_value
             else:
-                tag_config, tag_value = parse_tag(config, defined_tag, envvalue)
-                envcontext[envvar] = tag_value
+                tag_config, tag_value = parse_tag(config, defined_tag, var_value)
+                varcontext[var] = tag_value
                 if 'flatten' in tag_config and tag_config['flatten'] and isinstance(tag_value, dict):
                     for key, value in iteritems(tag_value):
-                        envcontext[key] = value
+                        varcontext[key] = value
 
         except E2j2Exception as e:
-            stdout(yellow + "** WARNING: parsing {} failed with error: {} **".format(envvar, str(e)) + reset_all + '\n')
+            stdout(yellow + "** WARNING: parsing {} failed with error: {} **".format(var, str(e)) + reset_all + '\n')
 
-    return envcontext
+    return varcontext
 
 
 def parse_tag(config, tag, value):
@@ -125,6 +147,10 @@ def parse_tag(config, tag, value):
         tag_value = dns_tag.parse(tag_config, value)
     else:
         return None, '** ERROR: tag: %s not implemented **' % tag
+
+    if config['twopass'] and tag in NESTED_TAGS:
+        for keys, item in recursive_iter(tag_value):
+            dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item })['item'])
 
     return tag_config, tag_value
 
