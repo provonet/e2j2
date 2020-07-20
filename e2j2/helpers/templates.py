@@ -12,6 +12,7 @@ from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NEST
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 from e2j2.helpers import cache
 from six import iteritems
+from six import PY3 as PYTHON3
 
 try:
     from jinja2_ansible_filters import AnsibleCoreFiltersExtension
@@ -142,7 +143,7 @@ def parse_tag(config, tag, value):
     else:
         return None, '** ERROR: tag: %s not implemented **' % tag
 
-    if config['twopass'] and tag in NESTED_TAGS:
+    if config['twopass'] and tag in NESTED_TAGS and PYTHON3:
         for keys, item in recursive_iter(tag_value):
             dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item })['item'])
 
