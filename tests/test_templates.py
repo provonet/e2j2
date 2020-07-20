@@ -32,14 +32,15 @@ class TestTemplates(unittest.TestCase):
 
         # list of dict
         data = {'listofdict': [{'test_key', 'test_value'}]}
-        self.assertEqual(list(templates.recursive_iter(data)), [(('listofdict',0), {'test_key', 'test_value'})])
+        self.assertEqual(list(templates.recursive_iter(data)), [(('listofdict', 0), {'test_key', 'test_value'})])
 
     def test_get_vars(self):
         config = {'no_color': True, 'twopass': True}
 
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
-            self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
+            self.assertEqual(
+                templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
 
             # whitelist / blacklist
             self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
