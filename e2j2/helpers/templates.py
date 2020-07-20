@@ -31,12 +31,6 @@ def recursive_iter(obj, keys=()):
         yield keys, obj
 
 
-def nested_set(dic, keys, value):
-    for key in keys[:-1]:
-        dic = dic.setdefault(key, {})
-    dic[keys[-1]] = value
-
-
 def stdout(msg):
     print_at = cache.print_at
     increment = cache.increment

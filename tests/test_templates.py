@@ -22,23 +22,38 @@ class TestTemplates(unittest.TestCase):
             templates.find(searchlist=['/etc'], j2file_ext='.j2', recurse=False)
             dirlist_mock.assert_called_with('/etc')
 
+    def test_recursive_iter(self):
+        # flat dict
+        data = {'test_key', 'test_value'}
+        self.assertEqual(list(templates.recursive_iter(data)), [((), {'test_key', 'test_value'})])
+
+        # nested dict
+        data = {'nestedkey': {'test_key', 'test_value'}}
+        self.assertEqual(list(templates.recursive_iter(data)), [(('nestedkey',), {'test_key', 'test_value'})])
+
+        # list of dict
+        data = {'listofdict': [{'test_key', 'test_value'}]}
+        self.assertEqual(list(templates.recursive_iter(data)), [(('listofdict',0), {'test_key', 'test_value'})])
+
     def test_get_vars(self):
-        config = {'no_color': True}
+        config = {'no_color': True, 'twopass': True}
 
         with patch('e2j2.helpers.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
             self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
 
+            # whitelist / blacklist
+            self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
+
+    def test_resolv_vars(self):
+        config = {'no_color': True, 'twopass': True}
         with patch('e2j2.helpers.templates.os') as os_mock:
-            os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
 
             with patch('e2j2.helpers.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
                 with patch('e2j2.helpers.templates.stdout') as stdout_mock:
-                    templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=[])
+                    templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'})
                     stdout_mock.assert_called_with(Contains('foobar error'))
 
-        # whitelist / blacklist
-        self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
 
     def test_render(self):
         with patch('e2j2.helpers.templates.jinja2.Environment') as jinja2_mock:
@@ -141,7 +156,7 @@ class TestTemplates(unittest.TestCase):
                     j2vars={"FOO": "BAR"})
 
     def test_parse_tag(self):
-        config = {'stacktrace': True}
+        config = {'stacktrace': True, 'no_color': True, 'twopass': True}
 
         with patch('e2j2.helpers.templates.json_tag.parse') as json_mock:
             templates.parse_tag(config, 'json:', '{}')
