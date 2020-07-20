@@ -1,5 +1,6 @@
 import json
-from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
+from json.decoder import JSONDecodeError
+from e2j2.helpers.exceptions import E2j2Exception
 
 
 def parse(json_file):

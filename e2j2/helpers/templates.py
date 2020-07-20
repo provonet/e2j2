@@ -7,7 +7,8 @@ import traceback
 from dpath import util as dpath_util
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 from jsonschema import validate, ValidationError, draft4_format_checker
-from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
+from json.decoder import JSONDecodeError
+from e2j2.helpers.exceptions import E2j2Exception
 from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NESTED_TAGS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 from e2j2.helpers import cache

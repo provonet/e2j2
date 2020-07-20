@@ -5,7 +5,8 @@ from consul.base import ACLPermissionDenied
 from functools import reduce
 from deepmerge import Merger
 from six.moves.urllib.parse import urlparse
-from e2j2.helpers.exceptions import E2j2Exception, JSONDecodeError
+from json.decoder import JSONDecodeError
+from e2j2.helpers.exceptions import E2j2Exception
 
 
 class ConsulKV:
