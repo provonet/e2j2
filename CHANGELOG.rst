@@ -4,7 +4,7 @@ Changelog
 -------------------
 Added
 -----
-- Add support for rendering tags in nested values in combination with twopass rendering,
+- Add support for rendering tags in json objects and lists in combination with twopass rendering:
     So now it is possible to render base64 encoded strings within a json tag within the same environment variable.
 
     example:
