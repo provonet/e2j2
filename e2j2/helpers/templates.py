@@ -12,7 +12,7 @@ from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NEST
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 from e2j2.helpers import cache
 from six import iteritems
-from six import PY3 as PYTHON3
+from yieldfrom import yieldfrom, From
 
 try:
     from jinja2_ansible_filters import AnsibleCoreFiltersExtension
@@ -21,13 +21,14 @@ except ImportError:
     j2_extensions = []
 
 
+@yieldfrom
 def recursive_iter(obj, keys=()):
     if isinstance(obj, dict):
         for k, v in iteritems(obj):
-            yield from recursive_iter(v, keys + (k,))
+            yield From(recursive_iter(v, keys + (k,)))
     elif any(isinstance(obj, t) for t in (list, tuple)):
         for idx, item in enumerate(obj):
-            yield from recursive_iter(item, keys + (idx,))
+            yield From(recursive_iter(item, keys + (idx,)))
     else:
         yield keys, obj
 
@@ -143,7 +144,7 @@ def parse_tag(config, tag, value):
     else:
         return None, '** ERROR: tag: %s not implemented **' % tag
 
-    if config['twopass'] and tag in NESTED_TAGS and PYTHON3:
+    if config['twopass'] and tag in NESTED_TAGS:
         for keys, item in recursive_iter(tag_value):
             dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item })['item'])
 

@@ -22,7 +22,6 @@ class TestTemplates(unittest.TestCase):
             templates.find(searchlist=['/etc'], j2file_ext='.j2', recurse=False)
             dirlist_mock.assert_called_with('/etc')
 
-    @unittest.skipIf(PY2, "not compatible with Python 2")
     def test_recursive_iter(self):
         # flat dict
         data = {'test_key', 'test_value'}

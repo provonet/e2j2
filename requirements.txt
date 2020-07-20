@@ -8,3 +8,4 @@ six
 dnspython
 munch
 dpath
+yieldfrom
