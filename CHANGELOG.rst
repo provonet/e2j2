@@ -2,19 +2,26 @@ Changelog
 =========
 0.5.0 (unreleased)
 -------------------
-Add support for rendering tags in nested values in combination with twopass rendering,
-So now it is possible to render base64 encoded strings within a json tag within the same environment variable.
+Added
+-----
+- Add support for rendering tags in nested values in combination with twopass rendering,
+    So now it is possible to render base64 encoded strings within a json tag within the same environment variable.
 
-example:
+    example:
 
-with:
-export MY_NESTED_VAR='json:{"ip_regex": "base64:Xig/Oig/OjI1WzAtNV18MlswLTRdWzAtOV18WzAxXT9bMC05XVswLTldPylcLil7M30oPzoyNVswLTVdfDJbMC00XVswLTldfFswMV0/WzAtOV1bMC05XT8pJA=="}'
+    with:
 
-the template
-{{ MY_NESTED_VAR }}
+    export MY_NESTED_VAR='json:{"ip_regex": "base64:Xig/Oig/OjI1WzAtNV18MlswLTRdWzAtOV18WzAxXT9bMC05XVswLTldPylcLil7M30oPzoyNVswLTVdfDJbMC00XVswLTldfFswMV0/WzAtOV1bMC05XT8pJA=="}'
 
-will render to:
-{"ip_regex": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"}
+    the template
+
+    {{ MY_NESTED_VAR }}
+
+    will render to:
+
+    {"ip_regex": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"}
+
+- Add python 3.9 to the list of supported python versions
 
 Breaking change:
 ----------------
