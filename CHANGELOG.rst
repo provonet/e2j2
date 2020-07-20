@@ -19,6 +19,7 @@ will render to:
 Breaking change:
 ----------------
 python 2.7.x is no longer supported!
+python 3.4.x is no longer supported!
 
 0.4.10 (2020-01-14)
 -------------------
