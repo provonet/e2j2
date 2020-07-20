@@ -23,7 +23,7 @@ setup(name='e2j2',
           'dpath==1.5.0'
         ],
         ':python_version > "2.7"': [
-          'dpath>=2.1.0'
+          'dpath>=2.0.1'
         ],
       },
       tests_require=['mock', 'unittest2', 'requests-mock', 'callee'],
