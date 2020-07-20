@@ -1,5 +1,4 @@
 import unittest
-from six import assertRaisesRegex
 from mock import patch, mock_open, call
 from callee import Contains
 from subprocess import CalledProcessError
@@ -51,7 +50,7 @@ class TestCli(unittest.TestCase):
         argument_parser.recursive = True
         with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
             with patch('sys.stderr'):
-                with assertRaisesRegex(self, SystemExit, '2'):
+                with self.assertRaisesRegex(SystemExit, '2'):
                     _ = cli.arg_parse('e2j2', '', 'x.x.x')
         argument_parser.recursive = False
 
@@ -60,7 +59,7 @@ class TestCli(unittest.TestCase):
         argument_parser.watchlist = []
         with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
             with patch('sys.stderr') as stderr_mock:
-                with assertRaisesRegex(self, SystemExit, '2'):
+                with self.assertRaisesRegex(SystemExit, '2'):
                     _ = cli.arg_parse('e2j2', '', 'x.x.x')
                     stderr_mock.assert_called_with()
         argument_parser.splay = False
@@ -71,7 +70,7 @@ class TestCli(unittest.TestCase):
         argument_parser.run = []
         with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
             with patch('sys.stderr') as stderr_mock:
-                with assertRaisesRegex(self, SystemExit, '2'):
+                with self.assertRaisesRegex(SystemExit, '2'):
                     _ = cli.arg_parse('e2j2', '', 'x.x.x')
                     stderr_mock.assert_called_with()
 
@@ -81,7 +80,7 @@ class TestCli(unittest.TestCase):
         argument_parser.run = []
         with patch('e2j2.cli.argparse.ArgumentParser.parse_args', return_value=argument_parser):
             with patch('sys.stderr') as stderr_mock:
-                with assertRaisesRegex(self, SystemExit, '2'):
+                with self.assertRaisesRegex(SystemExit, '2'):
                     _ = cli.arg_parse('e2j2', '', 'x.x.x')
                     stderr_mock.assert_called_with()
 
@@ -137,7 +136,7 @@ class TestCli(unittest.TestCase):
         open_mock.side_effect = IOError('IOError')
         with patch('e2j2.cli.stdout') as stdout_mock:
             with patch('e2j2.cli.open', open_mock):
-                with assertRaisesRegex(self, IOError, 'IOError'):
+                with self.assertRaisesRegex(IOError, 'IOError'):
                     _ = cli.configure(args)
                     stdout_mock.assert_called_with('E2J2 configuration error: IOError')
 
@@ -145,7 +144,7 @@ class TestCli(unittest.TestCase):
         args.watchlist = None
         args.run = None
         args.config = None
-        with assertRaisesRegex(self, E2j2Exception, 'required: watchlist, run'):
+        with self.assertRaisesRegex(E2j2Exception, 'required: watchlist, run'):
             _ = cli.configure(args)
 
     def test_watch(self):

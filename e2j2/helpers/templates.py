@@ -12,7 +12,6 @@ from e2j2.helpers.exceptions import E2j2Exception
 from e2j2.helpers.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NESTED_TAGS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
 from e2j2.helpers import cache
-from six import iteritems
 
 try:
     from jinja2_ansible_filters import AnsibleCoreFiltersExtension
@@ -23,7 +22,7 @@ except ImportError:
 
 def recursive_iter(obj, keys=()):
     if isinstance(obj, dict):
-        for k, v in iteritems(obj):
+        for k, v in obj.items():
             yield from recursive_iter(v, keys + (k,))
     elif any(isinstance(obj, t) for t in (list, tuple)):
         for idx, item in enumerate(obj):
@@ -80,7 +79,7 @@ def resolv_vars(config, var_list, vars):
                 tag_config, tag_value = parse_tag(config, defined_tag, var_value)
                 varcontext[var] = tag_value
                 if 'flatten' in tag_config and tag_config['flatten'] and isinstance(tag_value, dict):
-                    for key, value in iteritems(tag_value):
+                    for key, value in tag_value.items():
                         varcontext[key] = value
 
         except E2j2Exception as e:
@@ -145,7 +144,7 @@ def parse_tag(config, tag, value):
 
     if config['twopass'] and tag in NESTED_TAGS:
         for keys, item in recursive_iter(tag_value):
-            dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item })['item'])
+            dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item})['item'])
 
     return tag_config, tag_value
 

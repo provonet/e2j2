@@ -4,7 +4,6 @@ python-consul>=0.7.0
 deepmerge>=0.0.4
 jsonschema
 rfc3987
-six
 dnspython
 munch
 dpath>=2.0.1

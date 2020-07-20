@@ -1,5 +1,4 @@
 import unittest
-import six
 import requests_mock
 from dns.resolver import Resolver, NXDOMAIN, Timeout
 from requests.exceptions import RequestException
@@ -32,7 +31,6 @@ class TestParsers(unittest.TestCase):
         with self.assertRaisesRegex(E2j2Exception, 'invalid JSON'):
             json_tag.parse('<invalid>')
 
-    @unittest.skipIf(six.PY2, "not compatible with Python 2")
     def test_parse_json_file(self):
         with patch('builtins.open'):
             with patch('e2j2.tags.jsonfile_tag.json.load', return_value={'foo': 'bar'}):
