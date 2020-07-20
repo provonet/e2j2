@@ -1,7 +1,6 @@
 import unittest
 from mock import patch, MagicMock, call
 from callee import Contains
-from six import assertRaisesRegex, PY2
 from e2j2.helpers import templates
 from e2j2.helpers.exceptions import E2j2Exception
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
@@ -111,7 +110,7 @@ class TestTemplates(unittest.TestCase):
             template.render = MagicMock(side_effect=exception)
             j2.get_template = MagicMock(return_value=template)
             with patch('e2j2.helpers.templates.jinja2.Environment', return_value=j2):
-                with assertRaisesRegex(self, E2j2Exception, 'at line'):
+                with self.assertRaisesRegex(E2j2Exception, 'at line'):
                     _ = templates.render(
                         j2file='/foo/file1.j2',
                         twopass=False,
@@ -127,7 +126,7 @@ class TestTemplates(unittest.TestCase):
         template.render = MagicMock(side_effect=TemplateNotFound(name='/foo/file1.j2'))
         j2.get_template = MagicMock(return_value=template)
         with patch('e2j2.helpers.templates.jinja2.Environment', return_value=j2):
-            with assertRaisesRegex(self, E2j2Exception, 'Template file1.j2 not found'):
+            with self.assertRaisesRegex(E2j2Exception, 'Template file1.j2 not found'):
                 _ = templates.render(
                     j2file='/foo/file1.j2',
                     twopass=False,
@@ -143,7 +142,7 @@ class TestTemplates(unittest.TestCase):
         template.render = MagicMock(side_effect=ValueError('Error'))
         j2.get_template = MagicMock(return_value=template)
         with patch('e2j2.helpers.templates.jinja2.Environment', return_value=j2):
-            with assertRaisesRegex(self, E2j2Exception, 'Error'):
+            with self.assertRaisesRegex(E2j2Exception, 'Error'):
                 _ = templates.render(
                     j2file='/foo/file1.j2',
                     twopass=False,
@@ -236,7 +235,6 @@ class TestTemplates(unittest.TestCase):
         self.assertEqual(templates.parse_tag(config, 'unknown:', 'foobar'),
                          (None, '** ERROR: tag: unknown: not implemented **'))
 
-    @unittest.skipIf(PY2, "not compatible with Python 2")
     def test_stdout(self):
         with patch('e2j2.helpers.templates.sys.stdout.write') as stdout_mock:
             templates.stdout('logline')
