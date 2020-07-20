@@ -7,5 +7,6 @@ rfc3987
 six
 dnspython
 munch
-dpath==1.5.0
+dpath==1.5.0; python_version < '3.0'
+dpath>=2.1.0; python_version > '2.7'
 yieldfrom

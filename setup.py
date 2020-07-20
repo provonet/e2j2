@@ -16,9 +16,16 @@ setup(name='e2j2',
           'jsonschema',
           'rfc3987',
           'munch',
-          'dpath<=2.0.0',
           'yieldfrom'
       ],
+      extras_require={
+        ':python_version < "3.0"': [
+          'dpath==1.5.0'
+        ],
+        ':python_version > "2.7"': [
+          'dpath>=2.1.0'
+        ],
+      },
       tests_require=['mock', 'unittest2', 'requests-mock', 'callee'],
       url='http://github.com/provonet/e2j2',
       author='Johan Bakker',
