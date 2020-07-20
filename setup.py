@@ -15,7 +15,9 @@ setup(name='e2j2',
           'six',
           'jsonschema',
           'rfc3987',
-          'munch'
+          'munch',
+          'dpath<=2.0.0',
+          'yieldfrom'
       ],
       tests_require=['mock', 'unittest2', 'requests-mock', 'callee'],
       url='http://github.com/provonet/e2j2',
