@@ -16,16 +16,8 @@ setup(name='e2j2',
           'jsonschema',
           'rfc3987',
           'munch',
-          'yieldfrom'
-      ],
-      extras_require={
-        ':python_version < "3.0"': [
-          'dpath==1.5.0'
-        ],
-        ':python_version > "2.7"': [
           'dpath>=2.0.1'
-        ],
-      },
+      ],
       tests_require=['mock', 'unittest2', 'requests-mock', 'callee'],
       url='http://github.com/provonet/e2j2',
       author='Johan Bakker',
@@ -39,8 +31,6 @@ setup(name='e2j2',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
