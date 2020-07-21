@@ -144,7 +144,8 @@ def parse_tag(config, tag, value):
 
     if config['twopass'] and tag in NESTED_TAGS:
         for keys, item in recursive_iter(tag_value):
-            dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item})['item'])
+            if isinstance(item, str):
+                dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item})['item'])
 
     return tag_config, tag_value
 
