@@ -54,7 +54,17 @@ def read_file(context):
 
 
 @step("I PUT '{payload}' to '{url}' with headers '{headers}'")
-def post_to_page(context, payload, url, headers):
+def put_to_url(context, payload, url, headers):
     session = requests.put(url, data=payload, headers=json.loads(headers))
+    context.statuscode = session.status_code
+    context.body = session.text
+
+
+@step("I POST '{payload}' to '{url}' with headers '{headers}'")
+def post_to_url(context, payload, url, headers):
+    try:
+        session = requests.post(url, json=json.loads(payload), headers=json.loads(headers))
+    finally:
+        session = requests.post(url, data=payload, headers=json.loads(headers))
     context.statuscode = session.status_code
     context.body = session.text

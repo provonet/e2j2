@@ -14,4 +14,4 @@ install:
 script:
   - coverage run --source=e2j2 setup.py test 
   - coveralls
-  - behave
+  - for test in $(ls features/*.feature); do behave $test; done 

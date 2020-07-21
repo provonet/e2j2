@@ -1,6 +1,6 @@
-@fixture.with.consul
 Feature: handling environment variables containing the consul tag
 
+  @fixture.with.consul
   Scenario: render template
     Given an installed e2j2 module
     And I PUT 'consul example' to 'http://127.0.0.1:8500/v1/kv/foobar' with headers '{"Content-type": "application/text"}'
