@@ -46,14 +46,35 @@ class TestTemplates(unittest.TestCase):
             self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
 
     def test_resolv_vars(self):
+        config = {'no_color': True, 'twopass': False}
+
+        with patch('e2j2.helpers.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
+            with patch('e2j2.helpers.templates.stdout') as stdout_mock:
+                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'})
+                stdout_mock.assert_called_with(Contains('foobar error'))
+
+        # test normal rendering
+        self.assertEqual(
+            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'base64:dmFsdWU='}})
+
+        # test Nested vars
         config = {'no_color': True, 'twopass': True}
-        with patch('e2j2.helpers.templates.os') as os_mock:
 
-            with patch('e2j2.helpers.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
-                with patch('e2j2.helpers.templates.stdout') as stdout_mock:
-                    templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'})
-                    stdout_mock.assert_called_with(Contains('foobar error'))
+        # test string with nested base64 tag
+        self.assertEqual(
+            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}),{'FOO_ENV': {'key': 'value'}})
 
+        # test string with nested base64 tag
+        self.assertEqual(
+            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'}),{'FOO_ENV': {'key': 'value'}})
+
+        # test with boolean value
+        self.assertEqual(
+            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": true}'}), {'FOO_ENV': {'key': True}})
+
+        # test with integer value
+        self.assertEqual(
+            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": 1}'}), {'FOO_ENV': {'key': 1}})
 
     def test_render(self):
         with patch('e2j2.helpers.templates.jinja2.Environment') as jinja2_mock:
