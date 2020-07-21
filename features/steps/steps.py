@@ -2,6 +2,8 @@ import pkg_resources
 import os
 import subprocess
 import re
+import requests
+import json
 from behave import step
 
 
@@ -40,7 +42,7 @@ def render_template(context, flags):
     subprocess.call(flag_list, stdout=FNULL)
 
 
-@step('the content of the is as follows')
+@step('rendered content is as follows')
 def read_file(context):
     filename = re.sub(r'\.j2$', '', context.template_file)
     with open(filename, 'r') as fh:
@@ -49,3 +51,10 @@ def read_file(context):
     # print(content)
     # print(context.text)
     assert content == context.text
+
+
+@step("I PUT '{payload}' to '{url}' with headers '{headers}'")
+def post_to_page(context, payload, url, headers):
+    session = requests.put(url, data=payload, headers=json.loads(headers))
+    context.statuscode = session.status_code
+    context.body = session.text

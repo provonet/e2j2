@@ -8,7 +8,7 @@ Feature: handling environment variables containing the base64 tag
       This is a {{ MYBASE64VAR }}
       """
     And I render the template with e2j2
-    Then the content of the is as follows
+    Then rendered content is as follows
       """
       This is a base64 example
       """

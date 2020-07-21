@@ -8,7 +8,7 @@ Feature: handling standard environment variables
       This is a {{ MYENVVAR }}
       """
     And I render the template with e2j2
-    Then the content of the is as follows
+    Then rendered content is as follows
       """
       This is a plain environment variable
       """

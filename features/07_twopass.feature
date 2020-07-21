@@ -24,7 +24,7 @@ Feature: handling environment variables containing the json tag and the twopass 
         define( 'DB_HOST', '{{ WORDPRESS.database.host }}' );
       """
     And I render the template with e2j2 with additional flag --twopass
-    Then the content of the is as follows
+    Then rendered content is as follows
       """
         // ** MySQL settings - You can get this info from your web host ** //
         /** The name of the database for WordPress */
@@ -63,7 +63,7 @@ Feature: handling environment variables containing the json tag and the twopass 
         define( 'DB_HOST', '{{ WORDPRESS.database.host }}' );
       """
     And I render the template with e2j2 with additional flag --twopass
-    Then the content of the is as follows
+    Then rendered content is as follows
       """
         // ** MySQL settings - You can get this info from your web host ** //
         /** The name of the database for WordPress */
