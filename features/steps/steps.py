@@ -42,7 +42,7 @@ def render_template(context):
 def render_template(context, flags):
     flag_list = ['e2j2', '-f', context.template_file]
     flag_list.extend(flags.split(' '))
-    proc=subprocess.Popen(flag_list, stderr=FNULL, stdout=FNULL)
+    proc=subprocess.Popen(flag_list)
     proc.wait()
 
 
