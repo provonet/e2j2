@@ -33,7 +33,7 @@ def write_template(context, template_file):
 
 @step('I render the template with e2j2')
 def render_template(context):
-    proc=subprocess.Popen(['e2j2', '-f', context.template_file])
+    proc=subprocess.Popen(['e2j2', '-f', context.template_file], stderr=FNULL, stdout=FNULL)
     proc.wait()
 
 
@@ -42,7 +42,7 @@ def render_template(context):
 def render_template(context, flags):
     flag_list = ['e2j2', '-f', context.template_file]
     flag_list.extend(flags.split(' '))
-    proc=subprocess.Popen(flag_list)
+    proc=subprocess.Popen(flag_list, stderr=FNULL, stdout=FNULL)
     proc.wait()
 
 
