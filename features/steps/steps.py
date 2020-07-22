@@ -4,6 +4,7 @@ import subprocess
 import re
 import requests
 import json
+import time
 from behave import step
 
 
@@ -32,7 +33,7 @@ def write_template(context, template_file):
 
 @step('I render the template with e2j2')
 def render_template(context):
-    proc=subprocess.Popen(['e2j2', '-f', context.template_file], stderr=FNULL, stdout=FNULL)
+    proc=subprocess.Popen(['e2j2', '-f', context.template_file])
     proc.wait()
 
 
