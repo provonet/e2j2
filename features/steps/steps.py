@@ -7,6 +7,9 @@ import json
 from behave import step
 
 
+FNULL = open(os.devnull, 'w')
+
+
 @step('an installed {} module')
 def pip_modules(context, module_name):
     installed_modules = [p.project_name for p in pkg_resources.working_set]
@@ -29,8 +32,8 @@ def write_template(context, template_file):
 
 @step('I render the template with e2j2')
 def render_template(context):
-    FNULL = open(os.devnull, 'w')
-    subprocess.call(['e2j2', '-f', context.template_file], stdout=FNULL)
+    proc=subprocess.Popen(['e2j2', '-f', context.template_file], stderr=FNULL, stdout=FNULL)
+    proc.wait()
 
 
 @step('I render the template with e2j2 with additional flags {}')
@@ -38,8 +41,8 @@ def render_template(context):
 def render_template(context, flags):
     flag_list = ['e2j2', '-f', context.template_file]
     flag_list.extend(flags.split(' '))
-    FNULL = open(os.devnull, 'w')
-    subprocess.call(flag_list, stdout=FNULL)
+    proc=subprocess.Popen(flag_list, stderr=FNULL, stdout=FNULL)
+    proc.wait()
 
 
 @step('rendered content is as follows')
@@ -62,9 +65,9 @@ def put_to_url(context, payload, url, headers):
 
 @step("I POST '{payload}' to '{url}' with headers '{headers}'")
 def post_to_url(context, payload, url, headers):
-    try:
+    if isinstance(payload, dict):
         session = requests.post(url, json=json.loads(payload), headers=json.loads(headers))
-    finally:
+    else:
         session = requests.post(url, data=payload, headers=json.loads(headers))
     context.statuscode = session.status_code
     context.body = session.text
