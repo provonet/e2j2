@@ -15,4 +15,3 @@ script:
   - coverage run --source=e2j2 setup.py test 
   - coveralls
   - behave
-  - find /tmp -name '*err' -exec cat {} \; 

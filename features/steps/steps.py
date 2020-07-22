@@ -47,12 +47,19 @@ def render_template(context, flags):
 
 @step('rendered content is as follows')
 def read_file(context):
+    error_file = re.sub(r'\.err$', '', context.template_file)
+    try:
+        with open(error_file, 'r') as fh:
+            content = fh.read()
+
+        raise ValueError(content)
+    finally:
+        pass
+
     filename = re.sub(r'\.j2$', '', context.template_file)
     with open(filename, 'r') as fh:
         content = fh.read()
 
-    # print(content)
-    # print(context.text)
     assert content == context.text
 
 
