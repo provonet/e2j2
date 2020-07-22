@@ -20,14 +20,14 @@ def with_consul(_):
     os.chmod('/tmp/consul', 0o755)
 
     consul = subprocess.Popen(['/tmp/consul', 'agent', '-dev'], stderr=FNULL, stdout=FNULL)
-    time.sleep(5)
+    time.sleep(10)
     try:
         yield consul
     finally:
         consul.kill()
         for file in ['/tmp/consul', '/tmp/consul.zip']:
             os.remove(file)
-        time.sleep(2)
+        time.sleep(5)
 
 
 @fixture
@@ -41,14 +41,14 @@ def with_vault(_):
     os.chmod('/tmp/vault', 0o755)
 
     vault = subprocess.Popen(['/tmp/vault', 'server', '-dev', '-dev-root-token-id', 'aabbccddeeff'], stderr=FNULL, stdout=FNULL)
-    time.sleep(5)
+    time.sleep(10)
     try:
         yield vault
     finally:
         vault.kill()
         for file in ['/tmp/vault', '/tmp/vault.zip']:
             os.remove(file)
-        time.sleep(2)
+        time.sleep(5)
 
 
 def before_tag(context, tag):
