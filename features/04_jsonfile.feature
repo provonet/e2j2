@@ -21,7 +21,7 @@ Feature: handling environment variables containing the jsonfile tag
       This is a jsonfile example with subkey
       """
 
-#  # FIXME this test fails on travis with python 3.5 
+#  # FIXME this test fails on travis with python 3.5
 #  Scenario: render template and flatten dict
 #    Given an installed e2j2 module
 #    When I set the environment MYJSONFILEVAR variable to jsonfile:config={"flatten": true}:/tmp/jsonfile-example.json

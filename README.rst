@@ -18,32 +18,34 @@ Command line switches and config file
 -------------------------------------
 Most flags can be set on either the command line or in a json formatted config file. The following flags / configuration keys are supported:
 
-=========================== ==================== =============================== ======= ==========================================================================
-Switch                      Type                 Config key                      Type    Description
-=========================== ==================== =============================== ======= ==========================================================================
--h, --help                                                                               Show help text and exit
--e, --ext, --extension      string               extension                       string  Jinja2 file extention (default: .j2)
--f, --filelist              comma separated list filelist                        array   List of jinja2 templates
--s, --searchlist            comma separated list searchlist                      array   List of directories to search for templates (default: current directory)
--N, --noop                                                                               skip writing template to disk
--r, --recursive                                  recursive                       boolean Traverse recursively through the search list
---no-color                                       no_color                        boolean Disable ANSI color
--2, --twopass                                    twopass                         boolean Enable two pass rendering
---block_start               string               block_start                     string  Block marker start (default: '{%'}
---block_end                 string               block_end                       string  Block marker start (default: '%}'}
---variable_start            string               block_start                     string  Variable marker start (default: '{%'}
---variable_end              string               variable_end                    string  Variable marker end (default: '%}'}
---comment_start             string               comment_start                   string  Comment marker start (default: '{#'}
---comment_end               string               comment_end                     string  Comment marker start (default: '#}'}
--w, --env_whitelist         comma separated list env_whitelist                   array   List of envars to include
--b, --env_blacklist         comma separated list env_blacklist                   array   List of envars to exclude
--P, --copy_file_permissions                      copy_file_permissions           boolean Copy file permissions and ownership from template to rendered file
--S, --stacktrace                                 stacktrace                      boolean Include stacktrace in error file
--C, --config                string                                                       Config file path
---watchlist                 comma separated list watchlist                       array   Watch listed envvars for changes and render template(s) on change
--R, --run                   string               run                             array   Run command after rendering templates
---splay                     int                  splay                           integer Random delay between 1 and X seconds between watchlist polls
-=========================== ==================== =============================== ======= ==========================================================================
+=========================== ==================== ======================================= ======= ==============================================================================
+Switch                      Type                 Config key                              Type         Description
+=========================== ==================== ======================================= ======= ==============================================================================
+-h, --help                                                                                       Show help text and exit
+-v, --version                                                                                    Show version number
+-e, --ext, --extension      string               extension                               string  Jinja2 file extention (default: .j2)
+-f, --filelist              comma separated list filelist                                array   List of jinja2 templates
+-s, --searchlist            comma separated list searchlist                              array   List of directories to search for templates (default: current directory)
+-N, --noop                                                                                       skip writing template to disk
+-r, --recursive                                  recursive                               boolean Traverse recursively through the search list
+--no-color, --nocolor                            no_color                                boolean Disable ANSI color
+-2, --twopass                                    twopass                                 boolean Enable two pass rendering
+--block_start               string               block_start                             string  Block marker start (default: '{%'}
+--block_end                 string               block_end                               string  Block marker start (default: '%}'}
+--variable_start            string               block_start                             string  Variable marker start (default: '{%'}
+--variable_end              string               variable_end                            string  Variable marker end (default: '%}'}
+--comment_start             string               comment_start                           string  Comment marker start (default: '{#'}
+--comment_end               string               comment_end                             string  Comment marker start (default: '#}'}
+-w, --env_whitelist         comma separated list env_whitelist                           array   List of envars to include
+-b, --env_blacklist         comma separated list env_blacklist                           array   List of envars to exclude
+-P, --copy_file_permissions                      copy_file_permissions                   boolean Copy file permissions and ownership from template to rendered file
+-S, --stacktrace                                 stacktrace                              boolean Include stacktrace in error file
+-c, --config                string                                                               Config file path
+--watchlist                 comma separated list watchlist                               array   Watch listed envvars for changes and render template(s) on change
+-R, --run                   string               run                                     array   Run command after rendering templates
+--splay                     int                  splay                                   integer Random delay between 1 and X seconds between watchlist polls
+--initial-run                                    render templates before starting watch
+=========================== ==================== ======================================= ======= ==============================================================================
 
 Jinja2 filter support
 ---------------------
