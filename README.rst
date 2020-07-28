@@ -324,9 +324,8 @@ will render (by running: ``e2j2 -f twopass-example.j2 -2``) to:
    /** MySQL hostname */
    define( 'DB_HOST', 'localhost' );
 
-In version 0.5.0 support was introduced for nested tag variables, so the above listed example can be simplified:
-
-the DBSECRET variable is no longer needed, and the WORDPRESS variable should be changed to:
+In version 0.5.0 support was introduced for nested tag variables, so the above listed example can be simplified.
+The DBSECRET variable is no longer needed, if the WORDPRESS variable is changed to:
 
 ::
 
