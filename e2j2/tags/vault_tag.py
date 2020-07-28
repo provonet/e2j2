@@ -1,8 +1,8 @@
 import requests
 from requests.exceptions import RequestException
 from urllib.parse import urlparse
-from e2j2.helpers.constants import VAULT_STATUSCODES
-from e2j2.helpers.exceptions import E2j2Exception
+from e2j2.constants import VAULT_STATUSCODES
+from e2j2.exceptions import E2j2Exception
 
 
 class Vault:

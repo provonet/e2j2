@@ -12,11 +12,11 @@ from time import sleep
 from jsonschema import validate, draft4_format_checker
 from os.path import basename
 from stat import ST_MODE
-from e2j2.helpers import templates
-from e2j2.helpers.templates import stdout, get_vars
-from e2j2.helpers.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
-from e2j2.helpers.constants import CONFIG_SCHEMAS
-from e2j2.helpers.exceptions import E2j2Exception
+from e2j2 import templates
+from e2j2.templates import stdout, get_vars
+from e2j2.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
+from e2j2.constants import CONFIG_SCHEMAS
+from e2j2.exceptions import E2j2Exception
 
 
 def arg_parse(program, description, version):

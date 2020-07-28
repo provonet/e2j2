@@ -6,7 +6,7 @@ from mock import patch, mock_open, MagicMock
 from consul.base import ACLPermissionDenied
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, vault_tag, dns_tag
 from e2j2.tags import list_tag as list_tag
-from e2j2.helpers.exceptions import E2j2Exception
+from e2j2.exceptions import E2j2Exception
 
 try:
     from json.decoder import JSONDecodeError
