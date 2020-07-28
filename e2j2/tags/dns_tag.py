@@ -1,5 +1,5 @@
 from dns.resolver import Resolver, NoAnswer, NXDOMAIN, Timeout
-from e2j2.helpers.exceptions import E2j2Exception
+from e2j2.exceptions import E2j2Exception
 
 
 def parse(tag_config, value):

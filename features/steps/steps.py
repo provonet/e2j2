@@ -2,7 +2,13 @@ import pkg_resources
 import os
 import subprocess
 import re
+import requests
+import json
+import time
 from behave import step
+
+
+FNULL = open(os.devnull, 'w')
 
 
 @step('an installed {} module')
@@ -27,8 +33,8 @@ def write_template(context, template_file):
 
 @step('I render the template with e2j2')
 def render_template(context):
-    FNULL = open(os.devnull, 'w')
-    subprocess.call(['e2j2', '-f', context.template_file], stdout=FNULL)
+    proc=subprocess.Popen(['e2j2', '-f', context.template_file], stderr=FNULL, stdout=FNULL)
+    proc.wait()
 
 
 @step('I render the template with e2j2 with additional flags {}')
@@ -36,16 +42,40 @@ def render_template(context):
 def render_template(context, flags):
     flag_list = ['e2j2', '-f', context.template_file]
     flag_list.extend(flags.split(' '))
-    FNULL = open(os.devnull, 'w')
-    subprocess.call(flag_list, stdout=FNULL)
+    proc=subprocess.Popen(flag_list, stderr=FNULL, stdout=FNULL)
+    proc.wait()
 
 
-@step('the content of the is as follows')
+@step('rendered content is as follows')
 def read_file(context):
+    error_file = re.sub(r'\.j2$', '.err', context.template_file)
+    try:
+        with open(error_file, 'r') as fh:
+            content = fh.read()
+
+        raise ValueError(content)
+    except FileNotFoundError:
+        pass
+
     filename = re.sub(r'\.j2$', '', context.template_file)
     with open(filename, 'r') as fh:
         content = fh.read()
 
-    # print(content)
-    # print(context.text)
     assert content == context.text
+
+
+@step("I PUT '{payload}' to '{url}' with headers '{headers}'")
+def put_to_url(context, payload, url, headers):
+    session = requests.put(url, data=payload, headers=json.loads(headers))
+    context.statuscode = session.status_code
+    context.body = session.text
+
+
+@step("I POST '{payload}' to '{url}' with headers '{headers}'")
+def post_to_url(context, payload, url, headers):
+    if isinstance(payload, dict):
+        session = requests.post(url, json=json.loads(payload), headers=json.loads(headers))
+    else:
+        session = requests.post(url, data=payload, headers=json.loads(headers))
+    context.statuscode = session.status_code
+    context.body = session.text

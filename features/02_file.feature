@@ -12,7 +12,7 @@ Feature: handling environment variables containing the file tag
       This is a {{ MYFILEVAR }}
       """
     And I render the template with e2j2
-    Then the content of the is as follows
+    Then rendered content is as follows
       """
       This is a file example
       """

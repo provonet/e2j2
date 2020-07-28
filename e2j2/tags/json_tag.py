@@ -1,7 +1,7 @@
 import json
 import re
 from json.decoder import JSONDecodeError
-from e2j2.helpers.exceptions import E2j2Exception
+from e2j2.exceptions import E2j2Exception
 
 
 def parse(json_string):

@@ -1,6 +1,13 @@
 Changelog
 =========
-0.5.0 (unreleased)
+0.5.1 (2020-07-28)
+-------------------
+
+Fixed
+-----
+- only check for nested tags in strings
+
+0.5.0 (2020-07-21)
 -------------------
 Added
 -----

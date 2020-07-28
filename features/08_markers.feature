@@ -11,7 +11,7 @@ Feature: handling environment variables containing the json tag and alternative 
       |%- endif %|
       """
     And I render the template with e2j2 with additional flag --block_start |% --block_end %|
-    Then the content of the is as follows
+    Then rendered content is as follows
       """
       Lets check if the alternative block marker is set
       Yep
@@ -25,7 +25,7 @@ Feature: handling environment variables containing the json tag and alternative 
       This is a || MYJSONVAR.key || with alternative variable marker
       """
     And I render the template with e2j2 with additional flag --variable_start || --variable_end ||
-    Then the content of the is as follows
+    Then rendered content is as follows
       """
       This is a json example with alternative variable marker
       """
@@ -40,7 +40,7 @@ Feature: handling environment variables containing the json tag and alternative 
       |#- THIS LINE SHOULD NOT BE RENDERED #|
       """
     And I render the template with e2j2 with additional flag --comment_start |# --comment_end #|
-    Then the content of the is as follows
+    Then rendered content is as follows
       """
       This is a json example with alternative comment marker
       """

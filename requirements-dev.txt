@@ -4,3 +4,4 @@ twine
 six
 behave
 requests-mock
+wheel
