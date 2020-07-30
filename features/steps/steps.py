@@ -4,7 +4,7 @@ import subprocess
 import re
 import requests
 import json
-import time
+from hamcrest import *
 from behave import step
 
 
@@ -14,7 +14,7 @@ FNULL = open(os.devnull, 'w')
 @step('an installed {} module')
 def pip_modules(context, module_name):
     installed_modules = [p.project_name for p in pkg_resources.working_set]
-    assert module_name in installed_modules
+    assert_that(module_name , is_in(installed_modules))
 
 
 @step('I set the environment {} variable to {}')
@@ -61,7 +61,7 @@ def read_file(context):
     with open(filename, 'r') as fh:
         content = fh.read()
 
-    assert content == context.text
+    assert_that(content, equal_to(context.text))
 
 
 @step("I PUT '{payload}' to '{url}' with headers '{headers}'")

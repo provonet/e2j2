@@ -84,7 +84,7 @@ def resolv_vars(config, var_list, vars):
 
         except E2j2Exception as e:
             stdout(yellow + "** WARNING: parsing {} failed with error: {} **".format(var, str(e)) + reset_all + '\n')
-
+    print(varcontext)
     return varcontext
 
 

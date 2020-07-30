@@ -1,5 +1,11 @@
 Changelog
 =========
+0.5.2 (unreleased)
+------------------
+Note
+----
+- command line flags with underscores are now depricated and will be removed in later version
+
 0.5.1 (2020-07-28)
 -------------------
 Known issues

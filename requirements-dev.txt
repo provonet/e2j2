@@ -5,3 +5,4 @@ six
 behave
 requests-mock
 wheel
+pygements
