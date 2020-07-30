@@ -2,7 +2,9 @@ Changelog
 =========
 0.5.1 (2020-07-28)
 -------------------
-
+Known issues
+------------
+- potential conflicts with twopass rendering if strings start with text similar to e2j2 tags
 Fixed
 -----
 - only check for nested tags in strings
