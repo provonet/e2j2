@@ -5,6 +5,7 @@ Changelog
 Note
 ----
 - command line flags with underscores are now depricated and will be removed in later version
+- flatten option for dict values ignores existing config values
 
 0.5.1 (2020-07-28)
 -------------------
