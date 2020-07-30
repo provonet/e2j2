@@ -10,7 +10,7 @@ from jsonschema import validate, ValidationError, draft4_format_checker
 from json.decoder import JSONDecodeError
 from e2j2.exceptions import E2j2Exception
 from e2j2.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NESTED_TAGS
-from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag
+from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag, escape_tag
 from e2j2 import cache
 
 try:
@@ -102,7 +102,7 @@ def parse_tag(config, tag, value):
             pattern = re.compile(r'config=([^}]+)}:(.+)')
             match = pattern.match(value)
             if match:
-                tag_config = json.loads(match.group(1) + '}')
+                tag_config.update(json.loads(match.group(1) + '}'))
                 value = match.group(2)
 
             if token_var in envvars:
@@ -139,6 +139,8 @@ def parse_tag(config, tag, value):
         tag_value = vault_tag.parse(tag_config, value)
     elif tag == 'dns:':
         tag_value = dns_tag.parse(tag_config, value)
+    elif tag == 'escape:':
+        tag_value = escape_tag.parse(value)
     else:
         return None, '** ERROR: tag: %s not implemented **' % tag
 

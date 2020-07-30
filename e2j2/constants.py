@@ -1,4 +1,4 @@
-VERSION = '0.5.1'
+VERSION = '0.5.2'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
@@ -102,5 +102,5 @@ CONFIG_SCHEMAS = {
     }
 }
 
-TAGS = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:']
+TAGS = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:', 'escape:']
 NESTED_TAGS = ['json:', 'jsonfile:', 'list:']

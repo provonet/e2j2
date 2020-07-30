@@ -1,17 +1,27 @@
 Changelog
 =========
-0.5.2 (unreleased)
+0.5.2 (2020-07-30)
 ------------------
+
+Fixed
+-----
+- merge config in tag with existing config
+
+Add
+---
+- add escape tag, this tag can be used for escaping e2j2 tags in strings
+
 Note
 ----
 - command line flags with underscores are now depricated and will be removed in later version
-- flatten option for dict values ignores existing config values
 
 0.5.1 (2020-07-28)
 -------------------
 Known issues
 ------------
 - potential conflicts with twopass rendering if strings start with text similar to e2j2 tags
+- flatten option for dict values ignores existing config values
+
 Fixed
 -----
 - only check for nested tags in strings

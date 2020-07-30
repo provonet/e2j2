@@ -333,6 +333,8 @@ The DBSECRET variable is no longer needed, if the WORDPRESS variable is changed 
 
     export WORDPRESS='json:{"database": {"name": "mydb", "user": "mydb_user", "password": "file:./twopass-secret", "host": "localhost"}}'
 
+If needed you can escape e2j2 tags by using the escape tag
+
 Tag vault
 ~~~~~~~~~
 

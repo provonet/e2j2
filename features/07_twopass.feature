@@ -78,3 +78,16 @@ Feature: handling environment variables containing the json tag and the twopass 
         /** MySQL hostname */
         define( 'DB_HOST', 'localhost' );
       """
+
+  Scenario: render template with escaped tag
+    Given an installed e2j2 module
+    When I set the environment ESCAPED_TAG variable to json:{"path": "escape:file:/foobar.txt"}
+    And I create a template /tmp/twopass-with-escape.j2 with the following content
+      """
+      {{ ESCAPED_TAG.path }}
+      """
+    And I render the template with e2j2 with additional flag --twopass
+    Then rendered content is as follows
+      """
+      file:/foobar.txt
+      """
