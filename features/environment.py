@@ -20,7 +20,7 @@ def with_consul(_):
     os.chmod('/tmp/consul', 0o755)
 
     consul = subprocess.Popen(['/tmp/consul', 'agent', '-dev'], stderr=FNULL, stdout=FNULL)
-    time.sleep(5)
+    time.sleep(10)
     try:
         yield consul
     finally:
@@ -41,7 +41,7 @@ def with_vault(_):
     os.chmod('/tmp/vault', 0o755)
 
     vault = subprocess.Popen(['/tmp/vault', 'server', '-dev', '-dev-root-token-id', 'aabbccddeeff'], stderr=FNULL, stdout=FNULL)
-    time.sleep(5)
+    time.sleep(10)
     try:
         yield vault
     finally:

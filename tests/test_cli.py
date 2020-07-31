@@ -127,6 +127,7 @@ class TestCli(unittest.TestCase):
     def test_configure(self):
         args = ArgumentParser()
         args.config = 'config.json'
+        args.marker_set = '{{'
         open_mock = mock_open(read_data='{"searchlist": ["/foo"]}')
         with patch('e2j2.cli.open', open_mock):
             self.assertEqual(cli.configure(args)['searchlist'], ['/foo'])
@@ -191,6 +192,7 @@ class TestCli(unittest.TestCase):
 
     def test_run(self):
         args = ArgumentParser()
+        args.marker_set = '{{'
         # FIXME replace all args.filelist.split with lists see normal run
         # noop run
         args.noop = True
@@ -317,6 +319,7 @@ class TestCli(unittest.TestCase):
 
     def test_e2j2(self):
         args = ArgumentParser()
+        args.marker_set = '{{'
         args.stacktrace = True
 
         # Handle exceptions in config with stacktrace

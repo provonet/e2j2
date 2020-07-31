@@ -52,6 +52,7 @@ def read_file(context):
     try:
         with open(error_file, 'r') as fh:
             content = fh.read()
+            os.remove(error_file)
 
         raise ValueError(content)
     except FileNotFoundError:

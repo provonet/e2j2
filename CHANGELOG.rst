@@ -1,5 +1,17 @@
 Changelog
 =========
+0.6.0 (unreleased)
+
+Add
+---
+- add marker sets there is support for the following marker sets
+
+1. {%, %}, {{, }}, {#, #}
+2. <%, %>, <<, >>, '<#, #>
+3. [%, %], [[, ]], '[#, #]
+
+- start and end markers for the tag config block are now configurable (--config-start, --config-end)
+
 0.5.2 (2020-07-30)
 ------------------
 
@@ -13,7 +25,7 @@ Add
 
 Note
 ----
-- command line flags with underscores are now depricated and will be removed in later version
+- command line flags with underscores are now deprecated and will be removed in later version
 
 0.5.1 (2020-07-28)
 -------------------

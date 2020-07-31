@@ -35,7 +35,7 @@ class TestTemplates(unittest.TestCase):
         self.assertEqual(list(templates.recursive_iter(data)), [(('listofdict', 0), {'test_key', 'test_value'})])
 
     def test_get_vars(self):
-        config = {'no_color': True, 'twopass': True}
+        config = {'no_color': True, 'twopass': True, 'config_start': '{', 'config_end': '}'}
 
         with patch('e2j2.templates.os') as os_mock:
             os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
@@ -46,7 +46,7 @@ class TestTemplates(unittest.TestCase):
             self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
 
     def test_resolv_vars(self):
-        config = {'no_color': True, 'twopass': False}
+        config = {'no_color': True, 'twopass': False, 'config_start': '{', 'config_end': '}'}
 
         with patch('e2j2.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
             with patch('e2j2.templates.stdout') as stdout_mock:
@@ -58,7 +58,7 @@ class TestTemplates(unittest.TestCase):
             templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'base64:dmFsdWU='}})
 
         # test Nested vars
-        config = {'no_color': True, 'twopass': True}
+        config['twopass'] = True
 
         # test string with nested base64 tag
         self.assertEqual(
@@ -177,7 +177,7 @@ class TestTemplates(unittest.TestCase):
                     j2vars={"FOO": "BAR"})
 
     def test_parse_tag(self):
-        config = {'stacktrace': True, 'no_color': True, 'twopass': True}
+        config = {'stacktrace': True, 'no_color': True, 'twopass': True, 'config_start': '{', 'config_end': '}'}
 
         with patch('e2j2.templates.json_tag.parse') as json_mock:
             templates.parse_tag(config, 'json:', '{}')
@@ -212,6 +212,15 @@ class TestTemplates(unittest.TestCase):
         with patch('e2j2.templates.vault_tag.parse') as vault_mock:
             templates.parse_tag(config, 'vault:', 'config={"url": "https://localhost:8200"}:secret/mysecret')
             vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
+
+        # with config and alternative marker
+        config['config_start'] = '<'
+        config['config_end'] = '>'
+        with patch('e2j2.templates.vault_tag.parse') as vault_mock:
+            templates.parse_tag(config, 'vault:', 'config=<"url": "https://localhost:8200">:secret/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
+        config['config_start'] = '{'
+        config['config_end'] = '}'
 
         # with envar config
         with patch('e2j2.templates.os') as os_mock:

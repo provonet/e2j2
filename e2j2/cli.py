@@ -15,7 +15,7 @@ from stat import ST_MODE
 from e2j2 import templates
 from e2j2.templates import stdout, get_vars
 from e2j2.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
-from e2j2.constants import CONFIG_SCHEMAS
+from e2j2.constants import CONFIG_SCHEMAS, MARKER_SETS
 from e2j2.exceptions import E2j2Exception
 
 
@@ -46,29 +46,34 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('-2', '--twopass',
                             action='store_true',
                             help='Enable two pass rendering')
-    arg_parser.add_argument('--block_start', '--block-start',
-                            type=str,
-                            help="Block marker start (default: '{%%')")
-    arg_parser.add_argument('--block_end', '--block-end',
-                            type=str,
-                            default='%}',
-                            help="Block marker end (default: '%%}')")
-    arg_parser.add_argument('--variable_start', '--variable-start',
+    arg_parser.add_argument('-m', '--marker-set',
                             type=str,
                             default='{{',
-                            help="Variable marker start (default: '{{')")
+                            help="Select marker set (one of '{{', '<<', '[[', '||', '!!')")
+    arg_parser.add_argument('--block_start', '--block-start',
+                            type=str,
+                            help="Block marker start (default: use marker set)")
+    arg_parser.add_argument('--block_end', '--block-end',
+                            type=str,
+                            help="Block marker end (default: use marker set)")
+    arg_parser.add_argument('--variable_start', '--variable-start',
+                            type=str,
+                            help="Variable marker start (default: use marker set)")
     arg_parser.add_argument('--variable_end', '--variable-end',
                             type=str,
-                            default='}}',
-                            help="Variable marker start (default: '}}')")
+                            help="Variable marker start (default: use marker set)")
     arg_parser.add_argument('--comment_start', '--comment-start',
                             type=str,
-                            default='{#',
-                            help="Comment marker start (default: '{#')")
+                            help="Comment marker start (default: use marker set)")
     arg_parser.add_argument('--comment_end', '--comment-end',
                             type=str,
-                            default='#}',
-                            help="Comment marker end (default: '#}')")
+                            help="Comment marker end (default: use marker set)"),
+    arg_parser.add_argument('--config-start',
+                            type=str,
+                            help="Config marker start (default: use marker set)")
+    arg_parser.add_argument('--config-end',
+                            type=str,
+                            help="Config marker end (default: use marker set)")
     arg_parser.add_argument('-w', '--env_whitelist', '--env-whitelist',
                             type=str,
                             help="Include listed environment variables (default all)")
@@ -112,6 +117,7 @@ def arg_parse(program, description, version):
     if args.initial_run and (not args.watchlist or not args.run):
         arg_parser.error('the following arguments are required: watchlist, run')
 
+    print(dir(args))
     return args
 
 
@@ -132,12 +138,17 @@ def configure(args):
     config['initial_run'] = args.initial_run if args.initial_run else config.get('initial_run', False)
     config['copy_file_permissions'] = args.copy_file_permissions \
         if args.copy_file_permissions else config.get('copy_file_permissions', False)
-    config['block_start'] = args.block_start if args.block_start else config.get('block_start', '{%')
-    config['block_end'] = args.block_end if args.block_end else config.get('block_end', '%}')
-    config['variable_start'] = args.variable_start if args.variable_start else config.get('variable_start', '{{')
-    config['variable_end'] = args.variable_end if args.variable_end else config.get('variable_end', '}}')
-    config['comment_start'] = args.comment_start if args.comment_start else config.get('comment_start', '{#')
-    config['comment_end'] = args.comment_end if args.comment_end else config.get('comment_end', '#}')
+
+    config['marker_set'] = args.marker_set if args.marker_set else config.get('marker_set', '{{')
+    config['block_start'] = args.block_start if args.block_start else config.get('block_start', MARKER_SETS[config['marker_set']]['block_start'])
+    config['block_end'] = args.block_end if args.block_end else config.get('block_end', MARKER_SETS[config['marker_set']]['block_end'])
+    config['variable_start'] = args.variable_start if args.variable_start else config.get('variable_start', MARKER_SETS[config['marker_set']]['variable_start'])
+    config['variable_end'] = args.variable_end if args.variable_end else config.get('variable_end', MARKER_SETS[config['marker_set']]['variable_end'])
+    config['comment_start'] = args.comment_start if args.comment_start else config.get('comment_start', MARKER_SETS[config['marker_set']]['comment_start'])
+    config['comment_end'] = args.comment_end if args.comment_end else config.get('comment_end', MARKER_SETS[config['marker_set']]['comment_end'])
+    config['config_start'] = args.comment_start if args.comment_start else config.get('config_start', MARKER_SETS[config['marker_set']]['config_start'])
+    config['config_end'] = args.comment_end if args.comment_end else config.get('config_end', MARKER_SETS[config['marker_set']]['config_end'])
+
     config['env_whitelist'] = args.env_whitelist.split(',') if args.env_whitelist else config.get('env_whitelist', [])
     config['env_blacklist'] = args.env_blacklist.split(',') if args.env_blacklist else config.get('env_blacklist', [])
     config['watchlist'] = args.watchlist.split(',') if args.watchlist else config.get('watchlist', [])

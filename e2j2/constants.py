@@ -1,4 +1,4 @@
-VERSION = '0.5.2'
+VERSION = '0.6.0'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
@@ -42,12 +42,15 @@ CONFIG_SCHEMAS = {
           'copy_file_permissions': {'type': 'boolean'},
           'stacktrace': {'type': 'boolean'},
           'initial_run': {'type': 'boolean'},
+          'marker_set': {'type': 'string'},
           'block_start': {'type': 'string'},
           'block_end': {'type': 'string'},
           'variable_start': {'type': 'string'},
           'variable_end': {'type': 'string'},
           'comment_start': {'type': 'string'},
           'comment_end': {'type': 'string'},
+          'config_start': {'type': 'string'},
+          'config_end': {'type': 'string'},
           'splay': {'type': 'number', 'minimum': 0, 'maximum': 900}
       },
       "additionalProperties":   False
@@ -104,3 +107,29 @@ CONFIG_SCHEMAS = {
 
 TAGS = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:', 'escape:']
 NESTED_TAGS = ['json:', 'jsonfile:', 'list:']
+MARKER_SETS = {
+    "{{":{
+        'block_start': '{%', 'block_end': '%}',
+        'variable_start': '{{', 'variable_end': '}}',
+        'comment_start': '{#', 'comment_end': '#}',
+        'config_start': '{', 'config_end': '}'
+    },
+    "<<": {
+        'block_start': '<%', 'block_end': '%>',
+        'variable_start': '<<', 'variable_end': '>>',
+        'comment_start': '<#', 'comment_end': '#>',
+        'config_start': '<', 'config_end': '>'
+    },
+    "[[": {
+        'block_start': '[%', 'block_end': '%]',
+        'variable_start': '[[', 'variable_end': ']]',
+        'comment_start': '[#', 'comment_end': '#}',
+        'config_start': '[', 'config_end': ']'
+    },
+    "[[": {
+        'block_start': '[%', 'block_end': '%]',
+        'variable_start': '[[', 'variable_end': ']]',
+        'comment_start': '[#', 'comment_end': '#]',
+        'config_start': '[[', 'config_end': ']]'
+    }
+}
