@@ -78,6 +78,7 @@ def resolv_vars(config, var_list, vars):
             else:
                 tag_config, tag_value = parse_tag(config, defined_tag, var_value)
                 varcontext[var] = tag_value
+
                 if 'flatten' in tag_config and tag_config['flatten'] and isinstance(tag_value, dict):
                     for key, value in tag_value.items():
                         varcontext[key] = value
@@ -98,12 +99,12 @@ def parse_tag(config, tag, value):
         # FIXME be more specific on raising error (config or data)
         try:
             tag_config = json.loads(envvars.get(config_var, '{}'))
-            pattern = re.compile(r'config=(.+):(.+)')
+            pattern = re.compile(r'config=(.+)')
             match = pattern.match(value)
             if match:
-                config_str = match.group(1).lstrip(config['config_start']).rstrip(config['config_end'])
+                config_str, value = match.group(1).split(config['config_end']+':')
+                config_str = config_str.lstrip(config['config_start'])
                 tag_config.update(json.loads('{%s}' % config_str))
-                value = match.group(2)
 
             if token_var in envvars:
                 tag_config['token'] = tag_config['token'] if 'token' in tag_config else envvars[token_var]

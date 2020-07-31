@@ -209,16 +209,16 @@ class TestTemplates(unittest.TestCase):
             vault_mock.assert_called_with({}, 'secret/mysecret')
 
         # with config
-        with patch('e2j2.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag(config, 'vault:', 'config={"url": "https://localhost:8200", "port": 8500}:secret/mysecret')
-            vault_mock.assert_called_with({"url": "https://localhost:8200", "port": 8500}, 'secret/mysecret')
+        with patch('e2j2.templates.json_tag.parse') as json_mock:
+            templates.parse_tag(config, 'json:', 'json:config={"flatten": true}:{"my_key": "flattened json example"}')
+            json_mock.assert_called_with('{"my_key": "flattened json example"}')
 
         # with config and alternative marker <, >
         config['config_start'] = '<'
         config['config_end'] = '>'
         with patch('e2j2.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag(config, 'vault:', 'config=<"url": "https://localhost:8200">:secret/mysecret')
-            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
+            templates.parse_tag(config, 'vault:', 'config=<"url": "https://localhost:8200", "token": "aabbccddee">:secret/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200", "token": "aabbccddee"}, 'secret/mysecret')
 
         # with config and alternative marker (, )
         config['config_start'] = '['
