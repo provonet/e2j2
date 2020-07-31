@@ -11,6 +11,7 @@ Add
 3. [%, %], [[, ]], '[#, #]
 
 - start and end markers for the tag config block are now configurable (--config-start, --config-end)
+- add option to use a different marker-set 2nd pass with two pass rendering (--twopass-marker-set)
 
 0.5.2 (2020-07-30)
 ------------------

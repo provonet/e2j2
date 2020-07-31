@@ -43,6 +43,7 @@ CONFIG_SCHEMAS = {
           'stacktrace': {'type': 'boolean'},
           'initial_run': {'type': 'boolean'},
           'marker_set': {'type': 'string', 'enum': ['{{', '<<', '[[', '((']},
+          'twopass_marker_set': {'type': 'string', 'enum': ['{{', '<<', '[[', '((']},
           'block_start': {'type': 'string'},
           'block_end': {'type': 'string'},
           'variable_start': {'type': 'string'},

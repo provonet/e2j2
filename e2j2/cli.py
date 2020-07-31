@@ -51,6 +51,10 @@ def arg_parse(program, description, version):
                             default='{{',
                             choices=['{{', '<<', '[[', '(('],
                             help="Select marker set")
+    arg_parser.add_argument('-M', '--twopass-marker-set',
+                            type=str,
+                            choices=['{{', '<<', '[[', '(('],
+                            help="Select marker set")
     arg_parser.add_argument('--block_start', '--block-start',
                             type=str,
                             help="Block marker start (default: use marker set)")
@@ -141,6 +145,7 @@ def configure(args):
         if args.copy_file_permissions else config.get('copy_file_permissions', False)
 
     config['marker_set'] = args.marker_set if args.marker_set else config.get('marker_set', '{{')
+    config['twopass_marker_set'] = args.twopass_marker_set if args.twopass_marker_set else config.get('marker_set', None)
     config['block_start'] = args.block_start if args.block_start else config.get('block_start', MARKER_SETS[config['marker_set']]['block_start'])
     config['block_end'] = args.block_end if args.block_end else config.get('block_end', MARKER_SETS[config['marker_set']]['block_end'])
     config['variable_start'] = args.variable_start if args.variable_start else config.get('variable_start', MARKER_SETS[config['marker_set']]['variable_start'])
@@ -226,7 +231,8 @@ def run(config):
                     variable_start=config['variable_start'],
                     variable_end=config['variable_end'],
                     comment_start=config['comment_start'],
-                    comment_end=config['comment_end'])
+                    comment_end=config['comment_end'],
+                    twopass_marker_set=config['twopass_marker_set'])
                 status = lightgreen + 'success' + reset_all
             except Exception as err:
                 exit_code = 1

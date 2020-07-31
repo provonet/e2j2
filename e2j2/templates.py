@@ -9,7 +9,7 @@ from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentEr
 from jsonschema import validate, ValidationError, draft4_format_checker
 from json.decoder import JSONDecodeError
 from e2j2.exceptions import E2j2Exception
-from e2j2.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NESTED_TAGS
+from e2j2.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NESTED_TAGS, MARKER_SETS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag, escape_tag
 from e2j2 import cache
 
@@ -170,7 +170,16 @@ def render(**kwargs):
     try:
         first_pass = j2.get_template(filename).render(kwargs['j2vars'])
         if kwargs['twopass']:
+
             # second pass
+            if 'twopass_marker_set' in kwargs and kwargs['twopass_marker_set']:
+                j2.block_start_string = MARKER_SETS[kwargs['twopass_marker_set']]['block_start']
+                j2.block_end_string = MARKER_SETS[kwargs['twopass_marker_set']]['block_end']
+                j2.variable_start_string = MARKER_SETS[kwargs['twopass_marker_set']]['variable_start']
+                j2.variable_end_string = MARKER_SETS[kwargs['twopass_marker_set']]['variable_end']
+                j2.comment_start_string = MARKER_SETS[kwargs['twopass_marker_set']]['comment_start']
+                j2.comment_end_string = MARKER_SETS[kwargs['twopass_marker_set']]['comment_end']
+
             return j2.from_string(first_pass).render(kwargs['j2vars'])
         else:
             return first_pass
