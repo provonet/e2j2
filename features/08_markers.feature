@@ -10,7 +10,7 @@ Feature: handling environment variables containing the json tag and alternative 
       Yep
       <<- endif >>
       """
-    And I render the template with e2j2 with additional flag --markerset <<
+    And I render the template with e2j2 with additional flag --marker-set <<
     Then rendered content is as follows
       """
       Lets check if the alternative block marker is set
