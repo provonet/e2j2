@@ -98,11 +98,10 @@ def parse_tag(config, tag, value):
         # FIXME be more specific on raising error (config or data)
         try:
             tag_config = json.loads(envvars.get(config_var, '{}'))
-            regex = r'config=(.+)%s:(.+)' % config['config_end']
-            pattern = re.compile(regex)
+            pattern = re.compile(r'config=(.+):(.+)')
             match = pattern.match(value)
             if match:
-                config_str = match.group(1).lstrip(config['config_start'])
+                config_str = match.group(1).lstrip(config['config_start']).rstrip(config['config_end'])
                 tag_config.update(json.loads('{%s}' % config_str))
                 value = match.group(2)
 

@@ -210,15 +210,30 @@ class TestTemplates(unittest.TestCase):
 
         # with config
         with patch('e2j2.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag(config, 'vault:', 'config={"url": "https://localhost:8200"}:secret/mysecret')
-            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
+            templates.parse_tag(config, 'vault:', 'config={"url": "https://localhost:8200", "port": 8500}:secret/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200", "port": 8500}, 'secret/mysecret')
 
-        # with config and alternative marker
+        # with config and alternative marker <, >
         config['config_start'] = '<'
         config['config_end'] = '>'
         with patch('e2j2.templates.vault_tag.parse') as vault_mock:
             templates.parse_tag(config, 'vault:', 'config=<"url": "https://localhost:8200">:secret/mysecret')
             vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
+
+        # with config and alternative marker (, )
+        config['config_start'] = '['
+        config['config_end'] = ']'
+        with patch('e2j2.templates.vault_tag.parse') as vault_mock:
+            templates.parse_tag(config, 'vault:', 'config=["url": "https://localhost:8200"]:secret/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
+
+        # with config and alternative marker (, )
+        config['config_start'] = '('
+        config['config_end'] = ')'
+        with patch('e2j2.templates.vault_tag.parse') as vault_mock:
+            templates.parse_tag(config, 'vault:', 'config=("url": "https://localhost:8200"):secret/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
+
         config['config_start'] = '{'
         config['config_end'] = '}'
 

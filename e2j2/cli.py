@@ -49,7 +49,8 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('-m', '--marker-set',
                             type=str,
                             default='{{',
-                            help="Select marker set (one of '{{', '<<', '[[', '||', '!!')")
+                            choices=['{{', '<<', '[[', '(('],
+                            help="Select marker set")
     arg_parser.add_argument('--block_start', '--block-start',
                             type=str,
                             help="Block marker start (default: use marker set)")

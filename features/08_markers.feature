@@ -6,9 +6,9 @@ Feature: handling environment variables containing the json tag and alternative 
     And I create a template /tmp/blockmarker-example.j2 with the following content
       """
       Lets check if the alternative block marker is set
-      << if MYJSONVAR.key == 'marker' ->>
+      <% if MYJSONVAR.key == 'marker' -%>
       Yep
-      <<- endif >>
+      <%- endif %>
       """
     And I render the template with e2j2 with additional flag --marker-set <<
     Then rendered content is as follows
@@ -16,7 +16,7 @@ Feature: handling environment variables containing the json tag and alternative 
       Lets check if the alternative block marker is set
       Yep
       """
-    And I render the template with e2j2 with additional flag --block_start << --block_end >>
+    And I render the template with e2j2 with additional flag --block_start <% --block_end %>
     Then rendered content is as follows
       """
       Lets check if the alternative block marker is set
