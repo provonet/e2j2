@@ -84,14 +84,8 @@ Feature: handling environment variables containing the json tag and alternative 
       This is a [= MYJSONVAR.key =] with alternative comment marker
       [#- THIS LINE SHOULD NOT BE RENDERED #]
       """
-    And I render the template with e2j2 with additional flag --comment_start [# --comment_end #]
-    Then rendered content is as follows
-      """
-      This is a [= MYJSONVAR.key =] with alternative comment marker
-      """
     And I render the template with e2j2 with additional flag --marker-set [=
     Then rendered content is as follows
       """
       This is a json example with alternative comment marker
       """
-   
