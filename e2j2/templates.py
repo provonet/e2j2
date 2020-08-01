@@ -153,34 +153,29 @@ def parse_tag(config, tag, value):
     return tag_config, tag_value
 
 
-def render(**kwargs):
-    path, filename = os.path.split(kwargs['j2file'])
+def render(config, j2file, j2vars):
+    path, filename = os.path.split(j2file)
     j2 = jinja2.Environment(
         loader=jinja2.FileSystemLoader([path or './', '/']),
         undefined=jinja2.StrictUndefined,
         keep_trailing_newline=True,
-        block_start_string=kwargs['block_start'],
-        block_end_string=kwargs['block_end'],
-        variable_start_string=kwargs['variable_start'],
-        variable_end_string=kwargs['variable_end'],
-        comment_start_string=kwargs['comment_start'],
-        comment_end_string=kwargs['comment_end'],
+        block_start_string=config['block_start'],
+        block_end_string=config['block_end'],
+        variable_start_string=config['variable_start'],
+        variable_end_string=config['variable_end'],
+        comment_start_string=config['comment_start'],
+        comment_end_string=config['comment_end'],
         extensions=j2_extensions)
 
     try:
-        first_pass = j2.get_template(filename).render(kwargs['j2vars'])
-        if kwargs['twopass']:
+        with open(j2file, 'r') as file:
+            content = file.read()
+
+        first_pass = j2.from_string(content).render(j2vars)
+        if config['twopass']:
 
             # second pass
-            if 'twopass_marker_set' in kwargs and kwargs['twopass_marker_set']:
-                j2.block_start_string = MARKER_SETS[kwargs['twopass_marker_set']]['block_start']
-                j2.block_end_string = MARKER_SETS[kwargs['twopass_marker_set']]['block_end']
-                j2.variable_start_string = MARKER_SETS[kwargs['twopass_marker_set']]['variable_start']
-                j2.variable_end_string = MARKER_SETS[kwargs['twopass_marker_set']]['variable_end']
-                j2.comment_start_string = MARKER_SETS[kwargs['twopass_marker_set']]['comment_start']
-                j2.comment_end_string = MARKER_SETS[kwargs['twopass_marker_set']]['comment_end']
-
-            return j2.from_string(first_pass).render(kwargs['j2vars'])
+            return j2.from_string(first_pass).render(j2vars)
         else:
             return first_pass
     except (UndefinedError, FilterArgumentError, TemplateSyntaxError) as err:
@@ -190,7 +185,7 @@ def render(**kwargs):
         content = 'failed with error: {}'.format(err)
         content += ' at line: {}'.format(match.group(1)) if match else ''
         raise E2j2Exception(content)
-    except TemplateNotFound:
+    except FileNotFoundError:
         raise E2j2Exception('Template %s not found' % filename)
     except Exception as err:
         raise E2j2Exception(str(err))
