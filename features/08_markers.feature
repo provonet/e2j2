@@ -10,7 +10,7 @@ Feature: handling environment variables containing the json tag and alternative 
       Yep
       <%- endif %>
       """
-    And I render the template with e2j2 with additional flag --marker-set <<
+    And I render the template with e2j2 with additional flag --marker-set <=
     Then rendered content is as follows
       """
       Lets check if the alternative block marker is set
@@ -83,6 +83,11 @@ Feature: handling environment variables containing the json tag and alternative 
       [# lets try to render with an alternative comment marker set -#]
       This is a [= MYJSONVAR.key =] with alternative comment marker
       [#- THIS LINE SHOULD NOT BE RENDERED #]
+      """
+    And I render the template with e2j2 with additional flag --comment_start [# --comment_end #]
+    Then rendered content is as follows
+      """
+      This is a [= MYJSONVAR.key =] with alternative comment marker
       """
     And I render the template with e2j2 with additional flag --marker-set [=
     Then rendered content is as follows
