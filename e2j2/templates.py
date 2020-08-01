@@ -189,3 +189,8 @@ def render(config, j2file, j2vars):
         raise E2j2Exception('Template %s not found' % filename)
     except Exception as err:
         raise E2j2Exception(str(err))
+
+
+# def detect_markers(config, content):
+#     for marker_set in MARKER_SETS.items():
+#         print(marker_set)

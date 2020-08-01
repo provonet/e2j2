@@ -7,9 +7,10 @@ Add
 - add marker sets there is support for the following marker sets
 
 1. {%, %}, {{, }}, {#, #}
-2. <%, %>, <<, >>, <#, #>
-3. [%, %], [[, ]], [#, #]
-4. {%, %), ((, )), (#, #)
+2. {%, %}, {=, =}, {#, #}
+3. <%, %>, <=, =>, <#, #>
+4. [%, %], [=, =], [#, #]
+5. {%, %), (=, =), (#, #)
 
 - start and end markers for the tag config block are now configurable (--config-start, --config-end)
 

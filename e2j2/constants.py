@@ -42,8 +42,7 @@ CONFIG_SCHEMAS = {
           'copy_file_permissions': {'type': 'boolean'},
           'stacktrace': {'type': 'boolean'},
           'initial_run': {'type': 'boolean'},
-          'marker_set': {'type': 'string', 'enum': ['{{', '<<', '[[', '((']},
-          'twopass_marker_set': {'type': 'string', 'enum': ['{{', '<<', '[[', '((']},
+          'marker_set': {'type': 'string', 'enum': ['{{', '{=', '<=', '[=', '(=']},
           'block_start': {'type': 'string'},
           'block_end': {'type': 'string'},
           'variable_start': {'type': 'string'},
@@ -115,22 +114,28 @@ MARKER_SETS = {
         'comment_start': '{#', 'comment_end': '#}',
         'config_start': '{', 'config_end': '}'
     },
-    "<<": {
+    "{=": {
         'block_start': '<%', 'block_end': '%>',
-        'variable_start': '<<', 'variable_end': '>>',
+        'variable_start': '{=', 'variable_end': '=}',
         'comment_start': '<#', 'comment_end': '#>',
         'config_start': '<', 'config_end': '>'
     },
-    "[[": {
+    "<=": {
+        'block_start': '<%', 'block_end': '%>',
+        'variable_start': '<=', 'variable_end': '=>',
+        'comment_start': '<#', 'comment_end': '#>',
+        'config_start': '<', 'config_end': '>'
+    },
+    "[=": {
         'block_start': '[%', 'block_end': '%]',
-        'variable_start': '[[', 'variable_end': ']]',
+        'variable_start': '[=', 'variable_end': '=]',
         'comment_start': '[#', 'comment_end': '#]',
         'config_start': '[', 'config_end': ']'
     },
-    "((": {
+    "(=": {
         'block_start': '(%', 'block_end': '%)',
-        'variable_start': '((', 'variable_end': '))',
+        'variable_start': '(=', 'variable_end': '=)',
         'comment_start': '(#', 'comment_end': '#)',
-        'config_start': '((', 'config_end': '))'
+        'config_start': '(', 'config_end': ')'
     }
 }
