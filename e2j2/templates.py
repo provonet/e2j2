@@ -101,9 +101,11 @@ def parse_tag(config, tag, value):
             tag_config = json.loads(envvars.get(config_var, '{}'))
             pattern = re.compile(r'config=(.+)')
             match = pattern.match(value)
+            markers = detect_markers(config, value)
             if match:
-                config_str, value = match.group(1).split(config['config_end']+':')
-                config_str = config_str.lstrip(config['config_start'])
+                config_str, value = match.group(1).split(markers['config_end']+':')
+                print(config_str)
+                config_str = config_str.lstrip(markers['config_start'])
                 tag_config.update(json.loads('{%s}' % config_str))
 
             if token_var in envvars:
@@ -159,22 +161,30 @@ def render(config, j2file, j2vars):
         loader=jinja2.FileSystemLoader([path or './', '/']),
         undefined=jinja2.StrictUndefined,
         keep_trailing_newline=True,
-        block_start_string=config['block_start'],
-        block_end_string=config['block_end'],
-        variable_start_string=config['variable_start'],
-        variable_end_string=config['variable_end'],
-        comment_start_string=config['comment_start'],
-        comment_end_string=config['comment_end'],
         extensions=j2_extensions)
 
     try:
         with open(j2file, 'r') as file:
             content = file.read()
 
+        markers = detect_markers(config, content)
+        j2.block_start_string = markers['block_start']
+        j2.block_end_string = markers['block_end']
+        j2.variable_start_string = markers['variable_start']
+        j2.variable_end_string = markers['variable_end']
+        j2.comment_start_string = markers['comment_start']
+        j2.comment_end_string = markers['comment_end']
         first_pass = j2.from_string(content).render(j2vars)
-        if config['twopass']:
 
+        if config['twopass']:
             # second pass
+            markers = detect_markers(config, content)
+            j2.block_start_string = markers['block_start']
+            j2.block_end_string = markers['block_end']
+            j2.variable_start_string = markers['variable_start']
+            j2.variable_end_string = markers['variable_end']
+            j2.comment_start_string = markers['comment_start']
+            j2.comment_end_string = markers['comment_end']
             return j2.from_string(first_pass).render(j2vars)
         else:
             return first_pass
@@ -191,6 +201,14 @@ def render(config, j2file, j2vars):
         raise E2j2Exception(str(err))
 
 
-# def detect_markers(config, content):
-#     for marker_set in MARKER_SETS.items():
-#         print(marker_set)
+def detect_markers(config, content):
+    markers = {
+        'block_start': config['block_start'] if config['block_start'] else MARKER_SETS[config['marker_set']]['block_start'],
+        'block_end': config['block_end'] if config['block_end'] else MARKER_SETS[config['marker_set']]['block_end'],
+        'variable_start': config['variable_start'] if config['variable_start'] else MARKER_SETS[config['marker_set']]['variable_start'],
+        'variable_end': config['variable_end'] if config['variable_end'] else MARKER_SETS[config['marker_set']]['variable_end'],
+        'comment_start': config['comment_start'] if config['comment_start'] else MARKER_SETS[config['marker_set']]['comment_start'],
+        'comment_end': config['comment_end'] if config['comment_end'] else MARKER_SETS[config['marker_set']]['comment_end'],
+        'config_start': config['config_start'] if config['config_start'] else MARKER_SETS[config['marker_set']]['config_start'],
+        'config_end': config['config_end'] if config['config_end'] else MARKER_SETS[config['marker_set']]['config_end']}
+    return markers

@@ -5,6 +5,17 @@ from e2j2 import templates
 from e2j2.exceptions import E2j2Exception
 from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
 
+markers = {
+    'block_start': '{%',
+    'block_end': '%}',
+    'variable_start': '{{',
+    'variable_end': '}}',
+    'comment_start': '{#',
+    'comment_end': '#}',
+    'config_start': '{',
+    'config_end': '}'
+}
+
 
 class TestTemplates(unittest.TestCase):
     def setUp(self):
@@ -35,110 +46,112 @@ class TestTemplates(unittest.TestCase):
         self.assertEqual(list(templates.recursive_iter(data)), [(('listofdict', 0), {'test_key', 'test_value'})])
 
     def test_get_vars(self):
-        config = {'no_color': True, 'twopass': True, 'config_start': '{', 'config_end': '}'}
+        config = {'no_color': True, 'twopass': True}
+        with patch('e2j2.templates.detect_markers', return_value=markers):
+            with patch('e2j2.templates.os') as os_mock:
+                os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
+                self.assertEqual(
+                    templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
 
-        with patch('e2j2.templates.os') as os_mock:
-            os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
-            self.assertEqual(
-                templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
-
-            # whitelist / blacklist
-            self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
+                # whitelist / blacklist
+                self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
 
     def test_resolv_vars(self):
-        config = {'no_color': True, 'twopass': False, 'config_start': '{', 'config_end': '}'}
+        config = {'no_color': True, 'twopass': False}
 
-        with patch('e2j2.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
-            with patch('e2j2.templates.stdout') as stdout_mock:
-                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'})
-                stdout_mock.assert_called_with(Contains('foobar error'))
+        with patch('e2j2.templates.detect_markers', return_value=markers):
+            with patch('e2j2.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
+                with patch('e2j2.templates.stdout') as stdout_mock:
+                    templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'})
+                    stdout_mock.assert_called_with(Contains('foobar error'))
 
-        # test normal rendering
-        self.assertEqual(
-            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'base64:dmFsdWU='}})
+            # test normal rendering
+            self.assertEqual(
+                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'base64:dmFsdWU='}})
 
-        # test Nested vars
-        config['twopass'] = True
+            # test Nested vars
+            config['twopass'] = True
 
-        # test string with nested base64 tag
-        self.assertEqual(
-            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'value'}})
+            # test string with nested base64 tag
+            self.assertEqual(
+                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'value'}})
 
-        # test string with nested base64 tag
-        self.assertEqual(
-            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'}), {'FOO_ENV': {'key': 'value'}})
+            # test string with nested base64 tag
+            self.assertEqual(
+                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'}), {'FOO_ENV': {'key': 'value'}})
 
-        # test with boolean value
-        self.assertEqual(
-            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": true}'}), {'FOO_ENV': {'key': True}})
+            # test with boolean value
+            self.assertEqual(
+                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": true}'}), {'FOO_ENV': {'key': True}})
 
-        # test with integer value
-        self.assertEqual(
-            templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": 1}'}), {'FOO_ENV': {'key': 1}})
+            # test with integer value
+            self.assertEqual(
+                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": 1}'}), {'FOO_ENV': {'key': 1}})
 
     def test_render(self):
-        config = {'no_color': True, 'twopass': False, 'block_start': '{%', 'block_end': '%}',
-                  'variable_start': '{{', 'variable_end': '}}', 'comment_start': '{#', 'comment_end': '#}'}
-        with patch('e2j2.templates.jinja2.Environment') as jinja2_mock:
-            with patch('builtins.open') as file_mock:
-                # one pass
-                jinja2_mock.return_value.from_string.return_value.render.return_value = 'rendered template'
-                response = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
+        config = {'no_color': True, 'twopass': False}
+        with patch('e2j2.templates.detect_markers', return_value=markers):
+            with patch('e2j2.templates.jinja2.Environment') as jinja2_mock:
+                with patch('builtins.open') as file_mock:
+                    # one pass
+                    jinja2_mock.return_value.from_string.return_value.render.return_value = 'rendered template'
+                    response = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
 
-                file_mock.assert_called_with('/foo/file1.j2', 'r')
-                jinja2_mock.return_value.from_string.return_value.render.assert_called_with({"FOO": "BAR"})
-                self.assertEqual(response, 'rendered template')
+                    file_mock.assert_called_with('/foo/file1.j2', 'r')
+                    jinja2_mock.return_value.from_string.return_value.render.assert_called_with({"FOO": "BAR"})
+                    self.assertEqual(response, 'rendered template')
 
-                # two pass
-                config['twopass'] = True
-                jinja2_mock.return_value.from_string.return_value.render.return_value = 'rendered template'
-                response = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
+                    # two pass
+                    config['twopass'] = True
+                    jinja2_mock.return_value.from_string.return_value.render.return_value = 'rendered template'
+                    response = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
 
-                jinja2_mock.return_value.from_string.assert_called_with('rendered template')
-                jinja2_mock.return_value.from_string.return_value.render.assert_called_with({"FOO": "BAR"})
-                self.assertEqual(response, 'rendered template')
-                config['twopass'] = False
+                    jinja2_mock.return_value.from_string.assert_called_with('rendered template')
+                    jinja2_mock.return_value.from_string.return_value.render.assert_called_with({"FOO": "BAR"})
+                    self.assertEqual(response, 'rendered template')
+                    config['twopass'] = False
 
-        class J2:
-            pass
+            class J2:
+                pass
 
-        class Template:
-            pass
+            class Template:
+                pass
 
-        j2 = J2()
-        template = Template()
+            j2 = J2()
+            template = Template()
 
-        # exception should contain line number
-        exceptions = [
-            UndefinedError(),
-            FilterArgumentError(),
-            TemplateSyntaxError(message='message', lineno=1),
-        ]
-        for exception in exceptions:
-            template.render = MagicMock(side_effect=exception)
-            j2.from_string = MagicMock(return_value=template)
+            # exception should contain line number
+            exceptions = [
+                UndefinedError(),
+                FilterArgumentError(),
+                TemplateSyntaxError(message='message', lineno=1),
+            ]
+            for exception in exceptions:
+                template.render = MagicMock(side_effect=exception)
+                j2.from_string = MagicMock(return_value=template)
+                with patch('builtins.open'):
+                    with patch('e2j2.templates.jinja2.Environment', return_value=j2):
+                        with self.assertRaisesRegex(E2j2Exception, 'at line'):
+                            _ = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
+
+            # template not found exception
+            template.render = MagicMock(side_effect=FileNotFoundError())
+            j2.get_template = MagicMock(return_value=template)
             with patch('builtins.open'):
                 with patch('e2j2.templates.jinja2.Environment', return_value=j2):
-                    with self.assertRaisesRegex(E2j2Exception, 'at line'):
+                    with self.assertRaisesRegex(E2j2Exception, 'Template file1.j2 not found'):
                         _ = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
 
-        # template not found exception
-        template.render = MagicMock(side_effect=FileNotFoundError())
-        j2.get_template = MagicMock(return_value=template)
-        with patch('builtins.open'):
-            with patch('e2j2.templates.jinja2.Environment', return_value=j2):
-                with self.assertRaisesRegex(E2j2Exception, 'Template file1.j2 not found'):
-                    _ = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
-
-            # other exceptions
-            template.render = MagicMock(side_effect=ValueError('Error'))
-            j2.get_template = MagicMock(return_value=template)
-            with patch('e2j2.templates.jinja2.Environment', return_value=j2):
-                with self.assertRaisesRegex(E2j2Exception, 'Error'):
-                    _ = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
+                # other exceptions
+                template.render = MagicMock(side_effect=ValueError('Error'))
+                j2.get_template = MagicMock(return_value=template)
+                with patch('e2j2.templates.jinja2.Environment', return_value=j2):
+                    with self.assertRaisesRegex(E2j2Exception, 'Error'):
+                        _ = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
 
     def test_parse_tag(self):
-        config = {'stacktrace': True, 'no_color': True, 'twopass': True, 'config_start': '{', 'config_end': '}'}
+        config = {'stacktrace': True, 'no_color': True, 'twopass': True}
+        config.update(markers)
 
         with patch('e2j2.templates.json_tag.parse') as json_mock:
             templates.parse_tag(config, 'json:', '{}')
