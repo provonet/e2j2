@@ -43,6 +43,7 @@ CONFIG_SCHEMAS = {
           'stacktrace': {'type': 'boolean'},
           'initial_run': {'type': 'boolean'},
           'marker_set': {'type': 'string', 'enum': ['{{', '{=', '<=', '[=', '(=']},
+          'autodetect_marker_set': {'type': 'boolean'},
           'block_start': {'type': ['string', 'null']},
           'block_end': {'type': ['string', 'null']},
           'variable_start': {'type': ['string', 'null']},

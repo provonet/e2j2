@@ -51,6 +51,9 @@ def arg_parse(program, description, version):
                             default='{{',
                             choices=['{{', '{=', '<=', '[=', '(='],
                             help="Select marker set")
+    arg_parser.add_argument('-A', '--autodetect_marker_set',
+                            action='store_true',
+                            help='Autodetect marker set, fallback to marker set defined in --marker-set')
     arg_parser.add_argument('--block_start', '--block-start',
                             type=str,
                             help="Block marker start (default: use marker set)")
@@ -141,6 +144,7 @@ def configure(args):
         if args.copy_file_permissions else config.get('copy_file_permissions', False)
 
     config['marker_set'] = args.marker_set if args.marker_set else config.get('marker_set', '{{')
+    config['autodetect_marker_set'] = args.autodetect_marker_set if args.autodetect_marker_set else config.get('autodetect_marker_set', False)
     config['block_start'] = args.block_start if args.block_start else config.get('block_start', None)
     config['block_end'] = args.block_end if args.block_end else config.get('block_end', None)
     config['variable_start'] = args.variable_start if args.variable_start else config.get('variable_start', None)
