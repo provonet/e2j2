@@ -107,7 +107,7 @@ CONFIG_SCHEMAS = {
 }
 
 TAGS = ['json:', 'jsonfile:', 'base64:', 'consul:', 'list:', 'file:', 'vault:', 'dns:', 'escape:']
-NESTED_TAGS = ['json:', 'jsonfile:', 'list:']
+NESTED_TAGS = ['json:', 'jsonfile:', 'list:', 'escape:']
 MARKER_SETS = {
     "{{":{
         'block_start': '{%', 'block_end': '%}',
