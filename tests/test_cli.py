@@ -32,7 +32,7 @@ class ArgumentParser:
         self.initial_run = False
         self.skip_render_on_undef = False
         self.marker_set = '{{'
-        self.twopass_marker_set = None
+        self.autodetect_marker_set = False
 
 
 class TestCli(unittest.TestCase):

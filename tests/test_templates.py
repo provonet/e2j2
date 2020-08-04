@@ -150,7 +150,7 @@ class TestTemplates(unittest.TestCase):
                         _ = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
 
     def test_parse_tag(self):
-        config = {'stacktrace': True, 'no_color': True, 'twopass': True}
+        config = {'stacktrace': True, 'no_color': True, 'twopass': True, 'marker_set': '{{', 'autodetect_marker_set': False}
         config.update(markers)
 
         with patch('e2j2.templates.json_tag.parse') as json_mock:
