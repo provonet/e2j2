@@ -16,7 +16,7 @@ Feature: handling environment variables containing the json tag
   Scenario: render template and flatten dict
     Given an installed e2j2 module
     When I set the environment MYJSONVAR variable to json:config={"flatten": true}:{"my_key": "flattened json example"}
-    And I create a template /tmp/json-example.j2 with the following content
+    And I create a template /tmp/json-flattened-example.j2 with the following content
       """
       This is a {{ my_key }}
       """

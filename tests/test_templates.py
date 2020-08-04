@@ -274,6 +274,42 @@ class TestTemplates(unittest.TestCase):
                 templates.stdout('logline')  # show
                 stdout_mock.assert_has_calls([call('logline'), call('(2x) logline'), call('(4x) logline')])
 
+    def test_detect_markers(self):
+        config = {'marker_set': '{{', 'block_start': None, 'block_end': None, 'variable_start': None,
+                  'variable_end': None, 'comment_start': None, 'comment_end': None, 'config_start': None,
+                  'config_end': None, 'autodetect_marker_set': True}
+
+        config_overwrite = config.copy()
+        config_overwrite.update(markers)
+
+        expected_response = {'block_start': '{%', 'block_end': '%}', 'variable_start': '{{', 'variable_end': '}}',
+                    'comment_start': '{#', 'comment_end': '#}', 'config_start': '{', 'config_end': '}'}
+
+        # autodetect off
+        config['autodetect_marker_set'] = False
+        self.assertEqual(templates.detect_markers(config, ''), expected_response)
+
+        # autodetect on / test fallback
+        config['autodetect_marker_set'] = True
+        self.assertEqual(templates.detect_markers(config, ''), expected_response)
+
+        # autodetect on / overwrite
+        self.assertEqual(templates.detect_markers(config_overwrite, '(==)'), expected_response)
+
+        expected_response = {'block_start': '[%', 'block_end': '%]', 'variable_start': '[=', 'variable_end': '=]',
+                    'comment_start': '[#', 'comment_end': '#]', 'config_start': '[', 'config_end': ']'}
+
+        # autodetect on / config marker
+        response = templates.detect_markers(config, 'vault:config=["url:", "http://foo.bar"]:secret')
+        self.assertEqual(expected_response, response)
+
+        expected_response = {'block_start': '(%', 'block_end': '%)', 'variable_start': '(=', 'variable_end': '=)',
+                    'comment_start': '(#', 'comment_end': '#)', 'config_start': '(', 'config_end': ')'}
+
+        # autodetect on
+        response = templates.detect_markers(config, '(==)')
+        self.assertEqual(expected_response, response)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -202,18 +202,25 @@ def render(config, j2file, j2vars):
 
 
 def detect_markers(config, content):
+    marker_set = MARKER_SETS[config['marker_set']]
+
     if config['autodetect_marker_set']:
-        pass
-    else:
-        marker_set = config['marker_set']
+        config_marker = True if 'config=' in content else False
+        for key, value in MARKER_SETS.items():
+            if config_marker:
+                if 'config=' + MARKER_SETS[key]['config_start'] in content:
+                    marker_set = MARKER_SETS[key]
+            else:
+                if MARKER_SETS[key]['variable_start'] in content and MARKER_SETS[key]['variable_end'] in content:
+                    marker_set = MARKER_SETS[key]
 
     markers = {
-        'block_start': config['block_start'] if config['block_start'] else MARKER_SETS[marker_set]['block_start'],
-        'block_end': config['block_end'] if config['block_end'] else MARKER_SETS[marker_set]['block_end'],
-        'variable_start': config['variable_start'] if config['variable_start'] else MARKER_SETS[marker_set]['variable_start'],
-        'variable_end': config['variable_end'] if config['variable_end'] else MARKER_SETS[marker_set]['variable_end'],
-        'comment_start': config['comment_start'] if config['comment_start'] else MARKER_SETS[marker_set]['comment_start'],
-        'comment_end': config['comment_end'] if config['comment_end'] else MARKER_SETS[marker_set]['comment_end'],
-        'config_start': config['config_start'] if config['config_start'] else MARKER_SETS[marker_set]['config_start'],
-        'config_end': config['config_end'] if config['config_end'] else MARKER_SETS[marker_set]['config_end']}
+        'block_start': config['block_start'] if config['block_start'] else marker_set['block_start'],
+        'block_end': config['block_end'] if config['block_end'] else marker_set['block_end'],
+        'variable_start': config['variable_start'] if config['variable_start'] else marker_set['variable_start'],
+        'variable_end': config['variable_end'] if config['variable_end'] else marker_set['variable_end'],
+        'comment_start': config['comment_start'] if config['comment_start'] else marker_set['comment_start'],
+        'comment_end': config['comment_end'] if config['comment_end'] else marker_set['comment_end'],
+        'config_start': config['config_start'] if config['config_start'] else marker_set['config_start'],
+        'config_end': config['config_end'] if config['config_end'] else marker_set['config_end']}
     return markers
