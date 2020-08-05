@@ -121,7 +121,6 @@ def arg_parse(program, description, version):
     if args.initial_run and (not args.watchlist or not args.run):
         arg_parser.error('the following arguments are required: watchlist, run')
 
-    print(dir(args))
     return args
 
 
