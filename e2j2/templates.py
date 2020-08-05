@@ -85,7 +85,6 @@ def resolv_vars(config, var_list, vars):
 
         except E2j2Exception as e:
             stdout(yellow + "** WARNING: parsing {} failed with error: {} **".format(var, str(e)) + reset_all + '\n')
-    print(varcontext)
     return varcontext
 
 
@@ -104,7 +103,6 @@ def parse_tag(config, tag, value):
             markers = detect_markers(config, value)
             if match:
                 config_str, value = match.group(1).split(markers['config_end']+':')
-                print(config_str)
                 config_str = config_str.lstrip(markers['config_start'])
                 tag_config.update(json.loads('{%s}' % config_str))
 
