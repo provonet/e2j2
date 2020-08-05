@@ -176,7 +176,7 @@ def render(config, j2file, j2vars):
 
         if config['twopass']:
             # second pass
-            markers = detect_markers(config, content)
+            markers = detect_markers(config, first_pass)
             j2.block_start_string = markers['block_start']
             j2.block_end_string = markers['block_end']
             j2.variable_start_string = markers['variable_start']
