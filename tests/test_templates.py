@@ -195,7 +195,7 @@ class TestTemplates(unittest.TestCase):
             vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
 
         # with config and alternative marker [, ] but without twopass
-        config['twopass']: False
+        config['twopass'] = False
         config['marker_set'] = '{{'
         config['config_start'] = None
         config['config_end'] = None
