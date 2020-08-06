@@ -187,19 +187,29 @@ class TestTemplates(unittest.TestCase):
             templates.parse_tag(config, 'json:', 'json:config={"flatten": true}:{"my_key": "flattened json example"}')
             json_mock.assert_called_with('{"my_key": "flattened json example"}')
 
+        # with config and alternative marker [, ]
+        config['config_start'] = '['
+        config['config_end'] = ']'
+        with patch('e2j2.templates.vault_tag.parse') as vault_mock:
+            templates.parse_tag(config, 'vault:', 'config=["url": "https://localhost:8200"]:secret/mysecret')
+            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
+
+        # with config and alternative marker [, ] but without twopass
+        config['twopass']: False
+        config['marker_set'] = '{{'
+        config['config_start'] = None
+        config['config_end'] = None
+        with patch('e2j2.templates.vault_tag.parse'):
+            with self.assertRaisesRegex(E2j2Exception, 'invalid config markers used'):
+                templates.parse_tag(config, 'vault:', 'config=["url": "https://localhost:8200"]:secret/mysecret')
+
+        config['twopass']: True
         # with config and alternative marker <, >
         config['config_start'] = '<'
         config['config_end'] = '>'
         with patch('e2j2.templates.vault_tag.parse') as vault_mock:
             templates.parse_tag(config, 'vault:', 'config=<"url": "https://localhost:8200", "token": "aabbccddee">:secret/mysecret')
             vault_mock.assert_called_with({"url": "https://localhost:8200", "token": "aabbccddee"}, 'secret/mysecret')
-
-        # with config and alternative marker (, )
-        config['config_start'] = '['
-        config['config_end'] = ']'
-        with patch('e2j2.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag(config, 'vault:', 'config=["url": "https://localhost:8200"]:secret/mysecret')
-            vault_mock.assert_called_with({"url": "https://localhost:8200"}, 'secret/mysecret')
 
         # with config and alternative marker (, )
         config['config_start'] = '('

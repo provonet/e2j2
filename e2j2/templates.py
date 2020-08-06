@@ -100,11 +100,16 @@ def parse_tag(config, tag, value):
             tag_config = json.loads(envvars.get(config_var, '{}'))
             pattern = re.compile(r'config=(.+)')
             match = pattern.match(value)
+
             markers = detect_markers(config, value)
-            if match:
-                config_str, value = match.group(1).split(markers['config_end']+':')
+            value_with_config = match.group(1).split(markers['config_end'] + ':') if pattern.match(value) else None
+
+            if value_with_config and len(value_with_config) > 1:
+                config_str, value = value_with_config
                 config_str = config_str.lstrip(markers['config_start'])
                 tag_config.update(json.loads('{%s}' % config_str))
+            elif value_with_config:
+                raise E2j2Exception("invalid config markers used, please place the config between the markers '%s' and '%s'" % (markers['config_start'], markers['config_end']))
 
             if token_var in envvars:
                 tag_config['token'] = tag_config['token'] if 'token' in tag_config else envvars[token_var]
