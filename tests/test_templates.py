@@ -207,7 +207,7 @@ class TestTemplates(unittest.TestCase):
             with self.assertRaisesRegex(E2j2Exception, 'invalid config markers used'):
                 templates.parse_tag(config, 'vault:', 'config=["url": "https://localhost:8200"]:secret/mysecret')
 
-        config['twopass']: True
+        config['twopass'] = True
         # with config and alternative marker <, >
         config['config_start'] = '<'
         config['config_end'] = '>'
