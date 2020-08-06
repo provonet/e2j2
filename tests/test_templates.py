@@ -1,9 +1,9 @@
 import unittest
-from mock import patch, MagicMock, call, mock_open
+from mock import patch, MagicMock, call
 from callee import Contains
 from e2j2 import templates
 from e2j2.exceptions import E2j2Exception
-from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
+from jinja2.exceptions import UndefinedError, FilterArgumentError, TemplateSyntaxError
 
 markers = {
     'block_start': '{%',
@@ -182,6 +182,10 @@ class TestTemplates(unittest.TestCase):
             templates.parse_tag(config, 'vault:', 'secret/mysecret')
             vault_mock.assert_called_with({}, 'secret/mysecret')
 
+        with patch('e2j2.templates.escape_tag.parse') as escape_mock:
+            templates.parse_tag(config, 'escape:', 'file:foobar')
+            escape_mock.assert_called_with('file:foobar')
+
         # with config
         with patch('e2j2.templates.json_tag.parse') as json_mock:
             templates.parse_tag(config, 'json:', 'json:config={"flatten": true}:{"my_key": "flattened json example"}')
@@ -235,6 +239,15 @@ class TestTemplates(unittest.TestCase):
                 templates.parse_tag(config, 'vault:', 'secret/mysecret')
                 vault_mock.assert_called_with({'url': 'https://localhost:8200', 'token': 'aabbccddee'},
                                               'secret/mysecret')
+
+        config['twopass'] = False
+        config['marker_set'] = '{{'
+        config['config_start'] = None
+        config['config_end'] = None
+        with patch('e2j2.templates.file_tag.parse', return_value='aabbccddee') as file_mock:
+            with patch('e2j2.templates.vault_tag.parse') as vault_mock:
+                templates.parse_tag(config, 'vault:', 'config={"url": "https://localhost:8200", "token": "file:/tmp/myfile"}:secret/mysecret')
+                vault_mock.assert_called_with({'url': 'https://localhost:8200', 'token': 'aabbccddee'}, 'secret/mysecret')
 
         with patch('e2j2.templates.dns_tag.parse') as dns_mock:
             templates.parse_tag(config, 'dns:', 'config={"type": "MX"}:mx.foo.bar')
