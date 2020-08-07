@@ -5,7 +5,7 @@ import re
 import json
 import traceback
 from dpath import util as dpath_util
-from jinja2.exceptions import TemplateNotFound, UndefinedError, FilterArgumentError, TemplateSyntaxError
+from jinja2.exceptions import UndefinedError, FilterArgumentError, TemplateSyntaxError
 from jsonschema import validate, ValidationError, draft4_format_checker
 from json.decoder import JSONDecodeError
 from e2j2.exceptions import E2j2Exception
@@ -151,9 +151,12 @@ def parse_tag(config, tag, value):
         return None, '** ERROR: tag: %s not implemented **' % tag
 
     if config['twopass'] and tag in NESTED_TAGS:
-        for keys, item in recursive_iter(tag_value):
-            if isinstance(item, str):
-                dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item})['item'])
+        try:
+            for keys, item in recursive_iter(tag_value):
+                if isinstance(item, str):
+                    dpath_util.set(tag_value, list(keys), resolv_vars(config, ['item'], {'item': item})['item'])
+        except Exception:
+            raise E2j2Exception('failed to resolve nested tag')
 
     return tag_config, tag_value
 

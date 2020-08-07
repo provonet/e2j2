@@ -76,7 +76,13 @@ class TestTemplates(unittest.TestCase):
             self.assertEqual(
                 templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'value'}})
 
-            # test string with nested base64 tag
+            # FIXME: fix the following test
+            # test string with nested file tag raising an error
+            # with patch('e2j2.templates.file_tag', side_effect=E2j2Exception('IOError raised while reading file: /foobar.txt')):
+            #     self.assertEqual(
+            #         templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'}), {'FOO_ENV': {'key': 'value'}})
+
+            # test with string value
             self.assertEqual(
                 templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'}), {'FOO_ENV': {'key': 'value'}})
 
@@ -87,6 +93,7 @@ class TestTemplates(unittest.TestCase):
             # test with integer value
             self.assertEqual(
                 templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": 1}'}), {'FOO_ENV': {'key': 1}})
+
 
     def test_render(self):
         config = {'no_color': True, 'twopass': False}
