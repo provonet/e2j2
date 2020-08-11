@@ -81,6 +81,12 @@ class TestParsers(unittest.TestCase):
             with self.assertRaisesRegex(E2j2Exception, '^access denied connecting to:'):
                 consul_tag.parse(config, 'foo/bar')
 
+        # permission denied
+        consul_kv.get = MagicMock(side_effect = AssertionError('FOOBAR error'))
+        with patch('e2j2.tags.consul_tag.ConsulKV', return_value=consul_kv):
+            with self.assertRaisesRegex(E2j2Exception, 'FOOBAR error'):
+                consul_tag.parse(config, 'foo/bar')
+
         # key not found
         consul_kv.get = MagicMock(return_value=[])
         with patch('e2j2.tags.consul_tag.ConsulKV', return_value=consul_kv):
