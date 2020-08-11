@@ -76,11 +76,11 @@ class TestTemplates(unittest.TestCase):
             self.assertEqual(
                 templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'value'}})
 
-            # FIXME: fix the following test
             # test string with nested file tag raising an error
-            # with patch('e2j2.templates.file_tag', side_effect=E2j2Exception('IOError raised while reading file: /foobar.txt')):
-            #     self.assertEqual(
-            #         templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'}), {'FOO_ENV': {'key': 'value'}})
+            with patch('e2j2.templates.file_tag.parse', side_effect=E2j2Exception('IOError raised while reading file: /foobar.txt')):
+                with patch('e2j2.templates.stdout') as stdout_mock:
+                    templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'})
+                    stdout_mock.assert_called_with(Contains('failed to resolve nested tag'))
 
             # test with string value
             self.assertEqual(
@@ -94,6 +94,13 @@ class TestTemplates(unittest.TestCase):
             self.assertEqual(
                 templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": 1}'}), {'FOO_ENV': {'key': 1}})
 
+            # test with config flatten=True return value from call should return a dict with a foobar key
+            self.assertTrue(
+                'foobar' in templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:config={"flatten": true}:{"foobar": "foobar_value"}'}))
+
+            # test with config flatten=False return value from call should not have a foobar key
+            self.assertTrue(
+                'foobar' not in templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:config={"flatten": false}:{"foobar": "foobar_value"}'}))
 
     def test_render(self):
         config = {'no_color': True, 'twopass': False}
@@ -195,8 +202,8 @@ class TestTemplates(unittest.TestCase):
 
         # with config
         with patch('e2j2.templates.json_tag.parse') as json_mock:
-            templates.parse_tag(config, 'json:', 'json:config={"flatten": true}:{"my_key": "flattened json example"}')
-            json_mock.assert_called_with('{"my_key": "flattened json example"}')
+            templates.parse_tag(config, 'json:', 'json:config={"flatten": true}:{"key": {"nested": "flattened json example"}}')
+            json_mock.assert_called_with('{"key": {"nested": "flattened json example"}}')
 
         # with config and alternative marker [, ]
         config['config_start'] = '['
