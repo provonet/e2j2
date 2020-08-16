@@ -150,7 +150,7 @@ def parse_tag(config, tag, value):
     else:
         return None, '** ERROR: tag: %s not implemented **' % tag
 
-    if config['twopass'] and tag in NESTED_TAGS:
+    if config['nested_tags'] and tag in NESTED_TAGS:
         try:
             for keys, item in recursive_iter(tag_value):
                 if isinstance(item, str):

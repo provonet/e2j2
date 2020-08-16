@@ -46,6 +46,9 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('-2', '--twopass',
                             action='store_true',
                             help='Enable two pass rendering')
+    arg_parser.add_argument('-n', '--nested-tags',
+                            action='store_true',
+                            help='Enable support for nested tags (tags within json:, jsonfile: and list: tags)')
     arg_parser.add_argument('-m', '--marker-set',
                             type=str,
                             default='{{',
@@ -137,6 +140,7 @@ def configure(args):
     config['recursive'] = args.recursive if args.recursive else config.get('recursive', False)
     config['no_color'] = args.no_color if args.no_color else config.get('no_color', False)
     config['twopass'] = args.twopass if args.twopass else config.get('twopass', False)
+    config['nested_tags'] = args.nested_tags if args.nested_tags else config.get('nested_tags', False)
     config['stacktrace'] = args.stacktrace if args.stacktrace else config.get('stacktrace', False)
     config['initial_run'] = args.initial_run if args.initial_run else config.get('initial_run', False)
     config['copy_file_permissions'] = args.copy_file_permissions \

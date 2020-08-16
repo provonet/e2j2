@@ -14,6 +14,7 @@ class ArgumentParser:
         self.ext = '.j2'
         self.no_color = True
         self.twopass = False
+        self.nested_tags = False
         self.block_start = '{%'
         self.block_end = '%}'
         self.variable_start = '{{'

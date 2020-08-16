@@ -62,7 +62,7 @@ Feature: handling environment variables containing the json tag and the twopass 
         /** MySQL hostname */
         define( 'DB_HOST', '{{ WORDPRESS.database.host }}' );
       """
-    And I render the template with e2j2 with additional flag --twopass
+    And I render the template with e2j2 with additional flag --twopass --nested-tags
     Then rendered content is as follows
       """
         // ** MySQL settings - You can get this info from your web host ** //
@@ -86,7 +86,7 @@ Feature: handling environment variables containing the json tag and the twopass 
       """
       {{ ESCAPED_TAG.path }}
       """
-    And I render the template with e2j2 with additional flag --twopass
+    And I render the template with e2j2 with additional flag --twopass --nested-tags
     Then rendered content is as follows
       """
       file:/foobar.txt

@@ -1,4 +1,4 @@
-VERSION = '0.6.0'
+VERSION = '0.6.1'
 ERROR = '** ERROR'
 BRIGHT_RED = '\033[1;31m'
 RESET_ALL = '\033[00m'
@@ -37,6 +37,7 @@ CONFIG_SCHEMAS = {
           'recursive': {'type': 'boolean'},
           'no_color': {'type': 'boolean'},
           'twopass': {'type': 'boolean'},
+          'nested_tags': {'type': 'boolean'},
           'noop': {'type': 'boolean'},
           'test_first': {'type': 'boolean'},
           'copy_file_permissions': {'type': 'boolean'},

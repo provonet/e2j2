@@ -46,7 +46,7 @@ class TestTemplates(unittest.TestCase):
         self.assertEqual(list(templates.recursive_iter(data)), [(('listofdict', 0), {'test_key', 'test_value'})])
 
     def test_get_vars(self):
-        config = {'no_color': True, 'twopass': True}
+        config = {'no_color': True, 'twopass': True, 'nested_tags': False}
         with patch('e2j2.templates.detect_markers', return_value=markers):
             with patch('e2j2.templates.os') as os_mock:
                 os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
@@ -57,7 +57,7 @@ class TestTemplates(unittest.TestCase):
                 self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
 
     def test_resolv_vars(self):
-        config = {'no_color': True, 'twopass': False}
+        config = {'no_color': True, 'nested_tags': False}
 
         with patch('e2j2.templates.detect_markers', return_value=markers):
             with patch('e2j2.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
@@ -70,7 +70,7 @@ class TestTemplates(unittest.TestCase):
                 templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'base64:dmFsdWU='}})
 
             # test Nested vars
-            config['twopass'] = True
+            config['nested_tags'] = True
 
             # test string with nested base64 tag
             self.assertEqual(
@@ -164,7 +164,7 @@ class TestTemplates(unittest.TestCase):
                         _ = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
 
     def test_parse_tag(self):
-        config = {'stacktrace': True, 'no_color': True, 'twopass': True, 'marker_set': '{{', 'autodetect_marker_set': False}
+        config = {'stacktrace': True, 'no_color': True, 'twopass': True, 'marker_set': '{{', 'autodetect_marker_set': False, 'nested_tags': False}
         config.update(markers)
 
         with patch('e2j2.templates.json_tag.parse') as json_mock:

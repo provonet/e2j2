@@ -1,5 +1,11 @@
 Changelog
 =========
+0.6.1 (Unreleased)
+
+Changed
+-------
+- Nested tags is no longer enabled by default,  use --nested-tags to enable this feature
+
 0.6.0 (2020-08-11)
 
 Add
