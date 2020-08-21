@@ -4,7 +4,7 @@ description = 'e2j2 is a commandline utility to render text/configuration files 
               'from shell environment variables'
 
 setup(name='e2j2',
-      version='0.6.1',
+      version='0.6.2',
       description=description,
       long_description=open('README.rst').read() + '\n\n' + open('CHANGELOG.rst').read(),
       install_requires=[

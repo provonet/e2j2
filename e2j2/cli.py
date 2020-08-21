@@ -54,25 +54,25 @@ def arg_parse(program, description, version):
                             default='{{',
                             choices=['{{', '{=', '<=', '[=', '(='],
                             help="Select marker set")
-    arg_parser.add_argument('-A', '--autodetect_marker_set',
+    arg_parser.add_argument('-A', '--autodetect-marker-set', '--autodetect_marker_set',
                             action='store_true',
                             help='Autodetect marker set, fallback to marker set defined in --marker-set')
-    arg_parser.add_argument('--block_start', '--block-start',
+    arg_parser.add_argument('--block-start', '--block_start',
                             type=str,
                             help="Block marker start (default: use marker set)")
-    arg_parser.add_argument('--block_end', '--block-end',
+    arg_parser.add_argument('--block-end', '--block_end',
                             type=str,
                             help="Block marker end (default: use marker set)")
-    arg_parser.add_argument('--variable_start', '--variable-start',
+    arg_parser.add_argument('--variable-start', '--variable_start',
                             type=str,
                             help="Variable marker start (default: use marker set)")
-    arg_parser.add_argument('--variable_end', '--variable-end',
+    arg_parser.add_argument('--variable-end', '--variable_end',
                             type=str,
                             help="Variable marker start (default: use marker set)")
-    arg_parser.add_argument('--comment_start', '--comment-start',
+    arg_parser.add_argument('--comment-start', '--comment_start',
                             type=str,
                             help="Comment marker start (default: use marker set)")
-    arg_parser.add_argument('--comment_end', '--comment-end',
+    arg_parser.add_argument('--comment-end','--comment_end',
                             type=str,
                             help="Comment marker end (default: use marker set)"),
     arg_parser.add_argument('--config-start',
@@ -81,13 +81,13 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('--config-end',
                             type=str,
                             help="Config marker end (default: use marker set)")
-    arg_parser.add_argument('-w', '--env_whitelist', '--env-whitelist',
+    arg_parser.add_argument('-w', '--env-whitelist', '--env_whitelist',
                             type=str,
                             help="Include listed environment variables (default all)")
-    arg_parser.add_argument('-b', '--env_blacklist', '--env-blacklist',
+    arg_parser.add_argument('-b', '--env-blacklist', '--env_blacklist',
                             type=str,
                             help="Exclude listed environment variables (default none)")
-    arg_parser.add_argument('-P', '--copy_file_permissions', '--copy-file-permissions',
+    arg_parser.add_argument('-P', '--copy-file-permissions', '--copy_file_permissions',
                             action='store_true',
                             help='copy file permissions from template to rendered file'
                             )
@@ -108,9 +108,9 @@ def arg_parse(program, description, version):
                             default=0,
                             help='Random delay of watchlist polls (between 0 and 900 seconds)')
     arg_parser.add_argument('-R', '--run',
-                            type=str,
+                            nargs=argparse.REMAINDER,
                             help='run command after rendering template (command arg1 arg2 arg3)')
-    arg_parser.add_argument('--initial_run', '--initial-run',
+    arg_parser.add_argument('--initial-run', '--initial_run',
                             action='store_true',
                             help='Initial run after e2j2 (re)start')
     args = arg_parser.parse_args()
@@ -161,7 +161,7 @@ def configure(args):
     config['env_blacklist'] = args.env_blacklist.split(',') if args.env_blacklist else config.get('env_blacklist', [])
     config['watchlist'] = args.watchlist.split(',') if args.watchlist else config.get('watchlist', [])
     config['splay'] = args.splay if args.watchlist else config.get('splay', 0)
-    config['run'] = args.run.split() if args.run else config.get('run', [])
+    config['run'] = args.run if args.run else config.get('run', [])
     config['noop'] = args.noop
 
     if config['initial_run'] and (not config['watchlist'] or not config['run']):

@@ -1,5 +1,13 @@
 Changelog
 =========
+0.6.2 (unreleased)
+------------------
+
+Changed
+-------
+- add flags with hyphens for all options
+- fix bug with run flag and multiple arguments
+
 0.6.1 (2020-08-16)
 ------------------
 
