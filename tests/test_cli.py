@@ -281,7 +281,7 @@ class TestCli(unittest.TestCase):
         args.copy_file_permissions = False
 
         # run command
-        args.run = '/foobar.sh'
+        args.run = ['/foobar.sh']
         config = cli.configure(args)
         with patch('e2j2.cli.stdout'):
             with patch('e2j2.cli.get_files', return_value=['/foo/file1.j2']):
