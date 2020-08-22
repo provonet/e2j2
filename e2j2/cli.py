@@ -262,8 +262,10 @@ def run(config):
 
         if exit_code == 0:
             try:
-                subprocess.check_output(config['run'], stderr=subprocess.STDOUT)
+                result = subprocess.check_output(config['run'], stderr=subprocess.STDOUT)
                 stdout('{} done{}\n'.format(lightgreen, reset_all))
+                stdout('{}Output:{}\n'.format(green, reset_all))
+                stdout(result.decode() + '\n')
             except CalledProcessError as error:
                 stdout('{} failed{}\n\n'.format(bright_red, reset_all))
                 # FIXME only works on python > 3.4
