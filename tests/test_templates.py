@@ -62,45 +62,45 @@ class TestTemplates(unittest.TestCase):
         with patch('e2j2.templates.detect_markers', return_value=markers):
             with patch('e2j2.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
                 with patch('e2j2.templates.stdout') as stdout_mock:
-                    templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'})
+                    templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "value"}'})
                     stdout_mock.assert_called_with(Contains('foobar error'))
 
             # test normal rendering
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'base64:dmFsdWU='}})
+                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'base64:dmFsdWU='}})
 
             # test Nested vars
             config['nested_tags'] = True
 
             # test string with nested base64 tag
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'value'}})
+                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'value'}})
 
             # test string with nested file tag raising an error
             with patch('e2j2.templates.file_tag.parse', side_effect=E2j2Exception('IOError raised while reading file: /foobar.txt')):
                 with patch('e2j2.templates.stdout') as stdout_mock:
-                    templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'})
+                    templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'})
                     stdout_mock.assert_called_with(Contains('failed to resolve nested tag'))
 
             # test with string value
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": "value"}'}), {'FOO_ENV': {'key': 'value'}})
+                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "value"}'}), {'FOO_ENV': {'key': 'value'}})
 
             # test with boolean value
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": true}'}), {'FOO_ENV': {'key': True}})
+                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": true}'}), {'FOO_ENV': {'key': True}})
 
             # test with integer value
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:{"key": 1}'}), {'FOO_ENV': {'key': 1}})
+                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": 1}'}), {'FOO_ENV': {'key': 1}})
 
             # test with config flatten=True return value from call should return a dict with a foobar key
             self.assertTrue(
-                'foobar' in templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:config={"flatten": true}:{"foobar": "foobar_value"}'}))
+                'foobar' in templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:config={"flatten": true}:{"foobar": "foobar_value"}'}))
 
             # test with config flatten=False return value from call should not have a foobar key
             self.assertTrue(
-                'foobar' not in templates.resolv_vars(config, var_list=['FOO_ENV'], vars={'FOO_ENV': 'json:config={"flatten": false}:{"foobar": "foobar_value"}'}))
+                'foobar' not in templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:config={"flatten": false}:{"foobar": "foobar_value"}'}))
 
     def test_render(self):
         config = {'no_color': True, 'twopass': False}

@@ -60,17 +60,17 @@ def find(searchlist, j2file_ext, recurse=False):
 
 def get_vars(config, whitelist, blacklist):
     env_list = [entry for entry in whitelist if entry not in blacklist]
-    envvars = os.environ
-    return resolv_vars(config, env_list, envvars)
+    env_vars = os.environ
+    return resolv_vars(config, env_list, env_vars)
 
 
-def resolv_vars(config, var_list, vars):
+def resolv_vars(config, var_list, env_vars):
     # initialize colors
     yellow, reset_all = ("", "") if config['no_color'] else (YELLOW, RESET_ALL)
 
     varcontext = {}
     for var in var_list:
-        var_value = vars[var]
+        var_value = env_vars[var]
         defined_tag = ''.join([tag for tag in TAGS if ':' in var_value and var_value.startswith(tag)])
         try:
             if not defined_tag:
