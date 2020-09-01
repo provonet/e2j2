@@ -15,7 +15,7 @@ from stat import ST_MODE
 from e2j2 import templates
 from e2j2.templates import stdout, get_vars
 from e2j2.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
-from e2j2.constants import CONFIG_SCHEMAS, MARKER_SETS
+from e2j2.constants import CONFIG_SCHEMAS
 from e2j2.exceptions import E2j2Exception
 
 
@@ -56,7 +56,7 @@ def arg_parse(program, description, version):
                             help="Select marker set")
     arg_parser.add_argument('-A', '--autodetect-marker-set', '--autodetect_marker_set',
                             action='store_true',
-                            help='Autodetect marker set, fallback to marker set defined in --marker-set')
+                            help='Autodetect marker set, fallback to defined marker set')
     arg_parser.add_argument('--block-start', '--block_start',
                             type=str,
                             help="Block marker start (default: use marker set)")
@@ -109,7 +109,7 @@ def arg_parse(program, description, version):
                             help='Random delay of watchlist polls (between 0 and 900 seconds)')
     arg_parser.add_argument('-R', '--run',
                             nargs=argparse.REMAINDER,
-                            help='run command after rendering template (command arg1 arg2 arg3)')
+                            help='run command after rendering template (command arg1 ...)')
     arg_parser.add_argument('--initial-run', '--initial_run',
                             action='store_true',
                             help='Initial run after e2j2 (re)start')

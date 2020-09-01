@@ -30,19 +30,22 @@ Switch                      Type                 Config key                     
 -r, --recursive                                  recursive                               boolean Traverse recursively through the search list
 --no-color, --nocolor                            no_color                                boolean Disable ANSI color
 -2, --twopass                                    twopass                                 boolean Enable two pass rendering
---block_start               string               block_start                             string  Block marker start (default: '{%'}
---block_end                 string               block_end                               string  Block marker start (default: '%}'}
---variable_start            string               block_start                             string  Variable marker start (default: '{%'}
---variable_end              string               variable_end                            string  Variable marker end (default: '%}'}
---comment_start             string               comment_start                           string  Comment marker start (default: '{#'}
---comment_end               string               comment_end                             string  Comment marker start (default: '#}'}
--w, --env_whitelist         comma separated list env_whitelist                           array   List of envars to include
--b, --env_blacklist         comma separated list env_blacklist                           array   List of envars to exclude
--P, --copy_file_permissions                      copy_file_permissions                   boolean Copy file permissions and ownership from template to rendered file
+-n, --nested-tags                                nested_tags                             boolean Enable support for nested tags
+-m, --marker-set            string               marker_set                              string  Select marker set (default: '{{')
+-A, --autodetect-marker-set                      autodetect_marker_set                   boolean Autodetect marker set, fallback to defined marker set
+--block-start               string               block_start                             string  Block marker start (default from marker set)
+--block-end                 string               block_end                               string  Block marker start (default: from marker set)
+--variable-start            string               block_start                             string  Variable marker start (default: from marker set)
+--variable-end              string               variable_end                            string  Variable marker end (default: from marker set)
+--comment-start             string               comment_start                           string  Comment marker start (default: from marker set)
+--comment-end               string               comment_end                             string  Comment marker start (default: from marker set)
+-w, --env-whitelist         comma separated list env_whitelist                           array   List of envars to include
+-b, --env-blacklist         comma separated list env_blacklist                           array   List of envars to exclude
+-P, --copy-file_permissions                      copy_file_permissions                   boolean Copy file permissions and ownership from template to rendered file
 -S, --stacktrace                                 stacktrace                              boolean Include stacktrace in error file
 -c, --config                string                                                               Config file path
 --watchlist                 comma separated list watchlist                               array   Watch listed envvars for changes and render template(s) on change
--R, --run                   string               run                                     array   Run command after rendering templates
+-R, --run                   string               run                                     array   Run command after rendering templates (command arg1, ..)
 --splay                     int                  splay                                   integer Random delay between 1 and X seconds between watchlist polls
 --initial-run                                    render templates before starting watch
 =========================== ==================== ======================================= ======= ==============================================================================
