@@ -3,6 +3,10 @@ Changelog
 0.7.0 (unreleased)
 ------------------
 
+Changed
+-------
+- reworked terminal color handling
+
 0.6.2 (2020-09-01)
 ------------------
 
