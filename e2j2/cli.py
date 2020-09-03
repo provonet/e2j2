@@ -13,10 +13,12 @@ from jsonschema import validate, draft4_format_checker
 from os.path import basename
 from stat import ST_MODE
 from e2j2 import templates
-from e2j2.templates import stdout, get_vars
-from e2j2.constants import BRIGHT_RED, RESET_ALL, GREEN, LIGHTGREEN, WHITE, YELLOW, DESCRIPTION, VERSION
+from e2j2.templates import get_vars
+from e2j2.constants import DESCRIPTION, VERSION
 from e2j2.constants import CONFIG_SCHEMAS
 from e2j2.exceptions import E2j2Exception
+from e2j2.display import display
+from e2j2.constants import BRIGHT_RED, GREEN, LIGHTGREEN, YELLOW, WHITE, RESET_ALL
 
 
 def arg_parse(program, description, version):
@@ -72,7 +74,7 @@ def arg_parse(program, description, version):
     arg_parser.add_argument('--comment-start', '--comment_start',
                             type=str,
                             help="Comment marker start (default: use marker set)")
-    arg_parser.add_argument('--comment-end','--comment_end',
+    arg_parser.add_argument('--comment-end', '--comment_end',
                             type=str,
                             help="Comment marker end (default: use marker set)"),
     arg_parser.add_argument('--config-start',
@@ -93,7 +95,7 @@ def arg_parse(program, description, version):
                             )
     arg_parser.add_argument('-S', '--stacktrace',
                             action='store_true',
-                        help='Include stack trace in error file / show stack trace'
+                            help='Include stack trace in error file / show stack trace'
                             )
     arg_parser.add_argument('-c', '--config',
                             type=str,
@@ -169,6 +171,14 @@ def configure(args):
 
     validate(instance=config, schema=CONFIG_SCHEMAS['configfile'], format_checker=draft4_format_checker)
 
+    config['colors'] = {}
+    config['colors']['bright_red'] = "" if config['no_color'] else BRIGHT_RED
+    config['colors']['green'] = "" if config['no_color'] else GREEN
+    config['colors']['lightgreen'] = "" if config['no_color'] else LIGHTGREEN
+    config['colors']['white'] = "" if config['no_color'] else WHITE
+    config['colors']['yellow'] = "" if config['no_color'] else YELLOW
+    config['colors']['reset_all'] = "" if config['no_color'] else RESET_ALL
+
     return config
 
 
@@ -201,10 +211,6 @@ def run(config):
     recursive = config['recursive']
     extension = config['extension']
 
-    # initialize colors
-    bright_red, green, lightgreen, white, yellow, reset_all = ("",)*6 if config['no_color'] else \
-        (BRIGHT_RED, GREEN, LIGHTGREEN, WHITE, YELLOW, RESET_ALL)
-
     env_whitelist = config['env_whitelist'] if config['env_whitelist'] else os.environ
     env_blacklist = config['env_blacklist'] if config['env_blacklist'] else []
     j2vars = templates.get_vars(config, whitelist=env_whitelist, blacklist=env_blacklist)
@@ -219,36 +225,35 @@ def run(config):
             filename = re.sub(r'{}$'.format(extension), '', j2file)
 
             if directory != old_directory:
-                stdout('\n{}In: {}{}\n'.format(green, white, directory))
+                display(config, '\n${{green}}In: ${{white}}{}\n'.format(directory))
 
-            stdout('    {}rendering: {}{:35}{} => '.format(green, white, basename(j2file), green))
-
+            display(config, '    ${{green}}rendering: ${{white}}{:35}${{green}} => '.format(basename(j2file)))
             try:
                 content = templates.render(config, j2file, j2vars)
-                status = lightgreen + 'success' + reset_all
+                status = '${lightgreen}success'
             except Exception as err:
                 exit_code = 1
                 content = str(err)
                 filename += '.err'
-                status = bright_red + content + reset_all
+                status = '${bright_red}' + content
 
                 if config['stacktrace']:
                     content += "\n\n%s" % traceback.format_exc()
 
-            stdout('{}{:7} => writing: {}{:25}{} => '.format(status, green, white, basename(filename), green))
+            display(config, '{:7}${{green}} => writing: ${{white}}{:25}${{green}} => '.format(status, basename(filename)))
 
             if config['noop']:
-                stdout('{}skipped{}\n'.format(yellow, reset_all))
+                display(config, '${yellow}skipped${reset_all}\n')
             else:
                 write_file(filename, content)
 
                 if config['copy_file_permissions']:
                     copy_file_permissions(j2file, filename)
 
-                stdout('{}success{}\n'.format(lightgreen, reset_all))
+                display(config, '${green}success${reset_all}\n')
 
         except Exception as err:
-            stdout('{}failed{} ({})\n'.format(bright_red, reset_all, str(err)))
+            display(config, '${{bright_red}}failed${{reset_all}} ({})\n'.format(str(err)))
             exit_code = 1
         finally:
             sys.stdout.flush()
@@ -258,42 +263,40 @@ def run(config):
 
     if config['run']:
         command = ' '.join(config['run'])
-        stdout('\n{0}Running:\n    command: {1}{2} {0} => {1}'.format(green, reset_all, command))
+        display(config, '\n${{green}}Running:\n    command: ${{reset_all}}{} ${{green}} => ${{reset_all}}'.format(command))
 
         if exit_code == 0:
             try:
                 result = subprocess.check_output(config['run'], stderr=subprocess.STDOUT)
-                stdout('{} done{}\n'.format(lightgreen, reset_all))
-                stdout('{}Output:{}\n'.format(green, reset_all))
-                stdout(result.decode() + '\n')
+                display(config, '${lightgreen} done${reset_all}\n')
+                display(config, '${green}Output:${reset_all}\n')
+                display(config, result.decode() + '\n')
             except CalledProcessError as error:
-                stdout('{} failed{}\n\n'.format(bright_red, reset_all))
-                # FIXME only works on python > 3.4
+                display(config, '${bright_red} failed${reset_all}\n\n')
                 if hasattr(error, 'stdout'):
-                    stdout('{}Output:{}\n'.format(bright_red, reset_all))
-                    stdout(error.stdout.decode() + '\n')
+                    display(config, '${bright_red}Output:${reset_all}\n')
+                    display(config, error.stdout.decode() + '\n')
                 exit_code = 1
         else:
-            stdout('{} skipped{}\n'.format(yellow, reset_all))
+            display(config, '${yellow} skipped${reset_all}\n')
 
     return exit_code
 
 
 def watch_run(config):
-    bright_red, reset_all = ('', '') if config['no_color'] else (BRIGHT_RED, RESET_ALL)
     noop = config['noop']
     config['noop'] = True
-    stdout('Changes detected, testing templates:\n')
+    display(config, 'Changes detected, testing templates:\n')
     exit_code = run(config)
 
     if exit_code == 1:
-        stdout('{}Test run failed, no changes applied{}'.format(bright_red, reset_all))
+        display(config, '${bright_red}Test run failed, no changes applied${reset_all}')
         return exit_code
 
     if noop:
         return exit_code
 
-    stdout('\nApplying changes:\n')
+    display(config, '\nApplying changes:\n')
     config['noop'] = False
     exit_code = run(config)
     return exit_code
@@ -304,13 +307,12 @@ def watch(config):
     first_run = True
     cfg = config.copy()
     cfg['run'] = []
-    bright_red, reset_all = ('', '') if config['no_color'] else (BRIGHT_RED, RESET_ALL)
 
     while True:
         try:
             env_data = get_vars(config, config['watchlist'], [])
         except KeyError as err:
-            stdout('{}ERROR unknown key {} in watchlist{}\n'.format(bright_red, str(err), reset_all))
+            display(config, '${{bright_red}}ERROR unknown key {} in watchlist${{reset_all}}\n'.format(str(err)))
             break
         if old_env_data == env_data:
             try:
@@ -332,15 +334,16 @@ def watch(config):
 def e2j2():
     exit_code = 0
     args = arg_parse('e2j2', DESCRIPTION, VERSION)
+    config = {'no_color': False}
     try:
         config = configure(args)
     except Exception as err:
-        stdout('E2J2 configuration error: %s' % str(err))
+        display(config, 'E2J2 configuration error: %s' % str(err))
 
         if args.stacktrace:
-            stdout(traceback.format_exc())
+            display(config, traceback.format_exc())
 
-        stdout('\n')
+        display(config, '\n')
         exit_code = 1
         return exit_code
     if config['watchlist']:

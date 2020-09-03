@@ -9,9 +9,9 @@ from jinja2.exceptions import UndefinedError, FilterArgumentError, TemplateSynta
 from jsonschema import validate, ValidationError, draft4_format_checker
 from json.decoder import JSONDecodeError
 from e2j2.exceptions import E2j2Exception
-from e2j2.constants import RESET_ALL, YELLOW, CONFIG_SCHEMAS, TAGS, NESTED_TAGS, MARKER_SETS
+from e2j2.constants import CONFIG_SCHEMAS, TAGS, NESTED_TAGS, MARKER_SETS
 from e2j2.tags import base64_tag, consul_tag, file_tag, json_tag, jsonfile_tag, list_tag, vault_tag, dns_tag, escape_tag
-from e2j2 import cache
+from e2j2.display import display
 
 try:
     from jinja2_ansible_filters import AnsibleCoreFiltersExtension
@@ -31,23 +31,6 @@ def recursive_iter(obj, keys=()):
         yield keys, obj
 
 
-def stdout(msg):
-    print_at = cache.print_at
-    increment = cache.increment
-    counter = cache.log_repeat_log_msg_counter
-
-    if cache.last_log_line != msg:
-        sys.stdout.write(msg)
-        cache.log_repeat_log_msg_counter = 0
-    elif counter == print_at:
-        sys.stdout.write('({}x) '.format(print_at) + msg)
-        cache.print_at += increment
-        cache.log_repeat_log_msg_counter = 0
-
-    cache.log_repeat_log_msg_counter += 1
-    cache.last_log_line = msg
-
-
 def find(searchlist, j2file_ext, recurse=False):
     if recurse:
         return [os.path.realpath(os.path.join(dirpath, j2file)) for searchlist_item in searchlist
@@ -65,9 +48,6 @@ def get_vars(config, whitelist, blacklist):
 
 
 def resolv_vars(config, var_list, env_vars):
-    # initialize colors
-    yellow, reset_all = ("", "") if config['no_color'] else (YELLOW, RESET_ALL)
-
     varcontext = {}
     for var in var_list:
         var_value = env_vars[var]
@@ -84,7 +64,7 @@ def resolv_vars(config, var_list, env_vars):
                         varcontext[key] = value
 
         except E2j2Exception as e:
-            stdout(yellow + "** WARNING: parsing {} failed with error: {} **".format(var, str(e)) + reset_all + '\n')
+            display(config, "${{yellow}}** WARNING: parsing {} failed with error: {} **${{reset_all}}\n".format(var, str(e)))
     return varcontext
 
 
@@ -125,7 +105,7 @@ def parse_tag(config, tag, value):
             validate(instance=tag_config, schema=CONFIG_SCHEMAS[tag], format_checker=draft4_format_checker)
         except ValidationError:
             if config['stacktrace']:
-                stdout(traceback.format_exc())
+                display(config, traceback.format_exc())
 
             raise E2j2Exception('config validation failed')
 

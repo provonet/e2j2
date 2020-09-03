@@ -1,5 +1,5 @@
 import unittest
-from mock import patch, MagicMock, call
+from mock import patch, MagicMock
 from callee import Contains
 from e2j2 import templates
 from e2j2.exceptions import E2j2Exception
@@ -61,9 +61,9 @@ class TestTemplates(unittest.TestCase):
 
         with patch('e2j2.templates.detect_markers', return_value=markers):
             with patch('e2j2.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
-                with patch('e2j2.templates.stdout') as stdout_mock:
+                with patch('e2j2.templates.display') as display_mock:
                     templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "value"}'})
-                    stdout_mock.assert_called_with(Contains('foobar error'))
+                    display_mock.assert_called_with(config, Contains('foobar error'))
 
             # test normal rendering
             self.assertEqual(
@@ -78,9 +78,9 @@ class TestTemplates(unittest.TestCase):
 
             # test string with nested file tag raising an error
             with patch('e2j2.templates.file_tag.parse', side_effect=E2j2Exception('IOError raised while reading file: /foobar.txt')):
-                with patch('e2j2.templates.stdout') as stdout_mock:
+                with patch('e2j2.templates.display') as display_mock:
                     templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'})
-                    stdout_mock.assert_called_with(Contains('failed to resolve nested tag'))
+                    display_mock.assert_called_with(config, Contains('failed to resolve nested tag'))
 
             # test with string value
             self.assertEqual(
@@ -273,14 +273,14 @@ class TestTemplates(unittest.TestCase):
             dns_mock.assert_called_with({}, 'www.foo.bar')
 
         # schema validation error including stacktrace
-        with patch('e2j2.templates.cache') as cache_mock:
-            with patch('e2j2.templates.stdout') as stdout_mock:
+        with patch('e2j2.display.cache') as cache_mock:
+            with patch('e2j2.templates.display') as display_mock:
                 cache_mock.config = {'stacktrace': True}
                 try:
                     templates.parse_tag(config, 'vault:', 'config={"invalid": "foobar"}:secret/mysecret')
                 except E2j2Exception as error:
                     self.assertEqual(str(error), 'config validation failed')
-                    stdout_mock.assert_called_with(Contains('Traceback'))
+                    display_mock.assert_called_with(config, Contains('Traceback'))
 
         # invalid json in config
         try:
@@ -291,25 +291,6 @@ class TestTemplates(unittest.TestCase):
         # unknown tag
         self.assertEqual(templates.parse_tag(config, 'unknown:', 'foobar'),
                          (None, '** ERROR: tag: unknown: not implemented **'))
-
-    def test_stdout(self):
-        with patch('e2j2.templates.sys.stdout.write') as stdout_mock:
-            templates.stdout('logline')
-            stdout_mock.assert_called_with('logline')
-
-        with patch('e2j2.templates.sys.stdout.write') as stdout_mock:
-            with patch('e2j2.templates.cache') as cache_mock:
-                cache_mock.log_repeat_log_msg_counter = 1
-                cache_mock.print_at = 2
-                cache_mock.increment = 2
-                templates.stdout('logline')  # show
-                templates.stdout('logline')
-                templates.stdout('logline')  # show
-                templates.stdout('logline')
-                templates.stdout('logline')
-                templates.stdout('logline')
-                templates.stdout('logline')  # show
-                stdout_mock.assert_has_calls([call('logline'), call('(2x) logline'), call('(4x) logline')])
 
     def test_detect_markers(self):
         config = {'marker_set': '{{', 'block_start': None, 'block_end': None, 'variable_start': None,
