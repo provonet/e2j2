@@ -7,6 +7,10 @@ Changed
 -------
 - reworked terminal color handling
 
+Breaking change:
+----------------
+python 3.5.x is no longer supported!
+
 0.6.2 (2020-09-01)
 ------------------
 
