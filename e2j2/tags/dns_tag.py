@@ -17,8 +17,12 @@ def parse(tag_config, value):
             if rdtype in ['A', 'AAAA']:
                 return_value = {'address': reply.address}
             elif rdtype == 'SRV':
-                return_value = {'target': str(reply.target), 'port': reply.port, 'weight': reply.weight,
-                                'priority': reply.priority}
+                return_value = {
+                    'target': str(reply.target),
+                    'port': reply.port,
+                    'weight': reply.weight,
+                    'priority': reply.priority,
+                }
 
             return_values.append(return_value)
 

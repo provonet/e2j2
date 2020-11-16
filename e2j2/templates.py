@@ -15,6 +15,7 @@ from e2j2.display import display
 
 try:
     from jinja2_ansible_filters import AnsibleCoreFiltersExtension
+
     j2_extensions = [AnsibleCoreFiltersExtension]
 except ImportError:
     j2_extensions = []
@@ -33,12 +34,20 @@ def recursive_iter(obj, keys=()):
 
 def find(searchlist, j2file_ext, recurse=False):
     if recurse:
-        return [os.path.realpath(os.path.join(dirpath, j2file)) for searchlist_item in searchlist
-                for dirpath, dirnames, files in os.walk(searchlist_item, followlinks=True)
-                for j2file in files if j2file.endswith(j2file_ext)]
+        return [
+            os.path.realpath(os.path.join(dirpath, j2file))
+            for searchlist_item in searchlist
+            for dirpath, dirnames, files in os.walk(searchlist_item, followlinks=True)
+            for j2file in files
+            if j2file.endswith(j2file_ext)
+        ]
     else:
-        return [os.path.realpath(os.path.join(searchlist_item, j2file)) for searchlist_item in searchlist
-                for j2file in os.listdir(searchlist_item) if j2file.endswith(j2file_ext)]
+        return [
+            os.path.realpath(os.path.join(searchlist_item, j2file))
+            for searchlist_item in searchlist
+            for j2file in os.listdir(searchlist_item)
+            if j2file.endswith(j2file_ext)
+        ]
 
 
 def get_vars(config, whitelist, blacklist):
@@ -64,7 +73,9 @@ def resolv_vars(config, var_list, env_vars):
                         varcontext[key] = value
 
         except E2j2Exception as e:
-            display(config, "${{yellow}}** WARNING: parsing {} failed with error: {} **${{reset_all}}\n".format(var, str(e)))
+            display(
+                config, "${{yellow}}** WARNING: parsing {} failed with error: {} **${{reset_all}}\n".format(var, str(e))
+            )
     return varcontext
 
 
@@ -89,7 +100,10 @@ def parse_tag(config, tag, value):
                 config_str = config_str.lstrip(markers['config_start'])
                 tag_config.update(json.loads('{%s}' % config_str))
             elif value_with_config:
-                raise E2j2Exception("invalid config markers used, please place the config between the markers '%s' and '%s'" % (markers['config_start'], markers['config_end']))
+                raise E2j2Exception(
+                    "invalid config markers used, please place the config between the markers '%s' and '%s'"
+                    % (markers['config_start'], markers['config_end'])
+                )
 
             if token_var in envvars:
                 tag_config['token'] = tag_config['token'] if 'token' in tag_config else envvars[token_var]
@@ -147,7 +161,8 @@ def render(config, j2file, j2vars):
         loader=jinja2.FileSystemLoader([path or './', '/']),
         undefined=jinja2.StrictUndefined,
         keep_trailing_newline=True,
-        extensions=j2_extensions)
+        extensions=j2_extensions,
+    )
 
     try:
         with open(j2file, 'r') as file:
@@ -208,5 +223,6 @@ def detect_markers(config, content):
         'comment_start': config['comment_start'] if config['comment_start'] else marker_set['comment_start'],
         'comment_end': config['comment_end'] if config['comment_end'] else marker_set['comment_end'],
         'config_start': config['config_start'] if config['config_start'] else marker_set['config_start'],
-        'config_end': config['config_end'] if config['config_end'] else marker_set['config_end']}
+        'config_end': config['config_end'] if config['config_end'] else marker_set['config_end'],
+    }
     return markers

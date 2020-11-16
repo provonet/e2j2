@@ -13,7 +13,7 @@ markers = {
     'comment_start': '{#',
     'comment_end': '#}',
     'config_start': '{',
-    'config_end': '}'
+    'config_end': '}',
 }
 
 
@@ -51,7 +51,8 @@ class TestTemplates(unittest.TestCase):
             with patch('e2j2.templates.os') as os_mock:
                 os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}
                 self.assertEqual(
-                    templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}})
+                    templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=[]), {'FOO_ENV': {'key': 'value'}}
+                )
 
                 # whitelist / blacklist
                 self.assertEqual(templates.get_vars(config, whitelist=['FOO_ENV'], blacklist=['FOO_ENV']), {})
@@ -67,40 +68,71 @@ class TestTemplates(unittest.TestCase):
 
             # test normal rendering
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'base64:dmFsdWU='}})
+                templates.resolv_vars(
+                    config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}
+                ),
+                {'FOO_ENV': {'key': 'base64:dmFsdWU='}},
+            )
 
             # test Nested vars
             config['nested_tags'] = True
 
             # test string with nested base64 tag
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}), {'FOO_ENV': {'key': 'value'}})
+                templates.resolv_vars(
+                    config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "base64:dmFsdWU="}'}
+                ),
+                {'FOO_ENV': {'key': 'value'}},
+            )
 
             # test string with nested file tag raising an error
-            with patch('e2j2.templates.file_tag.parse', side_effect=E2j2Exception('IOError raised while reading file: /foobar.txt')):
+            with patch(
+                'e2j2.templates.file_tag.parse',
+                side_effect=E2j2Exception('IOError raised while reading file: /foobar.txt'),
+            ):
                 with patch('e2j2.templates.display') as display_mock:
-                    templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'})
+                    templates.resolv_vars(
+                        config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'}
+                    )
                     display_mock.assert_called_with(config, Contains('failed to resolve nested tag'))
 
             # test with string value
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "value"}'}), {'FOO_ENV': {'key': 'value'}})
+                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "value"}'}),
+                {'FOO_ENV': {'key': 'value'}},
+            )
 
             # test with boolean value
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": true}'}), {'FOO_ENV': {'key': True}})
+                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": true}'}),
+                {'FOO_ENV': {'key': True}},
+            )
 
             # test with integer value
             self.assertEqual(
-                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": 1}'}), {'FOO_ENV': {'key': 1}})
+                templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": 1}'}),
+                {'FOO_ENV': {'key': 1}},
+            )
 
             # test with config flatten=True return value from call should return a dict with a foobar key
             self.assertTrue(
-                'foobar' in templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:config={"flatten": true}:{"foobar": "foobar_value"}'}))
+                'foobar'
+                in templates.resolv_vars(
+                    config,
+                    var_list=['FOO_ENV'],
+                    env_vars={'FOO_ENV': 'json:config={"flatten": true}:{"foobar": "foobar_value"}'},
+                )
+            )
 
             # test with config flatten=False return value from call should not have a foobar key
             self.assertTrue(
-                'foobar' not in templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:config={"flatten": false}:{"foobar": "foobar_value"}'}))
+                'foobar'
+                not in templates.resolv_vars(
+                    config,
+                    var_list=['FOO_ENV'],
+                    env_vars={'FOO_ENV': 'json:config={"flatten": false}:{"foobar": "foobar_value"}'},
+                )
+            )
 
     def test_render(self):
         config = {'no_color': True, 'twopass': False}
@@ -164,7 +196,14 @@ class TestTemplates(unittest.TestCase):
                         _ = templates.render(config=config, j2file='/foo/file1.j2', j2vars={"FOO": "BAR"})
 
     def test_parse_tag(self):
-        config = {'stacktrace': True, 'no_color': True, 'twopass': True, 'marker_set': '{{', 'autodetect_marker_set': False, 'nested_tags': False}
+        config = {
+            'stacktrace': True,
+            'no_color': True,
+            'twopass': True,
+            'marker_set': '{{',
+            'autodetect_marker_set': False,
+            'nested_tags': False,
+        }
         config.update(markers)
 
         with patch('e2j2.templates.json_tag.parse') as json_mock:
@@ -202,7 +241,9 @@ class TestTemplates(unittest.TestCase):
 
         # with config
         with patch('e2j2.templates.json_tag.parse') as json_mock:
-            templates.parse_tag(config, 'json:', 'json:config={"flatten": true}:{"key": {"nested": "flattened json example"}}')
+            templates.parse_tag(
+                config, 'json:', 'json:config={"flatten": true}:{"key": {"nested": "flattened json example"}}'
+            )
             json_mock.assert_called_with('{"key": {"nested": "flattened json example"}}')
 
         # with config and alternative marker [, ]
@@ -226,7 +267,9 @@ class TestTemplates(unittest.TestCase):
         config['config_start'] = '<'
         config['config_end'] = '>'
         with patch('e2j2.templates.vault_tag.parse') as vault_mock:
-            templates.parse_tag(config, 'vault:', 'config=<"url": "https://localhost:8200", "token": "aabbccddee">:secret/mysecret')
+            templates.parse_tag(
+                config, 'vault:', 'config=<"url": "https://localhost:8200", "token": "aabbccddee">:secret/mysecret'
+            )
             vault_mock.assert_called_with({"url": "https://localhost:8200", "token": "aabbccddee"}, 'secret/mysecret')
 
         # with config and alternative marker (, )
@@ -251,8 +294,9 @@ class TestTemplates(unittest.TestCase):
             os_mock.environ = {'VAULT_CONFIG': '{"url": "https://localhost:8200"}', 'VAULT_TOKEN': 'aabbccddee'}
             with patch('e2j2.templates.vault_tag.parse') as vault_mock:
                 templates.parse_tag(config, 'vault:', 'secret/mysecret')
-                vault_mock.assert_called_with({'url': 'https://localhost:8200', 'token': 'aabbccddee'},
-                                              'secret/mysecret')
+                vault_mock.assert_called_with(
+                    {'url': 'https://localhost:8200', 'token': 'aabbccddee'}, 'secret/mysecret'
+                )
 
         config['twopass'] = False
         config['marker_set'] = '{{'
@@ -260,8 +304,14 @@ class TestTemplates(unittest.TestCase):
         config['config_end'] = None
         with patch('e2j2.templates.file_tag.parse', return_value='aabbccddee') as file_mock:
             with patch('e2j2.templates.vault_tag.parse') as vault_mock:
-                templates.parse_tag(config, 'vault:', 'config={"url": "https://localhost:8200", "token": "file:/tmp/myfile"}:secret/mysecret')
-                vault_mock.assert_called_with({'url': 'https://localhost:8200', 'token': 'aabbccddee'}, 'secret/mysecret')
+                templates.parse_tag(
+                    config,
+                    'vault:',
+                    'config={"url": "https://localhost:8200", "token": "file:/tmp/myfile"}:secret/mysecret',
+                )
+                vault_mock.assert_called_with(
+                    {'url': 'https://localhost:8200', 'token': 'aabbccddee'}, 'secret/mysecret'
+                )
 
         with patch('e2j2.templates.dns_tag.parse') as dns_mock:
             templates.parse_tag(config, 'dns:', 'config={"type": "MX"}:mx.foo.bar')
@@ -289,19 +339,37 @@ class TestTemplates(unittest.TestCase):
             self.assertEqual(str(error), 'decoding JSON failed')
 
         # unknown tag
-        self.assertEqual(templates.parse_tag(config, 'unknown:', 'foobar'),
-                         (None, '** ERROR: tag: unknown: not implemented **'))
+        self.assertEqual(
+            templates.parse_tag(config, 'unknown:', 'foobar'), (None, '** ERROR: tag: unknown: not implemented **')
+        )
 
     def test_detect_markers(self):
-        config = {'marker_set': '{{', 'block_start': None, 'block_end': None, 'variable_start': None,
-                  'variable_end': None, 'comment_start': None, 'comment_end': None, 'config_start': None,
-                  'config_end': None, 'autodetect_marker_set': True}
+        config = {
+            'marker_set': '{{',
+            'block_start': None,
+            'block_end': None,
+            'variable_start': None,
+            'variable_end': None,
+            'comment_start': None,
+            'comment_end': None,
+            'config_start': None,
+            'config_end': None,
+            'autodetect_marker_set': True,
+        }
 
         config_overwrite = config.copy()
         config_overwrite.update(markers)
 
-        expected_response = {'block_start': '{%', 'block_end': '%}', 'variable_start': '{{', 'variable_end': '}}',
-                    'comment_start': '{#', 'comment_end': '#}', 'config_start': '{', 'config_end': '}'}
+        expected_response = {
+            'block_start': '{%',
+            'block_end': '%}',
+            'variable_start': '{{',
+            'variable_end': '}}',
+            'comment_start': '{#',
+            'comment_end': '#}',
+            'config_start': '{',
+            'config_end': '}',
+        }
 
         # autodetect off
         config['autodetect_marker_set'] = False
@@ -314,15 +382,31 @@ class TestTemplates(unittest.TestCase):
         # autodetect on / overwrite
         self.assertEqual(templates.detect_markers(config_overwrite, '(==)'), expected_response)
 
-        expected_response = {'block_start': '[%', 'block_end': '%]', 'variable_start': '[=', 'variable_end': '=]',
-                    'comment_start': '[#', 'comment_end': '#]', 'config_start': '[', 'config_end': ']'}
+        expected_response = {
+            'block_start': '[%',
+            'block_end': '%]',
+            'variable_start': '[=',
+            'variable_end': '=]',
+            'comment_start': '[#',
+            'comment_end': '#]',
+            'config_start': '[',
+            'config_end': ']',
+        }
 
         # autodetect on / config marker
         response = templates.detect_markers(config, 'vault:config=["url:", "http://foo.bar"]:secret')
         self.assertEqual(expected_response, response)
 
-        expected_response = {'block_start': '(%', 'block_end': '%)', 'variable_start': '(=', 'variable_end': '=)',
-                    'comment_start': '(#', 'comment_end': '#)', 'config_start': '(', 'config_end': ')'}
+        expected_response = {
+            'block_start': '(%',
+            'block_end': '%)',
+            'variable_start': '(=',
+            'variable_end': '=)',
+            'comment_start': '(#',
+            'comment_end': '#)',
+            'config_start': '(',
+            'config_end': ')',
+        }
 
         # autodetect on
         response = templates.detect_markers(config, '(==)')

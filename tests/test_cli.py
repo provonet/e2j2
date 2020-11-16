@@ -91,14 +91,14 @@ class TestCli(unittest.TestCase):
         # with file_list
         self.assertEqual(
             cli.get_files(filelist=['file1.j2', 'file2.j2'], searchlist=None, extension=None, recurse=None),
-            ['file1.j2', 'file2.j2']
+            ['file1.j2', 'file2.j2'],
         )
 
         # without filelist
         with patch('e2j2.templates.find', return_value=['file1.j2', 'file2.j2']):
             self.assertEqual(
                 cli.get_files(filelist=None, searchlist='/foo/bar', extension='.j2', recurse=None),
-                ['file1.j2', 'file2.j2']
+                ['file1.j2', 'file2.j2'],
             )
 
     def test_write_file(self):
@@ -158,7 +158,7 @@ class TestCli(unittest.TestCase):
                 with patch('e2j2.cli.get_vars', return_value={"FOO": "BAR"}):
                     with patch('e2j2.cli.Thread') as thread_mock:
                         cli.watch(config)
-                        thread_mock.assert_called_with(target=cli.watch_run, args=(config, ))
+                        thread_mock.assert_called_with(target=cli.watch_run, args=(config,))
 
                 # key error raised
                 with patch('e2j2.cli.get_vars', side_effect=KeyError('FOO')):
@@ -296,8 +296,9 @@ class TestCli(unittest.TestCase):
                     with patch('e2j2.templates.render', side_effect=['file1 content']):
                         with patch('e2j2.cli.write_file'):
                             with patch('e2j2.cli.subprocess.check_output') as subprocess_mock:
-                                subprocess_mock.side_effect = CalledProcessError(cmd='./foobar.sh', returncode=1,
-                                                                                 output=b'error in foobar.sh')
+                                subprocess_mock.side_effect = CalledProcessError(
+                                    cmd='./foobar.sh', returncode=1, output=b'error in foobar.sh'
+                                )
                                 exit_code = cli.run(config)
                                 self.assertEqual(exit_code, 1)
 

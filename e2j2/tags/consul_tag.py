@@ -41,7 +41,9 @@ def parse(tag_config, value):
     try:
         kv_entries = consul_kv.get(recurse=True, key=consul_key)
     except ACLPermissionDenied:
-        raise E2j2Exception('access denied connecting to: {}://{}:{} **'.format(consul_kv.scheme, consul_kv.host, consul_kv.port))
+        raise E2j2Exception(
+            'access denied connecting to: {}://{}:{} **'.format(consul_kv.scheme, consul_kv.host, consul_kv.port)
+        )
     except AssertionError as err:
         raise E2j2Exception(err)
 
@@ -57,7 +59,7 @@ def parse(tag_config, value):
             value = value.replace('"', '\\"')  # escape double quotes
             value = value.replace('\n', '\\n')  # escape newlines
             if '/' in entry['Key']:
-                key = '{"' + entry['Key'].replace('/', '":{"') + '": "' + value + '"}'.ljust(len(subkeys)+1, '}')
+                key = '{"' + entry['Key'].replace('/', '":{"') + '": "' + value + '"}'.ljust(len(subkeys) + 1, '}')
                 consul_dict = consul_merger.merge(consul_dict, json.loads(key))
             else:
                 consul_dict[entry['Key']] = value

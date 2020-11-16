@@ -9,8 +9,8 @@ from e2j2.tags import list_tag as list_tag
 from e2j2.exceptions import E2j2Exception
 from json.decoder import JSONDecodeError
 
+
 class TestParsers(unittest.TestCase):
-    
     def setUp(self):
         pass
 
@@ -76,13 +76,13 @@ class TestParsers(unittest.TestCase):
             get_mock.assert_called_with(key='foo/bar', recurse=False)
 
         # permission denied
-        consul_kv.get = MagicMock(side_effect = ACLPermissionDenied)
+        consul_kv.get = MagicMock(side_effect=ACLPermissionDenied)
         with patch('e2j2.tags.consul_tag.ConsulKV', return_value=consul_kv):
             with self.assertRaisesRegex(E2j2Exception, '^access denied connecting to:'):
                 consul_tag.parse(config, 'foo/bar')
 
         # permission denied
-        consul_kv.get = MagicMock(side_effect = AssertionError('FOOBAR error'))
+        consul_kv.get = MagicMock(side_effect=AssertionError('FOOBAR error'))
         with patch('e2j2.tags.consul_tag.ConsulKV', return_value=consul_kv):
             with self.assertRaisesRegex(E2j2Exception, 'FOOBAR error'):
                 consul_tag.parse(config, 'foo/bar')
@@ -129,7 +129,7 @@ class TestParsers(unittest.TestCase):
             'data': {'foo': 'bar'},
             'wrap_info': None,
             'warnings': None,
-            'auth': None
+            'auth': None,
         }
 
         raw_response_v2 = {
@@ -138,19 +138,17 @@ class TestParsers(unittest.TestCase):
             'renewable': False,
             'lease_duration': 0,
             'data': {
-                'data': {
-                    'foo': 'bar'
-                },
+                'data': {'foo': 'bar'},
                 'metadata': {
                     'created_time': '2019-07-19T10:26:12.09232044Z',
                     'deletion_time': '',
                     'destroyed': False,
-                    'version': 1
-                }
+                    'version': 1,
+                },
             },
             'wrap_info': None,
             'warnings': None,
-            'auth': None
+            'auth': None,
         }
 
         config = {'url': 'https://localhost', 'token': 'aabbccddee'}
@@ -289,8 +287,10 @@ class TestParsers(unittest.TestCase):
         reply.port = 123
         resolver.query = MagicMock(return_value=[reply])
         with patch('e2j2.tags.dns_tag.Resolver', return_value=resolver):
-            self.assertEqual(dns_tag.parse({'type': 'SRV'}, 'srv.foo.bar'),
-                             [{'target': 'srv1.foo.bar', 'priority': 1, 'weight': 1, 'port': 123}])
+            self.assertEqual(
+                dns_tag.parse({'type': 'SRV'}, 'srv.foo.bar'),
+                [{'target': 'srv1.foo.bar', 'priority': 1, 'weight': 1, 'port': 123}],
+            )
 
         # raise NXDOMAIN
         reply = Reply()

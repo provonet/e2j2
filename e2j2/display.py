@@ -4,7 +4,6 @@ from e2j2 import cache
 from e2j2.constants import BRIGHT_RED, GREEN, LIGHTGREEN, YELLOW, WHITE, RESET_ALL
 
 
-
 def stdout(msg):
     print_at = cache.print_at
     increment = cache.increment
@@ -25,5 +24,13 @@ def stdout(msg):
 def display(config, text):
     colors = config['colors']
     template = Template(text)
-    stdout(template.substitute(bright_red=colors['bright_red'], green=colors['green'], lightgreen=colors['lightgreen'], white=colors['white'], yellow=colors['yellow'],
-                               reset_all=colors['reset_all']))
+    stdout(
+        template.substitute(
+            bright_red=colors['bright_red'],
+            green=colors['green'],
+            lightgreen=colors['lightgreen'],
+            white=colors['white'],
+            yellow=colors['yellow'],
+            reset_all=colors['reset_all'],
+        )
+    )

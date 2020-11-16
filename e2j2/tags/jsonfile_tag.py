@@ -11,6 +11,6 @@ def parse(json_file):
         # Mark as failed
         raise E2j2Exception('IOError raised while reading file')
     except JSONDecodeError:
-        raise E2j2Exception ('invalid JSON')
+        raise E2j2Exception('invalid JSON')
 
     return data

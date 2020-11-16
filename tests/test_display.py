@@ -6,7 +6,7 @@ from e2j2 import display
 class TestDsiplay(unittest.TestCase):
     def setUp(self):
         pass
-    
+
     def test_stdout(self):
         with patch('e2j2.display.sys.stdout.write') as stdout_mock:
             display.stdout('logline')
@@ -27,16 +27,10 @@ class TestDsiplay(unittest.TestCase):
                 stdout_mock.assert_has_calls([call('logline'), call('(2x) logline'), call('(4x) logline')])
 
     def test_display(self):
-        config = {'no_color': True,
-                  'colors': {
-                    'bright_red': '',
-                    'green': '',
-                    'lightgreen': '',
-                    'white': '',
-                    'yellow': '',
-                    'reset_all': ''
-                    }
-                  }
+        config = {
+            'no_color': True,
+            'colors': {'bright_red': '', 'green': '', 'lightgreen': '', 'white': '', 'yellow': '', 'reset_all': ''},
+        }
 
         with patch('e2j2.display.stdout') as stdout_mock:
             display.display(config, 'foobar')

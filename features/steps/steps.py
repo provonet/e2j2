@@ -14,7 +14,7 @@ FNULL = open(os.devnull, 'w')
 @step('an installed {} module')
 def pip_modules(context, module_name):
     installed_modules = [p.project_name for p in pkg_resources.working_set]
-    assert_that(module_name , is_in(installed_modules))
+    assert_that(module_name, is_in(installed_modules))
 
 
 @step('I set the environment {} variable to {}')
@@ -33,7 +33,7 @@ def write_template(context, template_file):
 
 @step('I render the template with e2j2')
 def render_template(context):
-    proc=subprocess.Popen(['e2j2', '-f', context.template_file], stderr=FNULL, stdout=FNULL)
+    proc = subprocess.Popen(['e2j2', '-f', context.template_file], stderr=FNULL, stdout=FNULL)
     proc.wait()
 
 
@@ -42,7 +42,7 @@ def render_template(context):
 def render_template(context, flags):
     flag_list = ['e2j2', '-f', context.template_file]
     flag_list.extend(flags.split(' '))
-    proc=subprocess.Popen(flag_list, stderr=FNULL, stdout=FNULL)
+    proc = subprocess.Popen(flag_list, stderr=FNULL, stdout=FNULL)
     proc.wait()
 
 
