@@ -21,6 +21,3 @@ examples/watch
 .coverage
 .envrc
 .direnv
-
-.envrc
-.direnv
