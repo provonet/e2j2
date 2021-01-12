@@ -3,6 +3,10 @@ Changelog
 0.7.0 (unreleased)
 ------------------
 
+Fixed
+-----
+- fixed '{=' marker set
+
 Changed
 -------
 - reworked terminal color handling
