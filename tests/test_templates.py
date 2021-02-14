@@ -62,9 +62,9 @@ class TestTemplates(unittest.TestCase):
 
         with patch('e2j2.templates.detect_markers', return_value=markers):
             with patch('e2j2.templates.parse_tag', side_effect=E2j2Exception('foobar error')):
-                with patch('e2j2.templates.display') as display_mock:
+                with patch('e2j2.templates.write') as display_mock:
                     templates.resolv_vars(config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "value"}'})
-                    display_mock.assert_called_with(config, Contains('foobar error'))
+                    display_mock.assert_called_with(Contains('foobar error'))
 
             # test normal rendering
             self.assertEqual(
@@ -90,11 +90,11 @@ class TestTemplates(unittest.TestCase):
                 'e2j2.templates.file_tag.parse',
                 side_effect=E2j2Exception('IOError raised while reading file: /foobar.txt'),
             ):
-                with patch('e2j2.templates.display') as display_mock:
+                with patch('e2j2.templates.write') as display_mock:
                     templates.resolv_vars(
                         config, var_list=['FOO_ENV'], env_vars={'FOO_ENV': 'json:{"key": "file:/foobar.txt"}'}
                     )
-                    display_mock.assert_called_with(config, Contains('failed to resolve nested tag'))
+                    display_mock.assert_called_with(Contains('failed to resolve nested tag'))
 
             # test with string value
             self.assertEqual(
@@ -324,13 +324,13 @@ class TestTemplates(unittest.TestCase):
 
         # schema validation error including stacktrace
         with patch('e2j2.display.cache') as cache_mock:
-            with patch('e2j2.templates.display') as display_mock:
+            with patch('e2j2.templates.write') as display_mock:
                 cache_mock.config = {'stacktrace': True}
                 try:
                     templates.parse_tag(config, 'vault:', 'config={"invalid": "foobar"}:secret/mysecret')
                 except E2j2Exception as error:
                     self.assertEqual(str(error), 'config validation failed')
-                    display_mock.assert_called_with(config, Contains('Traceback'))
+                    display_mock.assert_called_with(Contains('Traceback'))
 
         # invalid json in config
         try:

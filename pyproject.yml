@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 120
+target-version = ['py38']
+exclude = "(stages|cicd)"
+skip-string-normalization = true
+
+[tool.pytest.ini_options]
+filterwarnings = [
+  "ignore:the imp module is deprecated in favour of importlib:DeprecationWarning",
+]
+
+[tool.pylint.format]
+max-line-length = "120"
+

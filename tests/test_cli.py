@@ -137,11 +137,11 @@ class TestCli(unittest.TestCase):
         open_mock = mock_open()
         # Handle IO error
         open_mock.side_effect = IOError('IOError')
-        with patch('e2j2.display.stdout') as stdout_mock:
+        with patch('e2j2.display.write') as display_mock:
             with patch('e2j2.cli.open', open_mock):
                 with self.assertRaisesRegex(IOError, 'IOError'):
                     _ = cli.configure(args)
-                    stdout_mock.assert_called_with('E2J2 configuration error: IOError')
+                    display_mock.assert_called_with('E2J2 configuration error: IOError')
 
         args.initial_run = True
         args.watchlist = None
@@ -154,7 +154,7 @@ class TestCli(unittest.TestCase):
         config = {'watchlist': ['foo'], 'no_color': True, 'splay': 0, 'run': [], 'initial_run': False}
         # with change
         with patch('e2j2.cli.sleep', side_effect=KeyboardInterrupt):
-            with patch('e2j2.cli.display') as stdout_mock:
+            with patch('e2j2.cli.write') as display_mock:
                 with patch('e2j2.cli.get_vars', return_value={"FOO": "BAR"}):
                     with patch('e2j2.cli.Thread') as thread_mock:
                         cli.watch(config)
@@ -163,12 +163,12 @@ class TestCli(unittest.TestCase):
                 # key error raised
                 with patch('e2j2.cli.get_vars', side_effect=KeyError('FOO')):
                     cli.watch(config)
-                    stdout_mock.assert_called_with(config, Contains("unknown key 'FOO'"))
+                    display_mock.assert_called_with(Contains("unknown key 'FOO'"))
 
     def test_watch_run(self):
         config = {'no_color': True, 'noop': False}
 
-        with patch('e2j2.cli.display'):
+        with patch('e2j2.cli.write'):
             # normal run
 
             with patch('e2j2.cli.run', side_effect=[0, 0]) as run_mock:
@@ -198,16 +198,16 @@ class TestCli(unittest.TestCase):
         with patch('e2j2.cli.get_files', return_value=['/foo/file1.j2']):
             with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                 with patch('e2j2.templates.render', side_effect=['content1']):
-                    with patch('e2j2.cli.display') as display_mock:
+                    with patch('e2j2.cli.write') as display_mock:
                         exit_code = cli.run(config)
                         self.assertEqual(0, exit_code)
-                        display_mock.assert_called_with(config, '${yellow}skipped${reset_all}\n')
+                        display_mock.assert_called_with('skipped\n')
 
         args.noop = False
 
         # normal run
         config = cli.configure(args)
-        with patch('e2j2.cli.display'):
+        with patch('e2j2.cli.write'):
             with patch('e2j2.cli.get_files', return_value=['/foo/file1.j2']):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.templates.render', side_effect=['file1 content']):
@@ -219,7 +219,7 @@ class TestCli(unittest.TestCase):
         # normal run with filelist flag set
         args.filelist = '/foo/file1.j2'
         config = cli.configure(args)
-        with patch('e2j2.cli.display'):
+        with patch('e2j2.cli.write'):
             with patch('e2j2.templates.render', side_effect=['file1 content']):
                 with patch('e2j2.cli.write_file') as write_mock:
                     exit_code = cli.run(config)
@@ -229,7 +229,7 @@ class TestCli(unittest.TestCase):
 
         # normal run with two files
         config = cli.configure(args)
-        with patch('e2j2.cli.display'):
+        with patch('e2j2.cli.write'):
             with patch('e2j2.cli.get_files', return_value=['/foo/file2.j2', '/bar/file3.j2']):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo', 'bar']):
                     with patch('e2j2.templates.render', side_effect=['file2 content', 'file3 content']):
@@ -244,16 +244,16 @@ class TestCli(unittest.TestCase):
             with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                 with patch('e2j2.templates.render', side_effect=['file4 content']):
                     with patch('e2j2.cli.write_file') as write_mock:
-                        with patch('e2j2.cli.display') as display_mock:
+                        with patch('e2j2.cli.write') as display_mock:
                             write_mock.side_effect = IOError()
                             exit_code = cli.run(config)
                             self.assertEqual(exit_code, 1)
-                            display_mock.assert_called_with(config, '${bright_red}failed${reset_all} ()\n')
+                            display_mock.assert_called_with('failed ()\n')
 
         # KeyError raised including stacktrace
         args.stacktrace = True
         config = cli.configure(args)
-        with patch('e2j2.cli.display'):
+        with patch('e2j2.cli.write'):
             with patch('e2j2.cli.get_files', return_value=['/foo/file1.j2']):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.templates.render') as render_mock:
@@ -267,7 +267,7 @@ class TestCli(unittest.TestCase):
         # set permissions
         args.copy_file_permissions = True
         config = cli.configure(args)
-        with patch('e2j2.cli.display'):
+        with patch('e2j2.cli.write'):
             with patch('e2j2.cli.get_files', return_value=['/foo/file1.j2']):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.templates.render', side_effect=['file1 content']):
@@ -280,7 +280,7 @@ class TestCli(unittest.TestCase):
         # run command
         args.run = ['/foobar.sh']
         config = cli.configure(args)
-        with patch('e2j2.cli.display'):
+        with patch('e2j2.cli.write'):
             with patch('e2j2.cli.get_files', return_value=['/foo/file1.j2']):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.templates.render', side_effect=['file1 content']):
@@ -303,7 +303,7 @@ class TestCli(unittest.TestCase):
                                 self.assertEqual(exit_code, 1)
 
         # run skipped due to rendering error
-        with patch('e2j2.display.stdout') as stdout_mock:
+        with patch('e2j2.cli.write') as display_mock:
             with patch('e2j2.cli.get_files', return_value=['/foo/file1.j2']):
                 with patch('e2j2.cli.os.path.dirname', side_effect=['foo']):
                     with patch('e2j2.templates.render', side_effect=['file1 content']):
@@ -313,7 +313,7 @@ class TestCli(unittest.TestCase):
                                 exit_code = cli.run(config)
                                 self.assertEqual(exit_code, 1)
                                 self.assertEqual(subprocess_mock.call_count, 0)
-                                stdout_mock.assert_called_with(Contains('skipped'))
+                                display_mock.assert_called_with(Contains('skipped'))
         args.run = None
 
     def test_e2j2(self):
@@ -324,10 +324,10 @@ class TestCli(unittest.TestCase):
         config = {'no_color': False}
         with patch('e2j2.cli.arg_parse', return_value=args):
             with patch('e2j2.cli.configure', side_effect=IOError('config.json not found')):
-                with patch('e2j2.cli.display') as display_mock:
+                with patch('e2j2.cli.write') as display_mock:
                     error_code = cli.e2j2()
-                    display_mock.assert_any_call(config, 'E2J2 configuration error: config.json not found')
-                    display_mock.assert_any_call(config, Contains('Traceback'))
+                    display_mock.assert_any_call('E2J2 configuration error: config.json not found')
+                    display_mock.assert_any_call(Contains('Traceback'))
                     self.assertEqual(1, error_code)
 
         # test exit_codes from calling run()
