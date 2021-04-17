@@ -22,6 +22,7 @@ from e2j2.tags import (
     escape_tag,
 )
 from e2j2.display import write, get_colors
+from e2j2.config import Settings
 
 try:
     from jinja2_ansible_filters import AnsibleCoreFiltersExtension
@@ -29,6 +30,9 @@ try:
     j2_extensions = [AnsibleCoreFiltersExtension]
 except ImportError:
     j2_extensions = []
+
+
+settings = Settings()
 
 
 def recursive_iter(obj, keys=()):
@@ -60,13 +64,13 @@ def find(searchlist, j2file_ext, recurse=False):
         ]
 
 
-def get_vars(config, whitelist, blacklist):
+def get_vars(whitelist, blacklist):
     env_list = [entry for entry in whitelist if entry not in blacklist]
     env_vars = os.environ
-    return resolv_vars(config, env_list, env_vars)
+    return resolv_vars(env_list, env_vars)
 
 
-def resolv_vars(config, var_list, env_vars):
+def resolv_vars(var_list, env_vars):
     colors = get_colors()
     varcontext = {}
     for var in var_list:
@@ -78,7 +82,7 @@ def resolv_vars(config, var_list, env_vars):
             if not defined_tag:
                 varcontext[var] = var_value
             else:
-                tag_config, tag_value = parse_tag(config, defined_tag, var_value)
+                tag_config, tag_value = parse_tag(defined_tag, var_value)
                 varcontext[var] = tag_value
 
                 if (
@@ -96,7 +100,7 @@ def resolv_vars(config, var_list, env_vars):
     return varcontext
 
 
-def parse_tag(config, tag, value):
+def parse_tag(tag, value):
     tag_config = {}
     value = re.sub(r"^{}".format(tag), "", value).strip()
     if tag in CONFIG_SCHEMAS:
@@ -109,7 +113,7 @@ def parse_tag(config, tag, value):
             pattern = re.compile(r"config=(.+)")
             match = pattern.match(value)
 
-            markers = detect_markers(config, value)
+            markers = detect_markers(value)
             value_with_config = (
                 match.group(1).split(markers["config_end"] + ":")
                 if pattern.match(value)
@@ -145,7 +149,7 @@ def parse_tag(config, tag, value):
                 format_checker=draft4_format_checker,
             )
         except ValidationError:
-            if config["stacktrace"]:
+            if settings.stacktrace:
                 write(traceback.format_exc())
 
             raise E2j2Exception("config validation failed")
@@ -171,14 +175,14 @@ def parse_tag(config, tag, value):
     else:
         return None, "** ERROR: tag: %s not implemented **" % tag
 
-    if config["nested_tags"] and tag in NESTED_TAGS:
+    if settings.nested_tags and tag in NESTED_TAGS:
         try:
             for keys, item in recursive_iter(tag_value):
                 if isinstance(item, str):
                     dpath_util.set(
                         tag_value,
                         list(keys),
-                        resolv_vars(config, ["item"], {"item": item})["item"],
+                        resolv_vars(["item"], {"item": item})["item"],
                     )
         except Exception:
             raise E2j2Exception("failed to resolve nested tag")
@@ -186,7 +190,7 @@ def parse_tag(config, tag, value):
     return tag_config, tag_value
 
 
-def render(config, j2file, j2vars):
+def render(j2file, j2vars):
     path, filename = os.path.split(j2file)
     j2 = jinja2.Environment(
         loader=jinja2.FileSystemLoader([path or "./", "/"]),
@@ -199,7 +203,7 @@ def render(config, j2file, j2vars):
         with open(j2file, "r") as file:
             content = file.read()
 
-        markers = detect_markers(config, content)
+        markers = detect_markers(content)
         j2.block_start_string = markers["block_start"]
         j2.block_end_string = markers["block_end"]
         j2.variable_start_string = markers["variable_start"]
@@ -208,9 +212,9 @@ def render(config, j2file, j2vars):
         j2.comment_end_string = markers["comment_end"]
         first_pass = j2.from_string(content).render(j2vars)
 
-        if config["twopass"]:
+        if settings.twopass:
             # second pass
-            markers = detect_markers(config, first_pass)
+            markers = detect_markers(first_pass)
             j2.block_start_string = markers["block_start"]
             j2.block_end_string = markers["block_end"]
             j2.variable_start_string = markers["variable_start"]
@@ -233,10 +237,10 @@ def render(config, j2file, j2vars):
         raise E2j2Exception(str(err))
 
 
-def detect_markers(config, content):
-    marker_set = MARKER_SETS[config["marker_set"]]
+def detect_markers(content):
+    marker_set = MARKER_SETS[settings.marker_set]
 
-    if config["autodetect_marker_set"]:
+    if settings.autodetect_marker_set:
         config_marker = True if "config=" in content else False
         for key, value in MARKER_SETS.items():
             if config_marker:
@@ -250,29 +254,29 @@ def detect_markers(config, content):
                     marker_set = MARKER_SETS[key]
 
     markers = {
-        "block_start": config["block_start"]
-        if config["block_start"]
+        "block_start": settings.block_start
+        if settings.block_start
         else marker_set["block_start"],
-        "block_end": config["block_end"]
-        if config["block_end"]
+        "block_end": settings.block_end
+        if settings.block_end
         else marker_set["block_end"],
-        "variable_start": config["variable_start"]
-        if config["variable_start"]
+        "variable_start": settings.variable_start
+        if settings.variable_start
         else marker_set["variable_start"],
-        "variable_end": config["variable_end"]
-        if config["variable_end"]
+        "variable_end": settings.variable_end
+        if settings.variable_end
         else marker_set["variable_end"],
-        "comment_start": config["comment_start"]
-        if config["comment_start"]
+        "comment_start": settings.comment_start
+        if settings.comment_start
         else marker_set["comment_start"],
-        "comment_end": config["comment_end"]
-        if config["comment_end"]
+        "comment_end": settings.comment_end
+        if settings.comment_end
         else marker_set["comment_end"],
-        "config_start": config["config_start"]
-        if config["config_start"]
+        "config_start": settings.config_start
+        if settings.config_start
         else marker_set["config_start"],
-        "config_end": config["config_end"]
-        if config["config_end"]
+        "config_end": settings.config_end
+        if settings.config_end
         else marker_set["config_end"],
     }
     return markers

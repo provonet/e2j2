@@ -13,7 +13,7 @@ class TestDsiplay(unittest.TestCase):
             stdout_mock.assert_called_with('logline')
 
         with patch('e2j2.display.sys.stdout.write') as stdout_mock:
-            with patch('e2j2.display.cache') as cache_mock:
+            with patch('e2j2.display._cache') as cache_mock:
                 cache_mock.log_repeat_log_msg_counter = 1
                 cache_mock.print_at = 2
                 cache_mock.increment = 2

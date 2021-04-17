@@ -323,7 +323,7 @@ class TestTemplates(unittest.TestCase):
             dns_mock.assert_called_with({}, 'www.foo.bar')
 
         # schema validation error including stacktrace
-        with patch('e2j2.display.cache') as cache_mock:
+        with patch('e2j2.display._cache') as cache_mock:
             with patch('e2j2.templates.write') as display_mock:
                 cache_mock.config = {'stacktrace': True}
                 try:

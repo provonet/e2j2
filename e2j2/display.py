@@ -1,6 +1,5 @@
 import sys
 from string import Template
-from e2j2 import cache
 
 BRIGHT_RED = "\033[1;31m"
 RESET_ALL = "\033[00m"
@@ -8,6 +7,13 @@ YELLOW = "\033[93m"
 GREEN = "\033[0;32m"
 LIGHTGREEN = "\033[1;32m"
 WHITE = "\033[0;37m"
+
+
+class Cache:
+    last_log_line = ''
+    log_repeat_log_msg_counter = 1
+    print_at = 5
+    increment = 5
 
 
 class Colorize:
@@ -20,10 +26,15 @@ class Colorize:
 
 
 _colors = Colorize()
+_cache = Cache()
 
 
 def get_colors():
     return _colors
+
+
+def get_cache():
+    return  _cache
 
 
 def colorize():
@@ -43,6 +54,7 @@ def no_colors():
 
 
 def write(msg):
+    cache = get_cache()
     print_at = cache.print_at
     increment = cache.increment
     counter = cache.log_repeat_log_msg_counter

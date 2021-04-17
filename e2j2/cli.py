@@ -3,25 +3,24 @@ import re
 import argparse
 import os
 import traceback
-import json
 import subprocess
 from random import uniform as random_uniform
 from subprocess import CalledProcessError
 from threading import Thread
 from time import sleep
-from jsonschema import validate, draft4_format_checker
 from os.path import basename
 from stat import ST_MODE
 from e2j2 import templates
 from e2j2.templates import get_vars
 from e2j2.constants import DESCRIPTION, VERSION
-from e2j2.constants import CONFIG_SCHEMAS
-from e2j2.exceptions import E2j2Exception
+from e2j2.config import Settings, load_config, load_args
 from e2j2.display import (
     no_colors,
     write,
     get_colors,
 )
+
+settings = Settings()
 
 
 def arg_parse(program, description, version):
@@ -31,9 +30,8 @@ def arg_parse(program, description, version):
     )
     arg_parser.add_argument(
         "-e",
-        "--ext",
         "--extension",
-        default=".j2",
+        "--ext",
         type=str,
         help="Jinja2 file extension",
     )
@@ -196,111 +194,6 @@ def arg_parse(program, description, version):
     return args
 
 
-def configure(args):
-    config = {}
-    if args.config:
-        with open(args.config, "r") as fh:
-            config = json.load(fh)
-
-    config["extension"] = args.ext if args.ext else config.get("extension", ".j2")
-    config["filelist"] = (
-        args.filelist.split(",") if args.filelist else config.get("filelist", [])
-    )
-    env_searchlist = os.environ.get("E2J2_SEARCHLIST", ".").split(",")
-    config["searchlist"] = (
-        args.searchlist.split(",")
-        if args.searchlist
-        else config.get("searchlist", env_searchlist)
-    )
-    config["recursive"] = (
-        args.recursive if args.recursive else config.get("recursive", False)
-    )
-    config["no_color"] = (
-        args.no_color if args.no_color else config.get("no_color", False)
-    )
-    config["twopass"] = args.twopass if args.twopass else config.get("twopass", False)
-    config["nested_tags"] = (
-        args.nested_tags if args.nested_tags else config.get("nested_tags", False)
-    )
-    config["stacktrace"] = (
-        args.stacktrace if args.stacktrace else config.get("stacktrace", False)
-    )
-    config["initial_run"] = (
-        args.initial_run if args.initial_run else config.get("initial_run", False)
-    )
-    config["copy_file_permissions"] = (
-        args.copy_file_permissions
-        if args.copy_file_permissions
-        else config.get("copy_file_permissions", False)
-    )
-
-    config["marker_set"] = (
-        args.marker_set if args.marker_set else config.get("marker_set", "{{")
-    )
-    config["autodetect_marker_set"] = (
-        args.autodetect_marker_set
-        if args.autodetect_marker_set
-        else config.get("autodetect_marker_set", False)
-    )
-    config["block_start"] = (
-        args.block_start if args.block_start else config.get("block_start", None)
-    )
-    config["block_end"] = (
-        args.block_end if args.block_end else config.get("block_end", None)
-    )
-    config["variable_start"] = (
-        args.variable_start
-        if args.variable_start
-        else config.get("variable_start", None)
-    )
-    config["variable_end"] = (
-        args.variable_end if args.variable_end else config.get("variable_end", None)
-    )
-    config["comment_start"] = (
-        args.comment_start if args.comment_start else config.get("comment_start", None)
-    )
-    config["comment_end"] = (
-        args.comment_end if args.comment_end else config.get("comment_end", None)
-    )
-    config["config_start"] = (
-        args.comment_start if args.comment_start else config.get("config_start", None)
-    )
-    config["config_end"] = (
-        args.comment_end if args.comment_end else config.get("config_end", None)
-    )
-
-    config["env_whitelist"] = (
-        args.env_whitelist.split(",")
-        if args.env_whitelist
-        else config.get("env_whitelist", [])
-    )
-    config["env_blacklist"] = (
-        args.env_blacklist.split(",")
-        if args.env_blacklist
-        else config.get("env_blacklist", [])
-    )
-    config["watchlist"] = (
-        args.watchlist.split(",") if args.watchlist else config.get("watchlist", [])
-    )
-    config["splay"] = args.splay if args.watchlist else config.get("splay", 0)
-    config["run"] = args.run if args.run else config.get("run", [])
-    config["noop"] = args.noop
-
-    if config["initial_run"] and (not config["watchlist"] or not config["run"]):
-        raise E2j2Exception("the following arguments are required: watchlist, run")
-
-    validate(
-        instance=config,
-        schema=CONFIG_SCHEMAS["configfile"],
-        format_checker=draft4_format_checker,
-    )
-
-    if config["no_color"]:
-        no_colors()
-
-    return config
-
-
 def get_files(**kwargs):
     if kwargs["filelist"]:
         return kwargs["filelist"]
@@ -327,24 +220,22 @@ def write_file(filename, content):
         fh.writelines(content)
 
 
-def run(config):
+def run():
     colors = get_colors()
     exit_code = 0
-    search_list = config["searchlist"]
-    recursive = config["recursive"]
-    extension = config["extension"]
+    search_list = settings.searchlist
+    recursive = settings.recursive
+    extension = settings.extension
 
-    env_whitelist = config["env_whitelist"] if config["env_whitelist"] else os.environ
-    env_blacklist = config["env_blacklist"] if config["env_blacklist"] else []
     j2vars = templates.get_vars(
-        config, whitelist=env_whitelist, blacklist=env_blacklist
+        whitelist=settings.env_whitelist, blacklist=settings.env_blacklist
     )
     old_directory = ""
 
     j2files = get_files(
-        filelist=config["filelist"],
+        filelist=settings.filelist,
         searchlist=search_list,
-        extension=config["extension"],
+        extension=settings.extension,
         recurse=recursive,
     )
 
@@ -363,7 +254,7 @@ def run(config):
             )
 
             try:
-                content = templates.render(config, j2file, j2vars)
+                content = templates.render(j2file, j2vars)
                 status = f"{colors.green}success"
             except Exception as err:
                 exit_code = 1
@@ -371,19 +262,19 @@ def run(config):
                 filename += ".err"
                 status = f"{colors.green}content"
 
-                if config["stacktrace"]:
+                if settings.stacktrace:
                     content += "\n\n%s" % traceback.format_exc()
 
             write(
                 f"{status:7}{'':1}{colors.green}=> writing{'':1}{colors.white}{basename(filename):35}{'':1}{colors.green}=>{'':1}"
             )
 
-            if config["noop"]:
+            if settings.noop:
                 write(f"{colors.yellow}skipped{colors.reset}\n")
             else:
                 write_file(filename, content)
 
-                if config["copy_file_permissions"]:
+                if settings.copy_file_permissions:
                     copy_file_permissions(j2file, filename)
 
                 write(f"{colors.green}success{colors.reset}\n")
@@ -394,11 +285,11 @@ def run(config):
         finally:
             sys.stdout.flush()
 
-    if config["noop"]:
+    if settings.noop:
         return exit_code
 
-    if config["run"]:
-        command = " ".join(config["run"])
+    if settings.run:
+        command = " ".join(settings.run)
         write(
             f"\n{colors.green}Running:{colors.reset}\n{'':3}command:{'':1}{command}{'':1}{colors.green}=>"
         )
@@ -406,7 +297,7 @@ def run(config):
         if exit_code == 0:
             try:
                 result = subprocess.check_output(
-                    config["run"], stderr=subprocess.STDOUT
+                    settings.run, stderr=subprocess.STDOUT
                 )
                 write(f"{colors.lightgreen}{'':1}done${colors.reset}\n")
                 write(f"{colors.green}Output:{colors.reset}\n")
@@ -423,63 +314,71 @@ def run(config):
     return exit_code
 
 
-def watch_run(config):
-    colors = get_colors()
-    noop = config["noop"]
-    config["noop"] = True
-    write("Changes detected, testing templates:\n")
-    exit_code = run(config)
+# def watch_run(config):
+#     colors = get_colors()
+#     noop = config["noop"]
+#     config["noop"] = True
+#     write("Changes detected, testing templates:\n")
+#     exit_code = run(config)
+#
+#     if exit_code == 1:
+#         write(f"{colors.red}Test run failed, no changes applied${colors.reset}")
+#         return exit_code
+#
+#     if noop:
+#         return exit_code
+#
+#     write("\nApplying changes:\n")
+#     config["noop"] = False
+#     exit_code = run(config)
+#     return exit_code
 
-    if exit_code == 1:
-        write(f"{colors.red}Test run failed, no changes applied${colors.reset}")
-        return exit_code
 
-    if noop:
-        return exit_code
-
-    write("\nApplying changes:\n")
-    config["noop"] = False
-    exit_code = run(config)
-    return exit_code
-
-
-def watch(config):
-    colors = get_colors()
-    old_env_data = None
-    first_run = True
-    cfg = config.copy()
-    cfg["run"] = []
-
-    while True:
-        try:
-            env_data = get_vars(config, config["watchlist"], [])
-        except KeyError as err:
-            write(
-                f"{colors.red}ERROR unknown key {str(err)} in watchlist{colors.reset}\n"
-            )
-            break
-        if old_env_data == env_data:
-            try:
-                sleep(random_uniform(1, config["splay"]) if config["splay"] else 1)
-                continue
-            except KeyboardInterrupt:
-                break
-
-        if not config["initial_run"] and first_run:
-            thread = Thread(target=watch_run, args=(cfg,))
-        else:
-            thread = Thread(target=watch_run, args=(config,))
-        thread.start()
-
-        old_env_data = env_data.copy()
-        first_run = False
+def watch():
+    ...
+#     colors = get_colors()
+#     old_env_data = None
+#     first_run = True
+#     cfg = config.copy()
+#     cfg["run"] = []
+#
+#     while True:
+#         try:
+#             env_data = get_vars(config, config["watchlist"], [])
+#         except KeyError as err:
+#             write(
+#                 f"{colors.red}ERROR unknown key {str(err)} in watchlist{colors.reset}\n"
+#             )
+#             break
+#         if old_env_data == env_data:
+#             try:
+#                 sleep(random_uniform(1, config["splay"]) if config["splay"] else 1)
+#                 continue
+#             except KeyboardInterrupt:
+#                 break
+#
+#         if not config["initial_run"] and first_run:
+#             thread = Thread(target=watch_run, args=(cfg,))
+#         else:
+#             thread = Thread(target=watch_run, args=(config,))
+#         thread.start()
+#
+#         old_env_data = env_data.copy()
+#         first_run = False
 
 
 def e2j2():
     exit_code = 0
     args = arg_parse("e2j2", DESCRIPTION, VERSION)
     try:
-        config = configure(args)
+        if args.config:
+            load_config(args.config)
+
+        load_args(args)
+
+        if settings.no_color:
+            no_colors()
+
     except Exception as err:
         write(f"E2J2 configuration error: {str(err)}")
 
@@ -489,8 +388,8 @@ def e2j2():
         write("\n")
         exit_code = 1
         return exit_code
-    if config["watchlist"]:
-        watch(config)
+    if settings.watchlist:
+        watch()
     else:
-        exit_code = run(config)
+        exit_code = run()
     return exit_code
