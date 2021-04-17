@@ -46,7 +46,7 @@ class TestTemplates(unittest.TestCase):
         self.assertEqual(list(templates.recursive_iter(data)), [(('listofdict', 0), {'test_key', 'test_value'})])
 
     def test_get_vars(self):
-        config = {'no_color': True, 'twopass': True, 'nested_tags': False}
+        config = {'no_color': True, 'twopass': False, 'nested_tags': False}
         with patch('e2j2.templates.detect_markers', return_value=markers):
             with patch('e2j2.templates.os') as os_mock:
                 os_mock.environ = {'FOO_ENV': 'json:{"key": "value"}'}

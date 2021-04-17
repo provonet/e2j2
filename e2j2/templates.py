@@ -63,7 +63,15 @@ def find(searchlist, j2file_ext, recurse=False):
 def get_vars(config, whitelist, blacklist):
     env_list = [entry for entry in whitelist if entry not in blacklist]
     env_vars = os.environ
-    return resolv_vars(config, env_list, env_vars)
+    vars = resolv_vars(config, env_list, env_vars)
+
+    if config["twopass"]:
+        j2 = jinja2.Environment(loader=jinja2.BaseLoader())
+
+        for var in vars:
+            vars[var] = render_string(config, j2=j2, content=vars[var], j2vars=vars)
+
+    return vars
 
 
 def resolv_vars(config, var_list, env_vars):
@@ -93,6 +101,7 @@ def resolv_vars(config, var_list, env_vars):
             write(
                 f"{colors.yellow}** WARNING: parsing {var} failed with error: {str(e)} **{colors.reset}\n"
             )
+
     return varcontext
 
 
@@ -186,6 +195,17 @@ def parse_tag(config, tag, value):
     return tag_config, tag_value
 
 
+def render_string(config, j2, content, j2vars):
+    markers = detect_markers(config, content)
+    j2.block_start_string = markers["block_start"]
+    j2.block_end_string = markers["block_end"]
+    j2.variable_start_string = markers["variable_start"]
+    j2.variable_end_string = markers["variable_end"]
+    j2.comment_start_string = markers["comment_start"]
+    j2.comment_end_string = markers["comment_end"]
+    return j2.from_string(content).render(j2vars)
+
+
 def render(config, j2file, j2vars):
     path, filename = os.path.split(j2file)
     j2 = jinja2.Environment(
@@ -199,25 +219,10 @@ def render(config, j2file, j2vars):
         with open(j2file, "r") as file:
             content = file.read()
 
-        markers = detect_markers(config, content)
-        j2.block_start_string = markers["block_start"]
-        j2.block_end_string = markers["block_end"]
-        j2.variable_start_string = markers["variable_start"]
-        j2.variable_end_string = markers["variable_end"]
-        j2.comment_start_string = markers["comment_start"]
-        j2.comment_end_string = markers["comment_end"]
-        first_pass = j2.from_string(content).render(j2vars)
+        first_pass = render_string(config=config, j2=j2, content=content, j2vars=j2vars)
 
         if config["twopass"]:
-            # second pass
-            markers = detect_markers(config, first_pass)
-            j2.block_start_string = markers["block_start"]
-            j2.block_end_string = markers["block_end"]
-            j2.variable_start_string = markers["variable_start"]
-            j2.variable_end_string = markers["variable_end"]
-            j2.comment_start_string = markers["comment_start"]
-            j2.comment_end_string = markers["comment_end"]
-            return j2.from_string(first_pass).render(j2vars)
+            return render_string(config=config, j2=j2, content=first_pass, j2vars=j2vars)
         else:
             return first_pass
     except (UndefinedError, FilterArgumentError, TemplateSyntaxError) as err:
