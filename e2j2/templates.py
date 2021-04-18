@@ -61,17 +61,36 @@ def find(searchlist, j2file_ext, recurse=False):
 
 
 def get_vars(config, whitelist, blacklist):
+    colors = get_colors()
+    max_loop = 10
     env_list = [entry for entry in whitelist if entry not in blacklist]
-    env_vars = os.environ
-    vars = resolv_vars(config, env_list, env_vars)
+    env_vars = {}
+    for env in env_list:
+        env_vars[env] = os.environ.get(env)
 
-    if config["twopass"]:
+    if config["multipass"]:
         j2 = jinja2.Environment(loader=jinja2.BaseLoader())
 
-        for var in vars:
-            vars[var] = render_string(config, j2=j2, content=vars[var], j2vars=vars)
+        for var in env_list:
+            new_var = None
+            cur_var = None
+            loop_count = 0
 
-    return vars
+            while (not new_var or cur_var != new_var) and loop_count < max_loop:
+                print(f"var: {var} value: {env_vars[var]} cur_var: {cur_var} new_var: {new_var}")
+                cur_var = new_var if new_var else env_vars[var]
+                new_var = render_string(config, j2=j2, content=cur_var, j2vars=env_vars)
+                loop_count += 1
+
+            if loop_count >= max_loop:
+                write(
+                    f"{colors.red}** ERROR: loop detected in var: {var}{colors.reset}\n"
+                )
+                raise E2j2Exception(f"Loop detected in var: {var}")
+            else:
+                env_vars[var] = new_var
+
+    return resolv_vars(config, env_list, env_vars)
 
 
 def resolv_vars(config, var_list, env_vars):

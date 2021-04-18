@@ -31,6 +31,7 @@ CONFIG_SCHEMAS = {
             "recursive": {"type": "boolean"},
             "no_color": {"type": "boolean"},
             "twopass": {"type": "boolean"},
+            "multipass": {"type": "boolean"},
             "nested_tags": {"type": "boolean"},
             "noop": {"type": "boolean"},
             "test_first": {"type": "boolean"},

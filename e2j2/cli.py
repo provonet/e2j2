@@ -69,6 +69,9 @@ def arg_parse(program, description, version):
         "-2", "--twopass", action="store_true", help="Enable two pass rendering"
     )
     arg_parser.add_argument(
+        "-M", "--multipass", action="store_true", help="Enable multipass environment variable resolving"
+    )
+    arg_parser.add_argument(
         "-n",
         "--nested-tags",
         action="store_true",
@@ -219,6 +222,7 @@ def configure(args):
         args.no_color if args.no_color else config.get("no_color", False)
     )
     config["twopass"] = args.twopass if args.twopass else config.get("twopass", False)
+    config["multipass"] = args.multipass if args.multipass else config.get("multipass", False)
     config["nested_tags"] = (
         args.nested_tags if args.nested_tags else config.get("nested_tags", False)
     )
