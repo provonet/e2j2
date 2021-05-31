@@ -158,6 +158,11 @@ def arg_parse(program, description, version):
         action="store_true",
         help="Include stack trace in error file / show stack trace",
     )
+    arg_parser.add_argument(
+        "--stderr",
+        action="store_true",
+        help="Print to stderr instead of to error file"
+    )
     arg_parser.add_argument("-c", "--config", type=str, help="config file path")
     arg_parser.add_argument(
         "--watchlist",
@@ -224,6 +229,9 @@ def configure(args):
     )
     config["stacktrace"] = (
         args.stacktrace if args.stacktrace else config.get("stacktrace", False)
+    )
+    config["stderr"] = (
+        args.stderr if args.stderr else config.get("stderr", False)
     )
     config["initial_run"] = (
         args.initial_run if args.initial_run else config.get("initial_run", False)
@@ -362,10 +370,13 @@ def run(config):
                 f"{'':3}{colors.green}rendering:{'':1}{colors.white}{basename(j2file):35}{'':1}{colors.green}=>{'':1}"
             )
 
+            is_error = False
+
             try:
                 content = templates.render(config, j2file, j2vars)
                 status = f"{colors.green}success"
             except Exception as err:
+                is_error = True
                 exit_code = 1
                 content = str(err)
                 filename += ".err"
@@ -374,19 +385,22 @@ def run(config):
                 if config["stacktrace"]:
                     content += "\n\n%s" % traceback.format_exc()
 
-            write(
-                f"{status:7}{'':1}{colors.green}=> writing{'':1}{colors.white}{basename(filename):35}{'':1}{colors.green}=>{'':1}"
-            )
-
-            if config["noop"]:
-                write(f"{colors.yellow}skipped{colors.reset}\n")
+            if is_error and config["stderr"]:
+                write(f"{colors.red}failed{colors.reset}{'':1}{content}\n")
             else:
-                write_file(filename, content)
+                write(
+                    f"{status:7}{'':1}{colors.green}=> writing{'':1}{colors.white}{basename(filename):35}{'':1}{colors.green}=>{'':1}"
+                )
 
-                if config["copy_file_permissions"]:
-                    copy_file_permissions(j2file, filename)
+                if config["noop"]:
+                    write(f"{colors.yellow}skipped{colors.reset}\n")
+                else:
+                    write_file(filename, content)
 
-                write(f"{colors.green}success{colors.reset}\n")
+                    if config["copy_file_permissions"]:
+                        copy_file_permissions(j2file, filename)
+
+                    write(f"{colors.green}success{colors.reset}\n")
 
         except Exception as err:
             write(f"{colors.red}failed{colors.reset}{'':1}({str(err)})\n")

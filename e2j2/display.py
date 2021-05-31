@@ -48,10 +48,10 @@ def write(msg):
     counter = cache.log_repeat_log_msg_counter
 
     if cache.last_log_line != msg:
-        sys.stdout.write(msg)
+        sys.stderr.write(msg)
         cache.log_repeat_log_msg_counter = 0
     elif counter == print_at:
-        sys.stdout.write('({}x) '.format(print_at) + msg)
+        sys.stderr.write('({}x) '.format(print_at) + msg)
         cache.print_at += increment
         cache.log_repeat_log_msg_counter = 0
 

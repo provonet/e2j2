@@ -6,10 +6,12 @@ Changelog
 Fixed
 -----
 - fixed '{=' marker set
+- added --stderr flag to print errors to stderr instead of to .err file
 
 Changed
 -------
 - reworked terminal color handling
+- all output is sent to stderr instead of stdout (as it is debug output)
 
 Breaking change:
 ----------------
