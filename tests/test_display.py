@@ -8,11 +8,11 @@ class TestDsiplay(unittest.TestCase):
         pass
 
     def test_stdout(self):
-        with patch('e2j2.display.sys.stdout.write') as stdout_mock:
+        with patch('e2j2.display.sys.stderr.write') as stderr_mock:
             display.write('logline')
-            stdout_mock.assert_called_with('logline')
+            stderr_mock.assert_called_with('logline')
 
-        with patch('e2j2.display.sys.stdout.write') as stdout_mock:
+        with patch('e2j2.display.sys.stderr.write') as stderr_mock:
             with patch('e2j2.display.cache') as cache_mock:
                 cache_mock.log_repeat_log_msg_counter = 1
                 cache_mock.print_at = 2
@@ -24,4 +24,4 @@ class TestDsiplay(unittest.TestCase):
                 display.write('logline')
                 display.write('logline')
                 display.write('logline')  # show
-                stdout_mock.assert_has_calls([call('logline'), call('(2x) logline'), call('(4x) logline')])
+                stderr_mock.assert_has_calls([call('logline'), call('(2x) logline'), call('(4x) logline')])

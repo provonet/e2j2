@@ -34,6 +34,7 @@ class ArgumentParser:
         self.skip_render_on_undef = False
         self.marker_set = '{{'
         self.autodetect_marker_set = False
+        self.stderr = False
 
 
 class TestCli(unittest.TestCase):
