@@ -43,6 +43,7 @@ Switch                      Type                 Config key                     
 -b, --env-blacklist         comma separated list env_blacklist                           array   List of envars to exclude
 -P, --copy-file_permissions                      copy_file_permissions                   boolean Copy file permissions and ownership from template to rendered file
 -S, --stacktrace                                 stacktrace                              boolean Include stacktrace in error file
+--stderr                                                                                 boolean Print to stderr instead of to error file
 -c, --config                string                                                               Config file path
 --watchlist                 comma separated list watchlist                               array   Watch listed envvars for changes and render template(s) on change
 -R, --run                   string               run                                     array   Run command after rendering templates (command arg1, ..)
