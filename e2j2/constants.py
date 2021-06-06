@@ -36,6 +36,7 @@ CONFIG_SCHEMAS = {
             "test_first": {"type": "boolean"},
             "copy_file_permissions": {"type": "boolean"},
             "stacktrace": {"type": "boolean"},
+            "stderr": {"type": "boolean"},
             "initial_run": {"type": "boolean"},
             "marker_set": {"type": "string", "enum": ["{{", "{=", "<=", "[=", "(="]},
             "autodetect_marker_set": {"type": "boolean"},
