@@ -1,5 +1,5 @@
 mock
-unittest2
+pytest
 coveralls
 six
 behave

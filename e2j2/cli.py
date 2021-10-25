@@ -24,6 +24,10 @@ from e2j2.display import (
 )
 
 
+def repeat():
+    return True
+
+
 def arg_parse(program, description, version):
     arg_parser = argparse.ArgumentParser(prog=program, description=description)
     arg_parser.add_argument(
@@ -464,7 +468,7 @@ def watch(config):
     cfg = config.copy()
     cfg["run"] = []
 
-    while True:
+    while repeat():
         try:
             env_data = get_vars(config, config["watchlist"], [])
         except KeyError as err:

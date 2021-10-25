@@ -10,6 +10,7 @@ VAULT_STATUSCODES = {
     "500": "Internal server error",
     "503": "Sealed",
 }
+
 uri = {"type": "string", "format": "uri"}
 scheme = {"type": "string", "enum": ["http", "https"]}
 host = {"type": "string", "format": "hostname"}
@@ -108,7 +109,9 @@ TAGS = [
     "dns:",
     "escape:",
 ]
+
 NESTED_TAGS = ["json:", "jsonfile:", "list:"]
+
 MARKER_SETS = {
     "{{": {
         "block_start": "{%",
