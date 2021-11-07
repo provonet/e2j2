@@ -1,5 +1,4 @@
 import sys
-from string import Template
 from e2j2 import cache
 
 BRIGHT_RED = "\033[1;31m"
@@ -57,17 +56,3 @@ def write(msg):
 
     cache.log_repeat_log_msg_counter += 1
     cache.last_log_line = msg
-
-
-def display(text):
-    template = Template(text)
-    write(
-        template.substitute(
-            bright_red=_colors.red,
-            green=_colors.green,
-            lightgreen=_colors.lightgreen,
-            white=_colors.white,
-            yellow=_colors.yellow,
-            reset_all=_colors.reset,
-        )
-    )
