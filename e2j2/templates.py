@@ -242,12 +242,14 @@ def detect_markers(config, content):
             if config_marker:
                 if "config=" + MARKER_SETS[key]["config_start"] in content:
                     marker_set = MARKER_SETS[key]
+                    break
             else:
                 if (
                     MARKER_SETS[key]["variable_start"] in content
                     and MARKER_SETS[key]["variable_end"] in content
                 ):
                     marker_set = MARKER_SETS[key]
+                    break
 
     markers = {
         "block_start": config["block_start"]

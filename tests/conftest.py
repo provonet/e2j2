@@ -40,3 +40,29 @@ def argument_parser_class():
 @pytest.fixture
 def argument_parser():
     return ArgumentParser()
+
+
+@pytest.fixture
+def config():
+    markers = {
+        'block_start': '{%',
+        'block_end': '%}',
+        'variable_start': '{{',
+        'variable_end': '}}',
+        'comment_start': '{#',
+        'comment_end': '#}',
+        'config_start': '{',
+        'config_end': '}',
+    }
+
+    config =  {
+        'stacktrace': False,
+        'no_color': True,
+        'twopass': False,
+        'marker_set': '{{',
+        'autodetect_marker_set': False,
+        'nested_tags': False,
+    }
+
+    config.update(markers)
+    return config
