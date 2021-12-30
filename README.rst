@@ -1,6 +1,10 @@
 e2j2 [|Build Status| |Coverage Status|]
 =======================================
 
+.. note::
+   Moved to `gitlab <https://gitlab.com/solvinity/e2j2>`_
+    
+
 .. contents:: Table of contents:
 
 What is e2j2?
